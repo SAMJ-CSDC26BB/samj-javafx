@@ -11,10 +11,10 @@ import javafx.scene.text.Text; // Import the Text class
 
 import static javafx.application.Application.launch;
 
-public class LoginWindow {
+public class LoginWindow extends Application {
 
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("JavaFX Login");
+        primaryStage.setTitle("SAMJ Login");
 
         // Create the layout
         GridPane grid = new GridPane();
@@ -24,7 +24,7 @@ public class LoginWindow {
         grid.setPadding(new Insets(25, 25, 25, 25));
 
         // Create the components
-        Label userName = new Label("User Name:");
+        Label userName = new Label("User: ");
         grid.add(userName, 0, 0);
 
         TextField userTextField = new TextField();
