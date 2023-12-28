@@ -3,30 +3,47 @@ package com.samj.backend;
 import com.samj.backend.Database;
 import com.samj.backend.HttpServer;
 
+
 public class Server
 {
-    Server()
-    {
-        conn_database();
-        createHttpServer();
+    private Database db;
+    private HttpServer webServer;
+
+    Server(){
+        db = new Database();
+        webServer = new HttpServer();
     }
 
-    Database conn_database()
-    {
+    /**
+     *
+     * @param CalledNumber number incoming from tel
+     * @return maybe throws Exception in future?
+     */
+    private String checkIncomingNumber(String CalledNumber) {
+        String ForwardedNummer = "";
 
+        if(checkSyntaxNumber(CalledNumber) &&
+        checkCalledNumberExists(CalledNumber) &&
+        isForwardingActive(CalledNumber)){
+            ForwardedNummer = getForwardedNumber(CalledNumber);
+            return ForwardedNummer;
+        }
+        return "";
     }
 
-    HttpServer createHttpServer()
-    {
-
+    private boolean checkSyntaxNumber(String CalledNumber) {
+        return false;
     }
 
-    void doing(String NummerVonTelefon)
-    {
-        data = database.getCurrentData();
-        this.doesCalledNumberExist(data, NummerVonTelefon);
-            this.isForwardingActive(data, NummerVonTelefon);
-                ForwardedNummer = getForwardedNumber(NummerVonTelefon);
+    private boolean checkCalledNumberExists(String CalledNumber) {
+       return false;
     }
 
+    private boolean isForwardingActive(String CalledNumber){
+        return false;
+    }
+
+    private String getForwardedNumber(String CalledNumber){
+        return "";
+    }
 }

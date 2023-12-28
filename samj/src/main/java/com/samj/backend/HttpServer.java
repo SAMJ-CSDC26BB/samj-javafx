@@ -1,6 +1,4 @@
 package com.samj.backend;
 
-public class HttpServer
-{
-
+public class HttpServer {
 }
