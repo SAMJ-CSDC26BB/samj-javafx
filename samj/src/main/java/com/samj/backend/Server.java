@@ -3,7 +3,7 @@ package com.samj.backend;
 import com.samj.backend.Database;
 import com.samj.backend.HttpServer;
 
-
+// http://192.168.92.8:82/echo.php?called=123456
 public class Server
 {
     private Database db;
@@ -11,7 +11,7 @@ public class Server
 
     Server(){
         db = new Database();
-        webServer = new HttpServer();
+        webServer = new HttpServer(8000);
     }
 
     /**
