@@ -44,7 +44,14 @@ public class LoginWindow extends Application {
 
         // Add event handling (simple example)
         btn.setOnAction(e -> {
-            actionTarget.setText("Sign in button pressed");
+            String username = userTextField.getText();
+            String password = pwBox.getText();
+            if (username.equals("expectedUsername") && password.equals("expectedPassword")) {
+                actionTarget.setText("Login successful.");
+                // Proceed to the next view or functionality
+            } else {
+                actionTarget.setText("Login failed.");
+            }
         });
 
         Scene scene = new Scene(grid, 300, 275);
