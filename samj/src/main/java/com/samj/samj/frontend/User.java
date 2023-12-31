@@ -41,7 +41,7 @@ public class User {
     }
 
     public boolean isValidPassword(String password) {
-        if (password == null || password.length() < 5) {
+        if (password == null || password.length() < 8) {
             return false; // Check for minimum length
         }
 

@@ -1,15 +1,20 @@
 package com.samj.samj;
 
+import com.samj.samj.frontend.AuthenticationService;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.scene.text.Text; // Import the Text class
 
-import static javafx.application.Application.launch;
+import java.awt.Toolkit;
 
 public class LoginWindow extends Application {
 
@@ -22,6 +27,10 @@ public class LoginWindow extends Application {
         grid.setVgap(10);
         grid.setHgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
+
+        //Label CapsLock
+        Label capsLockLabel = new Label("Caps Lock is ON");
+        capsLockLabel.setVisible(false); // Initially hidden
 
         // Create the components
         Label userName = new Label("User: ");
@@ -37,20 +46,41 @@ public class LoginWindow extends Application {
         grid.add(pwBox, 1, 1);
 
         Button btn = new Button("Sign in");
+        btn.setDefaultButton(true);
         grid.add(btn, 1, 2);
 
         final Text actionTarget = new Text();
         grid.add(actionTarget, 1, 6);
 
+
         // Add event handling (simple example)
+        AuthenticationService authService = new AuthenticationService();
+
         btn.setOnAction(e -> {
             String username = userTextField.getText();
             String password = pwBox.getText();
-            if (username.equals("expectedUsername") && password.equals("expectedPassword")) {
+            if (authService.authenticate(username, password)) {
                 actionTarget.setText("Login successful.");
-                // Proceed to the next view or functionality
+                // Proceed to next view or functionality
             } else {
                 actionTarget.setText("Login failed.");
+            }
+        });
+
+        pwBox.setOnKeyReleased(event -> {
+            boolean isCapsOn = Toolkit.getDefaultToolkit().getLockingKeyState(java.awt.event.KeyEvent.VK_CAPS_LOCK);
+            capsLockLabel.setVisible(isCapsOn);
+        });
+
+        userTextField.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                btn.fire();
+            }
+        });
+
+        pwBox.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                btn.fire();
             }
         });
 

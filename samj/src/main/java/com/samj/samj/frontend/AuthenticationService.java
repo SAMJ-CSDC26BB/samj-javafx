@@ -14,8 +14,8 @@ public class AuthenticationService {
     private void initializeUsers() {
         // Pre-populate with some users (username, password)
         // In a real application, these should be securely hashed
-        userStore.put("admin_test", "test");
-        userStore.put("user2", "password2");
+        userStore.put("admin_test", "test1000!");
+        userStore.put("user2", "password2!");
         // Add more users as needed
     }
 

@@ -8,6 +8,7 @@ module com.samj.samj {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
+    requires java.desktop;
 
     opens com.samj.samj to javafx.fxml;
     exports com.samj.samj;
