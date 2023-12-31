@@ -25,11 +25,12 @@ public class CallForwardingRecordsDAO {
      */
     public static Set<CallForwardingDTO> loadRecords() {
         Set<CallForwardingDTO> callForwardingDTOS = new HashSet<>();
+        ResultSet resultSet = null;
 
         try (Connection connection = Database.getDbConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(LOAD_RECORDS_SQL)) {
 
-            ResultSet resultSet = preparedStatement.getResultSet();
+            resultSet = preparedStatement.getResultSet();
 
             if (resultSet == null || ! resultSet.next()) {
                 return callForwardingDTOS;
@@ -39,6 +40,8 @@ public class CallForwardingRecordsDAO {
 
         } catch (Exception e) {
             // log some message
+        } finally {
+            Database.closeResultSet(resultSet);
         }
 
         return callForwardingDTOS;
@@ -51,12 +54,13 @@ public class CallForwardingRecordsDAO {
      */
     public static Set<CallForwardingDTO> loadRecordsByCalledNumber(String calledNumber) {
         Set<CallForwardingDTO> callForwardingDTOS = new HashSet<>();
+        ResultSet resultSet = null;
 
         try (Connection connection = Database.getDbConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(LOAD_RECORDS_BY_CALLED_NUMBER_SQL)) {
 
             preparedStatement.setString(1, calledNumber);
-            ResultSet resultSet = preparedStatement.getResultSet();
+            resultSet = preparedStatement.getResultSet();
 
             if (resultSet == null || ! resultSet.next()) {
                 return callForwardingDTOS;
@@ -66,17 +70,21 @@ public class CallForwardingRecordsDAO {
 
         } catch (Exception e) {
             // log some message
+        } finally {
+            Database.closeResultSet(resultSet);
         }
 
         return callForwardingDTOS;
     }
 
-
-
-    private static void updateCallingForwardingSetFromResultSet(ResultSet resultSet, Set<CallForwardingDTO> callForwardingSet)
+    /**
+     * Helper method for updating the given callingForwardingSet using the data from the resultSet.
+     */
+    private static void updateCallingForwardingSetFromResultSet(ResultSet resultSet,
+                                                                Set<CallForwardingDTO> callingForwardingSet)
             throws SQLException {
 
-        if (resultSet == null || ! resultSet.next() || callForwardingSet == null) {
+        if (resultSet == null || ! resultSet.next() || callingForwardingSet == null) {
             return;
         }
 
@@ -87,7 +95,7 @@ public class CallForwardingRecordsDAO {
                     resultSet.getTimestamp("dateEnd").toLocalDateTime(),
                     resultSet.getString("destinationNumber"));
 
-            callForwardingSet.add(currentCallForwardingDTO);
+            callingForwardingSet.add(currentCallForwardingDTO);
         }
     }
 
