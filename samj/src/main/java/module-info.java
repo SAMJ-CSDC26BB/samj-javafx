@@ -13,5 +13,6 @@ module com.samj.samj {
     opens com.samj.samj to javafx.fxml;
     exports com.samj.samj;
     exports com.samj.backend;
+    exports com.shared;
     opens com.samj.backend to javafx.fxml;
 }
