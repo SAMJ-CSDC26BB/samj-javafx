@@ -3,6 +3,9 @@ package com.samj.samj;
 import com.samj.samj.frontend.AuthenticationService;
 import com.samj.shared.CallForwardingDTO;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -10,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -17,6 +21,7 @@ import javafx.stage.Stage;
 
 import java.awt.Toolkit;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class LoginWindow extends Application {
 
@@ -93,16 +98,20 @@ public class LoginWindow extends Application {
         primaryStage.show();
     }
 
+    /**
+     *
+     * @param primaryStage
+     */
     private void setMainSceneAfterLogin(Stage primaryStage) {
-        //StackPane mainLayout = new StackPane();
-
         TableView<CallForwardingDTO> table = new TableView<>();
 
+        // Define table columns
         TableColumn<CallForwardingDTO, String> calledNumberColumn = new TableColumn<>("Called Number");
         TableColumn<CallForwardingDTO, LocalDateTime> beginTimeColumn = new TableColumn<>("Begin time");
         TableColumn<CallForwardingDTO, LocalDateTime> endTimeColumn = new TableColumn<>("End time");
         TableColumn<CallForwardingDTO, String> destinationNumberColumn = new TableColumn<>("Destination number");
 
+        // Set up cell value factories
         calledNumberColumn.setCellValueFactory(new PropertyValueFactory<>("calledNumber"));
         beginTimeColumn.setCellValueFactory(new PropertyValueFactory<>("beginTime"));
         endTimeColumn.setCellValueFactory(new PropertyValueFactory<>("endTime"));
@@ -110,13 +119,76 @@ public class LoginWindow extends Application {
 
         table.getColumns().addAll(calledNumberColumn, beginTimeColumn, endTimeColumn, destinationNumberColumn);
 
-        VBox vbox = new VBox();
-        vbox.getChildren().addAll(table);
+        // Create search fields for each column
+        TextField searchFieldCalledNumber = new TextField();
+        TextField searchFieldBeginTime = new TextField();
+        TextField searchFieldEndTime = new TextField();
+        TextField searchFieldDestinationNumber = new TextField();
+
+        ObservableList<CallForwardingDTO> masterData = FXCollections.observableArrayList();
+        FilteredList<CallForwardingDTO> filteredData = new FilteredList<>(masterData, p -> true);
+
+        // Update predicates for each search field
+        searchFieldCalledNumber.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData, searchFieldCalledNumber, searchFieldBeginTime, searchFieldEndTime, searchFieldDestinationNumber));
+        searchFieldBeginTime.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData, searchFieldCalledNumber, searchFieldBeginTime, searchFieldEndTime, searchFieldDestinationNumber));
+        searchFieldEndTime.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData, searchFieldCalledNumber, searchFieldBeginTime, searchFieldEndTime, searchFieldDestinationNumber));
+        searchFieldDestinationNumber.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData, searchFieldCalledNumber, searchFieldBeginTime, searchFieldEndTime, searchFieldDestinationNumber));
+
+        table.setItems(filteredData);
+
+        // Sample data
+        masterData.addAll(
+                new CallForwardingDTO("22132131", LocalDateTime.now(), LocalDateTime.now(), "1231231"),
+                new CallForwardingDTO("1231", LocalDateTime.now(), LocalDateTime.now(), "3333")
+                // add more CallForwardingDTOs
+        );
+
+        // Layout setup
+        HBox searchFields = new HBox(searchFieldCalledNumber, searchFieldBeginTime, searchFieldEndTime, searchFieldDestinationNumber);
+        VBox vbox = new VBox(searchFields, table);
 
         Scene scene = new Scene(vbox);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
+    /**
+     * Helper method to update the filter predicate based on search fields
+     */
+    private void updatePredicate(FilteredList<CallForwardingDTO> filteredData,
+                                 TextField searchFieldCalledNumber,
+                                 TextField searchFieldBeginTime,
+                                 TextField searchFieldEndTime,
+                                 TextField searchFieldDestinationNumber) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        filteredData.setPredicate(callForwardingDTO -> {
+            // Check each search field for matching criteria
+            if (!searchFieldCalledNumber.getText().isEmpty()
+                    && !callForwardingDTO.getCalledNumber().toLowerCase().contains(searchFieldCalledNumber.getText().toLowerCase())) {
+                return false; // Does not match called number
+            }
+            if (!searchFieldBeginTime.getText().isEmpty()) {
+                String beginTimeString = formatter.format(callForwardingDTO.getBeginTime());
+                if (!beginTimeString.contains(searchFieldBeginTime.getText().toLowerCase())) {
+                    return false; // Does not match begin time
+                }
+            }
+            if (!searchFieldEndTime.getText().isEmpty()) {
+                String endTimeString = formatter.format(callForwardingDTO.getEndTime());
+                if (!endTimeString.contains(searchFieldEndTime.getText().toLowerCase())) {
+                    return false; // Does not match end time
+                }
+            }
+            if (!searchFieldDestinationNumber.getText().isEmpty()
+                    && !callForwardingDTO.getDestinationNumber().toLowerCase().contains(searchFieldDestinationNumber.getText().toLowerCase())) {
+                return false; // Does not match destination number
+            }
+            return true; // All criteria are matched
+        });
+    }
+
+
 
     public static void main(String[] args) {
         launch(args);
