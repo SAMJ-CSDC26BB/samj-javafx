@@ -26,10 +26,11 @@ public class MainTable {
 
     public MainTable(ObservableList<CallForwardingDTO> tableData) {
         this.tableData = tableData;
-        initializeMainTable();
+        _initializeMainTable();
+        _addClassesToTableComponents();
     }
 
-    private void initializeMainTable() {
+    private void _initializeMainTable() {
         mainTable = new TableView<>();
 
         _setMainTableColumns();
@@ -131,6 +132,18 @@ public class MainTable {
 
             return true; // All criteria are matched
         });
+    }
+
+    /**
+     * Helper method for adding classes to the table components.
+     * Will be used in CSS to design the table.
+     */
+    private void _addClassesToTableComponents() {
+        mainTable.getStyleClass().add("samj--main-table");
+        calledNumberColumn.getStyleClass().add("samj--main-table__column");
+        beginTimeColumn.getStyleClass().add("samj--main-table__column");
+        endTimeColumn.getStyleClass().add("samj--main-table__column");
+        destinationNumberColumn.getStyleClass().add("samj--main-table__column");
     }
 
     public TableView<CallForwardingDTO> getMainTable() {
