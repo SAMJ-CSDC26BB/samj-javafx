@@ -1,20 +1,22 @@
 package com.samj.samj;
 
 import com.samj.samj.frontend.AuthenticationService;
+import com.samj.shared.CallForwardingDTO;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.awt.Toolkit;
+import java.time.LocalDateTime;
 
 public class LoginWindow extends Application {
 
@@ -62,6 +64,7 @@ public class LoginWindow extends Application {
             if (authService.authenticate(username, password)) {
                 actionTarget.setText("Login successful.");
                 // Proceed to next view or functionality
+                setMainSceneAfterLogin(primaryStage);
             } else {
                 actionTarget.setText("Login failed.");
             }
@@ -87,6 +90,31 @@ public class LoginWindow extends Application {
         Scene scene = new Scene(grid, 300, 275);
         primaryStage.setScene(scene);
 
+        primaryStage.show();
+    }
+
+    private void setMainSceneAfterLogin(Stage primaryStage) {
+        //StackPane mainLayout = new StackPane();
+
+        TableView<CallForwardingDTO> table = new TableView<>();
+
+        TableColumn<CallForwardingDTO, String> calledNumberColumn = new TableColumn<>("Called Number");
+        TableColumn<CallForwardingDTO, LocalDateTime> beginTimeColumn = new TableColumn<>("Begin time");
+        TableColumn<CallForwardingDTO, LocalDateTime> endTimeColumn = new TableColumn<>("End time");
+        TableColumn<CallForwardingDTO, String> destinationNumberColumn = new TableColumn<>("Destination number");
+
+        calledNumberColumn.setCellValueFactory(new PropertyValueFactory<>("calledNumber"));
+        beginTimeColumn.setCellValueFactory(new PropertyValueFactory<>("beginTime"));
+        endTimeColumn.setCellValueFactory(new PropertyValueFactory<>("endTime"));
+        destinationNumberColumn.setCellValueFactory(new PropertyValueFactory<>("destinationNumber"));
+
+        table.getColumns().addAll(calledNumberColumn, beginTimeColumn, endTimeColumn, destinationNumberColumn);
+
+        VBox vbox = new VBox();
+        vbox.getChildren().addAll(table);
+
+        Scene scene = new Scene(vbox);
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
