@@ -18,6 +18,7 @@ import java.awt.Toolkit;
 
 public class LoginWindow extends Application {
 
+
     public void start(Stage primaryStage) {
         primaryStage.setTitle("SAMJ Login");
 
@@ -62,6 +63,7 @@ public class LoginWindow extends Application {
             if (authService.authenticate(username, password)) {
                 actionTarget.setText("Login successful.");
                 // Proceed to next view or functionality
+
             } else {
                 actionTarget.setText("Login failed.");
             }
