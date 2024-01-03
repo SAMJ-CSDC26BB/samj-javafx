@@ -1,5 +1,6 @@
 package com.samj.samj;
 
+import com.samj.backend.Server;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -54,6 +55,8 @@ public class LoginWindow extends Application {
     }
 
     public static void main(String[] args) {
-        launch(args);
+        //launch(args);
+        System.out.print("start server");
+        Server backend = new Server();
     }
 }

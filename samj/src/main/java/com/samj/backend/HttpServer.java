@@ -1,9 +1,10 @@
 package com.samj.backend;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.StringTokenizer;
 
 public class HttpServer {
 
@@ -13,13 +14,15 @@ public class HttpServer {
     public HttpServer(int port) {
         try{
             this.serverSocket = new ServerSocket(port);
+            System.out.println("HTTP Server Socket created with port " + port);
+            listener();
         }
         catch (IOException e){
+            System.out.println("error http Server construktor");
             // nachträglich hinzufügen errorhandling
         }
 
 
-        System.out.println("HTTP Server started on port " + port);
     }
     private void listener() {
         while (true) {
@@ -31,29 +34,67 @@ public class HttpServer {
 
                  // && requestLine.startsWith("GET"))
                  if (requestLine != null){
-                     System.out.println(requestLine);
+                     requestParser(clientSocket, requestLine);
                  }
 
+        }
+            catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
+                   IllegalAccessException e) {
+            }
+        }
+    }
+
+    private void sendResponse(Socket clientSocket, String response) {
+        try {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+
+            out.write("HTTP/1.1 200 OK\r\n");
+
+            // Correctly formatted headers
+            out.write("Content-Type: text/plain\r\n");
+            out.write("Content-Length: " + response.getBytes("UTF-8").length + "\r\n");
+
+            // End of headers
+            out.write("\r\n");
+
+            // Writes the response body
+            out.write(response);
+            out.flush();
+
         } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            throw new RuntimeException(e);
         }
     }
+    private void requestParser(Socket clientSocket, String request) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        //GET /forwardcheck/?number=0123456789 HTTP/1.1
+        String withoutPrefix;
+        String feature;
+        if(request.startsWith("GET"))
+        {
+            //logik muss hier noch verbessert werden, leicht zu exploiden!
+            //inkludiere check für "/" am ende!!!!
+            //curl http://localhost:8000/forwardcheck/\{number\=0123456789\;timestamp\=2023\}/
+            //curl http://localhost:8000/forwardcheck/number\=0123456789/
 
-    private void sendResponse (Socket clientSocket){
-        while (true) {
-            try
+            withoutPrefix = request.split("GET /")[1];
+            feature = withoutPrefix.split("/")[0];
+            if(Server.list_features.contains(feature))
             {
-                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                Class<?> c_server = Class.forName("com.samj.backend.Server"); //hohlt sich die Klasse in eine Variable
+                Method method = c_server.getMethod(feature, String.class); //hohlt sich die funktion aus der Klasse in eine Variable
+                Object returnValue  = method.invoke(null, withoutPrefix.split("/")[1].split("/")[0]); //führt funktion die wir gespeichert haben aus
+                sendResponse(clientSocket, (String) returnValue);
             }
-        }
-    }
+            else {
+                sendResponse(clientSocket, "NOT SUPPORTED");
+            }
 
-    private String requestparser (){
-        return "";
+
+        }
+        else{
+            sendResponse(clientSocket,"NOT SUPPORTED");
+        }
+
     }
 
 }
