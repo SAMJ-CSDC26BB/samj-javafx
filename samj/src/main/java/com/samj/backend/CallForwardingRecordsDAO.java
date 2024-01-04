@@ -20,23 +20,15 @@ public class CallForwardingRecordsDAO {
 
     public static Set<CallForwardingDTO> loadRecords() {
         Set<CallForwardingDTO> callForwardingDTOS = new HashSet<>();
-        ResultSet resultSet = null;
 
         try (Connection connection = Database.getDbConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(LOAD_RECORDS_SQL)) {
-
-            resultSet = preparedStatement.executeQuery();
-
-            if (resultSet == null || ! resultSet.next()) {
-                return callForwardingDTOS;
-            }
+             PreparedStatement preparedStatement = connection.prepareStatement(LOAD_RECORDS_SQL);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
             updateCallingForwardingSetFromResultSet(resultSet, callForwardingDTOS);
 
         } catch (Exception e) {
             // log some message
-        } finally {
-            Database.closeResultSet(resultSet);
         }
 
         return callForwardingDTOS;
@@ -45,24 +37,22 @@ public class CallForwardingRecordsDAO {
 
     public static Set<CallForwardingDTO> loadRecordsByCalledNumber(String calledNumber) {
         Set<CallForwardingDTO> callForwardingDTOS = new HashSet<>();
-        ResultSet resultSet = null;
 
         try (Connection connection = Database.getDbConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(LOAD_RECORDS_BY_CALLED_NUMBER_SQL)) {
 
             preparedStatement.setString(1, calledNumber);
-            resultSet = preparedStatement.executeQuery();
 
-            if (resultSet == null || ! resultSet.next()) {
-                return callForwardingDTOS;
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                updateCallingForwardingSetFromResultSet(resultSet, callForwardingDTOS);
+
+            } catch (Exception e) {
+                // log error
             }
-
-            updateCallingForwardingSetFromResultSet(resultSet, callForwardingDTOS);
 
         } catch (Exception e) {
             // log some message
-        } finally {
-            Database.closeResultSet(resultSet);
         }
 
         return callForwardingDTOS;
@@ -70,7 +60,6 @@ public class CallForwardingRecordsDAO {
 
     public static Set<CallForwardingDTO> loadRecordsBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
         Set<CallForwardingDTO> callForwardingDTOS = new HashSet<>();
-        ResultSet resultSet = null;
 
         try (Connection connection = Database.getDbConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(LOAD_RECORDS_BY_DATE_SQL)) {
@@ -83,18 +72,16 @@ public class CallForwardingRecordsDAO {
             preparedStatement.setTimestamp(1, startTimestamp);
             preparedStatement.setTimestamp(2, endTimestamp);
 
-            resultSet = preparedStatement.executeQuery();
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            if (resultSet == null || ! resultSet.next()) {
-                return callForwardingDTOS;
+                updateCallingForwardingSetFromResultSet(resultSet, callForwardingDTOS);
+
+            } catch (Exception e) {
+                // log error
             }
-
-            updateCallingForwardingSetFromResultSet(resultSet, callForwardingDTOS);
 
         } catch (Exception e) {
             // log some message
-        } finally {
-            Database.closeResultSet(resultSet);
         }
 
         return callForwardingDTOS;
