@@ -17,10 +17,7 @@ public class CallForwardingRecordsDAO {
     private static final String UPDATE_RECORD_SET_DATES_SQL = "UPDATE call_forwarding_records SET dateStart = ?, dateEnd = ? WHERE callednumber = ?";
     private static final String DELETE_RECORD_SQL = "DELETE FROM call_forwarding_records WHERE callednumber = ?";
 
-    /**
-     * Load all the records from the database table call_forwarding_records.
-     * @return a Set containing all the records.
-     */
+
     public static Set<CallForwardingDTO> loadRecords() {
         Set<CallForwardingDTO> callForwardingDTOS = new HashSet<>();
         ResultSet resultSet = null;
@@ -45,11 +42,7 @@ public class CallForwardingRecordsDAO {
         return callForwardingDTOS;
     }
 
-    /**
-     * Load records from the database table call_forwarding_records by the given calledNumber.
-     * @param calledNumber - search for records with this calledNumber
-     * @return Set containing the records
-     */
+
     public static Set<CallForwardingDTO> loadRecordsByCalledNumber(String calledNumber) {
         Set<CallForwardingDTO> callForwardingDTOS = new HashSet<>();
         ResultSet resultSet = null;
@@ -75,12 +68,6 @@ public class CallForwardingRecordsDAO {
         return callForwardingDTOS;
     }
 
-    /**
-     * Load records from the database table call_forwarding_records which are between the given dates.
-     * @param startDate - search for records starting from this date
-     * @param endDate - search for records ending with this date
-     * @return Set containing the records
-     */
     public static Set<CallForwardingDTO> loadRecordsBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
         Set<CallForwardingDTO> callForwardingDTOS = new HashSet<>();
         ResultSet resultSet = null;
@@ -113,6 +100,73 @@ public class CallForwardingRecordsDAO {
         return callForwardingDTOS;
     }
 
+    public static boolean addRecord (CallForwardingDTO callForwardingDTO){
+        try (Connection connection = Database.getDbConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(ADD_RECORD_SQL)){
+
+            int index = 0;
+            preparedStatement.setString(++index, callForwardingDTO.getCalledNumber());
+            preparedStatement.setTimestamp(++index,Timestamp.valueOf(callForwardingDTO.getBeginTime()));
+            preparedStatement.setTimestamp(++index,Timestamp.valueOf(callForwardingDTO.getEndTime()));
+            preparedStatement.setString(++index,callForwardingDTO.getDestinationNumber());
+
+            preparedStatement.executeUpdate();
+            return true;
+
+        } catch (Exception e) {
+            //add logger here
+        }
+        return false;
+    }
+
+    public static boolean updateDestinationNumber (String calledNumber, String destinationNumber){
+        try (Connection connection = Database.getDbConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECORD_SET_DEST_NUMBER_SQL)){
+
+            int index = 0;
+            preparedStatement.setString(++index,destinationNumber);
+            preparedStatement.setString(++index,calledNumber);
+
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (Exception e){
+            //add logger here
+        }
+        return false;
+    }
+
+    public static boolean updateDate (CallForwardingDTO callForwardingDTO){
+        try (Connection connection = Database.getDbConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECORD_SET_DATES_SQL)){
+
+            int index = 0;
+            preparedStatement.setTimestamp(++index,Timestamp.valueOf(callForwardingDTO.getBeginTime()));
+            preparedStatement.setTimestamp(++index,Timestamp.valueOf(callForwardingDTO.getEndTime()));
+            preparedStatement.setString(++index, callForwardingDTO.getCalledNumber());
+
+            preparedStatement.executeUpdate();
+            return true;
+
+        } catch (Exception e) {
+            //add logger here
+        }
+        return false;
+    }
+
+    public static boolean deleteRecord (String calledNumber){
+        try (Connection connection = Database.getDbConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_RECORD_SQL)){
+
+            preparedStatement.setString(1,calledNumber);
+
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (Exception e){
+            //add logger
+        }
+        return false;
+    }
+
     /**
      * Helper method for updating the given callingForwardingSet using the data from the resultSet.
      */
@@ -134,5 +188,6 @@ public class CallForwardingRecordsDAO {
             callingForwardingSet.add(currentCallForwardingDTO);
         }
     }
+
 
 }
