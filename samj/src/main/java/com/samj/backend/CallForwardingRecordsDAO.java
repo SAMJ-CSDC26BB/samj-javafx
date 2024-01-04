@@ -10,11 +10,11 @@ import java.util.Set;
 public class CallForwardingRecordsDAO {
 
     private static final String LOAD_RECORDS_SQL = "SELECT * FROM call_forwarding_records";
-    private static final String LOAD_RECORDS_BY_CALLED_NUMBER_SQL = "SELECT * FROM call_forwarding_records WHERE called_number=?";
-    private static final String LOAD_RECORDS_BY_DATE_SQL = "SELECT * FROM call_forwarding_records WHERE startdate >= ? AND enddate <= ?";
-    private static final String ADD_RECORD_SQL = "INSERT INTO call_forwarding_records (calledNumber, destinationNumber, dateStart, dateEnd) VALUES (?, ?, ?, ?)";
+    private static final String LOAD_RECORDS_BY_CALLED_NUMBER_SQL = "SELECT * FROM call_forwarding_records WHERE calledNumber=?";
+    private static final String LOAD_RECORDS_BY_DATE_SQL = "SELECT * FROM call_forwarding_records WHERE startDate >= ? AND endDate <= ?";
+    private static final String ADD_RECORD_SQL = "INSERT INTO call_forwarding_records (calledNumber, destinationNumber, dateStart, endDate) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_RECORD_SET_DEST_NUMBER_SQL = "UPDATE call_forwarding_records SET destinationNumber = ? WHERE calledNumber = ?";
-    private static final String UPDATE_RECORD_SET_DATES_SQL = "UPDATE call_forwarding_records SET dateStart = ?, dateEnd = ? WHERE calledNumber = ?";
+    private static final String UPDATE_RECORD_SET_DATES_SQL = "UPDATE call_forwarding_records SET startDate = ?, endDate = ? WHERE calledNumber = ?";
     private static final String DELETE_RECORD_SQL = "DELETE FROM call_forwarding_records WHERE calledNumber = ?";
 
 
