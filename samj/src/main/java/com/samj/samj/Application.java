@@ -1,23 +1,25 @@
 package com.samj.samj;
 
 import com.samj.samj.frontend.AuthenticationService;
-import javafx.application.Application;
+import com.samj.samj.frontend.MainTable;
+import com.samj.shared.CallForwardingDTO;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.awt.Toolkit;
+import java.time.LocalDateTime;
 
-public class LoginWindow extends Application {
-
+public class Application extends javafx.application.Application {
 
     public void start(Stage primaryStage) {
         primaryStage.setTitle("SAMJ Login");
@@ -53,7 +55,6 @@ public class LoginWindow extends Application {
         final Text actionTarget = new Text();
         grid.add(actionTarget, 1, 6);
 
-
         // Add event handling (simple example)
         AuthenticationService authService = new AuthenticationService();
 
@@ -63,7 +64,7 @@ public class LoginWindow extends Application {
             if (authService.authenticate(username, password)) {
                 actionTarget.setText("Login successful.");
                 // Proceed to next view or functionality
-
+                _setMainSceneAfterLogin(primaryStage);
             } else {
                 actionTarget.setText("Login failed.");
             }
@@ -90,6 +91,48 @@ public class LoginWindow extends Application {
         primaryStage.setScene(scene);
 
         primaryStage.show();
+    }
+
+    /**
+     * Method responsible for setting the scene after login. The scene contains a table with CallForwardingDTOs.
+     * @param primaryStage - the stage where the new scene is set
+     */
+    private void _setMainSceneAfterLogin(Stage primaryStage) {
+
+        ObservableList<CallForwardingDTO> tableData = _getTableData();
+        MainTable mainTable = new MainTable(tableData);
+
+        HBox tableSearchFields = new HBox(mainTable.getSearchFieldCalledNumber(),
+                mainTable.getSearchFieldBeginTime(),
+                mainTable.getSearchFieldEndTime(),
+                mainTable.getSearchFieldDestinationNumber());
+
+        // Layout setup
+        VBox vbox = new VBox(tableSearchFields, mainTable.getMainTable());
+
+        // Set scene
+        Scene scene = new Scene(vbox);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    /**
+     * Helper method for populating the main table with data from the database.
+     * TODO implement when database is ready
+     */
+    private ObservableList<CallForwardingDTO> _getTableData() {
+
+        // Original data list
+        ObservableList<CallForwardingDTO> tableData = FXCollections.observableArrayList();
+        // Add sample data to the list
+        tableData.addAll(
+                new CallForwardingDTO("22132131", LocalDateTime.now(), LocalDateTime.now(), "1231231"),
+                new CallForwardingDTO("1231", LocalDateTime.now(), LocalDateTime.now(), "3333"),
+                new CallForwardingDTO("12312", LocalDateTime.now(), LocalDateTime.now(), "3333")
+                // add more CallForwardingDTOs
+        );
+
+        return tableData;
     }
 
     public static void main(String[] args) {
