@@ -9,7 +9,6 @@ public class CallForwardingDTO {
     private LocalDateTime endTime;
     private String destinationNumber;
 
-
     // Constructor, getters, and setters
     public CallForwardingDTO(String calledNumber, LocalDateTime beginTime, LocalDateTime endTime, String destinationNumber) {
         this.calledNumber = calledNumber;
@@ -22,20 +21,20 @@ public class CallForwardingDTO {
         return calledNumber;
     }
 
-    public void setCalledNumber(String calledNumber) {
-        this.calledNumber = calledNumber;
-    }
-
     public LocalDateTime getBeginTime() {
         return beginTime;
     }
 
-    public void setBeginTime(LocalDateTime beginTime) {
-        this.beginTime = beginTime;
-    }
-
     public LocalDateTime getEndTime() {
         return endTime;
+    }
+
+    public void setCalledNumber(String calledNumber) {
+        this.calledNumber = calledNumber;
+    }
+
+    public void setBeginTime(LocalDateTime beginTime) {
+        this.beginTime = beginTime;
     }
 
     public void setEndTime(LocalDateTime endTime) {

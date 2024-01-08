@@ -8,7 +8,10 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -16,7 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.awt.Toolkit;
+import java.awt.*;
 import java.time.LocalDateTime;
 
 public class Application extends javafx.application.Application {
@@ -95,6 +98,7 @@ public class Application extends javafx.application.Application {
 
     /**
      * Method responsible for setting the scene after login. The scene contains a table with CallForwardingDTOs.
+     *
      * @param primaryStage - the stage where the new scene is set
      */
     private void _setMainSceneAfterLogin(Stage primaryStage) {
@@ -125,10 +129,11 @@ public class Application extends javafx.application.Application {
         // Original data list
         ObservableList<CallForwardingDTO> tableData = FXCollections.observableArrayList();
         // Add sample data to the list
+
         tableData.addAll(
-                new CallForwardingDTO("22132131", LocalDateTime.now(), LocalDateTime.now(), "1231231"),
-                new CallForwardingDTO("1231", LocalDateTime.now(), LocalDateTime.now(), "3333"),
-                new CallForwardingDTO("12312", LocalDateTime.now(), LocalDateTime.now(), "3333")
+                new CallForwardingDTO("22132131", LocalDateTime.now(), LocalDateTime.of(2024, 2, 1, 23,59), "1231231"),
+                new CallForwardingDTO("1231", LocalDateTime.of(2024, 2, 2, 0,0), LocalDateTime.of(2024, 2, 9, 0,0), "3333"),
+                new CallForwardingDTO("12312", LocalDateTime.of(2024, 3, 26, 12,11), LocalDateTime.of(2024, 6, 13, 8,7), "3333")
                 // add more CallForwardingDTOs
         );
 
