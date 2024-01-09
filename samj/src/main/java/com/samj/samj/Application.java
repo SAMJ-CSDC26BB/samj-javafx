@@ -1,5 +1,6 @@
 package com.samj.samj;
 
+import com.samj.backend.Server;
 import com.samj.samj.frontend.AuthenticationService;
 import com.samj.samj.frontend.MainTable;
 import com.samj.shared.CallForwardingDTO;
@@ -131,9 +132,9 @@ public class Application extends javafx.application.Application {
         // Add sample data to the list
 
         tableData.addAll(
-                new CallForwardingDTO("22132131", LocalDateTime.now(), LocalDateTime.of(2024, 2, 1, 23,59), "1231231"),
-                new CallForwardingDTO("1231", LocalDateTime.of(2024, 2, 2, 0,0), LocalDateTime.of(2024, 2, 9, 0,0), "3333"),
-                new CallForwardingDTO("12312", LocalDateTime.of(2024, 3, 26, 12,11), LocalDateTime.of(2024, 6, 13, 8,7), "3333")
+                new CallForwardingDTO("22132131", LocalDateTime.now(), LocalDateTime.of(2024, 2, 1, 23, 59), "1231231"),
+                new CallForwardingDTO("1231", LocalDateTime.of(2024, 2, 2, 0, 0), LocalDateTime.of(2024, 2, 9, 0, 0), "3333"),
+                new CallForwardingDTO("12312", LocalDateTime.of(2024, 3, 26, 12, 11), LocalDateTime.of(2024, 6, 13, 8, 7), "3333")
                 // add more CallForwardingDTOs
         );
 
@@ -141,6 +142,20 @@ public class Application extends javafx.application.Application {
     }
 
     public static void main(String[] args) {
-        launch(args);
+        // Creating the first thread for the server
+        Thread serverThread = new Thread(() -> {
+            System.out.println("start server");
+            Server backend = new Server(8000);
+            backend.start();
+        });
+
+        // Creating the second thread for the application launch
+        Thread launchThread = new Thread(() -> {
+            Application.launch(Application.class, args); // Replace MyApplication with your JavaFX Application class
+        });
+
+        // Starting both threads
+        serverThread.start();
+        launchThread.start();
     }
 }
