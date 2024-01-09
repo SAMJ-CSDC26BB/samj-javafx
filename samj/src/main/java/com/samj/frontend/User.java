@@ -1,4 +1,4 @@
-package com.samj.samj.frontend;
+package com.samj.frontend;
 
 public class User {
 

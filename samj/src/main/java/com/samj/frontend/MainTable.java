@@ -1,4 +1,4 @@
-package com.samj.samj.frontend;
+package com.samj.frontend;
 
 import com.samj.shared.CallForwardingDTO;
 import javafx.beans.property.SimpleStringProperty;

@@ -1,8 +1,8 @@
-package com.samj.samj;
+package com.samj;
 
 import com.samj.backend.Server;
-import com.samj.samj.frontend.AuthenticationService;
-import com.samj.samj.frontend.MainTable;
+import com.samj.frontend.AuthenticationService;
+import com.samj.frontend.MainTable;
 import com.samj.shared.CallForwardingDTO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

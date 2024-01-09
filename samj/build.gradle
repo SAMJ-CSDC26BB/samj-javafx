@@ -25,8 +25,8 @@ tasks.withType(JavaCompile) {
 }
 
 application {
-  mainModule = 'com.samj.samj'
-  mainClass = 'com.samj.samj.HelloApplication'
+  mainModule = 'com.samj'
+  mainClass = 'com.samj.Application'
 }
 
 javafx {

@@ -1,4 +1,4 @@
-package com.samj.samj.frontend;
+package com.samj.frontend;
 
 import java.util.HashMap;
 import java.util.Map;
