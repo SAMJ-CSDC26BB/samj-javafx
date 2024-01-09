@@ -1,26 +1,26 @@
 package com.samj.backend;
 
-import com.samj.backend.Database;
-import com.samj.backend.HttpServer;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 // http://192.168.92.8:82/echo.php?called=123456
-public class Server
-{
+public class Server {
     public static List<String> list_features = Arrays.asList("forwardcheck");
     private Database db;
+
+    private int port;
     private HttpServer webServer;
 
-    public Server(){
+    public Server(int port) {
+        this.port = port;
+    }
+
+    public void start() {
         db = new Database();
-        webServer = new HttpServer(8000);
+        webServer = new HttpServer(this.port);
     }
 
     /**
-     *
      * @param CalledNumber number incoming from tel
      * @return maybe throws Exception in future?
      */
@@ -42,14 +42,14 @@ public class Server
     }
 
     private boolean checkCalledNumberExists(String CalledNumber) {
-       return false;
-    }
-
-    private boolean isForwardingActive(String CalledNumber){
         return false;
     }
 
-    private String getForwardedNumber(String CalledNumber){
+    private boolean isForwardingActive(String CalledNumber) {
+        return false;
+    }
+
+    private String getForwardedNumber(String CalledNumber) {
         return "";
     }
 }
