@@ -1,5 +1,6 @@
 package com.samj.samj;
 
+import com.samj.backend.Server;
 import com.samj.samj.frontend.AuthenticationService;
 import com.samj.samj.frontend.MainTable;
 import com.samj.shared.CallForwardingDTO;
@@ -141,6 +142,8 @@ public class Application extends javafx.application.Application {
     }
 
     public static void main(String[] args) {
+        System.out.print("start server");
+        Server backend = new Server();
         launch(args);
     }
 }
