@@ -9,8 +9,8 @@ In the UI you can create, delete entries or modify them. In the settings you can
 
 | Telephone number | Start Time | End Time | Forward Number |
 |------------------|------------|----------|----------------|
-|        123       | 02.02.2024 00:00           | 09.02.2024 23:59         |  333333              |
-
+| 12312            | 02.02.2024 00:00 | 09.02.2024 23:59 |  333333 |
+| 1231             | 01.01.2024 13:13 | 30.01.2024 15:49 | 35256256|
 
 
 
@@ -19,6 +19,8 @@ In the UI you can create, delete entries or modify them. In the settings you can
 We merged everything we have already done to DEV. We have a GUI with dummy values, the logic is partly implemented but we did not connect it to the GUI yet. 
 
 In the User interface you can see our values, order them ascending, descending and also search/filter for entries. What needs to be done is the edit mode and settings button and also the settings scene.
+
+To start you go to the Application Class and run it (you will need the JDK version 17) then the GUI will start with a login window (we have dummy values in there you can user **user2:password2!** ) after a successful login you will see the table with our dummy values. There you test out the filters and ordering features.
 
 
 
