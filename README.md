@@ -9,7 +9,7 @@ In the UI you can create, delete entries or modify them. In the settings you can
 
 | Telephone number | Start Time | End Time | Forward Number |
 |------------------|------------|----------|----------------|
-|                  |            |          |                |
+|        123       | 02.02.2024 00:00           | 09.02.2024 23:59         |  333333              |
 
 
 
