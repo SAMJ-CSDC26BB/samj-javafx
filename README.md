@@ -7,8 +7,11 @@ This purpose of this project is to have a UI in which you can manage a Oncall Du
 
 In the UI you can create, delete entries or modify them. In the settings you can set the IP and Port of the Server. 
 
-|Telephone Number | Start Time| End Time | Forward Number|
-|----|-----|------|
+|  Telephone Number |  Start Time| End Time | Forward Number|
+|---|---|---|
+|   |   |   |
+|   |   |   |
+|   |   |   |  
 
 
 
