@@ -12,7 +12,6 @@ public class Database {
      * Load SQLite JDBC driver and return the DB connection
      */
     public static Connection getDbConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("org.sqlite.JDBC");
         return DriverManager.getConnection(DATABASE_URL);
     }
 

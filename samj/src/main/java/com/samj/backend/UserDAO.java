@@ -15,7 +15,7 @@ public class UserDAO {
 
     private static final String LOAD_USERS_SQL = "SELECT * FROM user WHERE status=?";
     private static final String LOAD_USER_BY_USERNAME_SQL = "SELECT * FROM user WHERE username=?";
-    private static final String ADD_USER_SQL = "INSERT INTO user (username, fullname, password, number, status) VALUES (?, ?, ?, ?)";
+    private static final String ADD_USER_SQL = "INSERT INTO user (username, fullname, password, number) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_USER_PASSWORD_SQL = "UPDATE user SET password = ? WHERE username = ?";
     private static final String UPDATE_USER_FULL_NAME_SQL = "UPDATE user SET fullname = ? WHERE username = ?";
     private static final String UPDATE_USER_NUMBER_SQL = "UPDATE user SET number = ? WHERE username = ?";
@@ -72,6 +72,7 @@ public class UserDAO {
 
         } catch (Exception e) {
             // log some error
+            System.out.println(e.getMessage());
         }
 
         return false;
