@@ -60,6 +60,11 @@ public class MainTable {
         mainTable.getColumns().add(destinationNumberColumn);
     }
 
+    /**
+     * Configures the cell value factories for each column in a TableView.
+     * This method binds the columns to specific properties of the CallForwardingDTO class
+     * by using the PropertyValueFactory.
+     */
     private void _setUpCellValueFactoriesForColumns() {
         calledNumberColumn.setCellValueFactory(new PropertyValueFactory<>("calledNumber"));
 
@@ -98,7 +103,7 @@ public class MainTable {
     }
 
     /**
-     * Helper method to used to allow search functionality in the table.
+     * Helper method used to allow search functionality in the table.
      */
     private void _setSearchFunctionalityForEachColumnInMainTable() {
 
@@ -107,11 +112,8 @@ public class MainTable {
 
         // Update predicates for each search field
         searchFieldCalledNumber.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
-
         searchFieldBeginTime.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
-
         searchFieldEndTime.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
-
         searchFieldDestinationNumber.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
 
         // Wrap the FilteredList in a SortedList
@@ -130,7 +132,9 @@ public class MainTable {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         filteredData.setPredicate(callForwardingDTO -> {
             // Check each search field for matching criteria
-            if (!searchFieldCalledNumber.getText().isEmpty() && !callForwardingDTO.getCalledNumber().toLowerCase().contains(searchFieldCalledNumber.getText().toLowerCase())) {
+            if (!searchFieldCalledNumber.getText().isEmpty()
+                    && !callForwardingDTO.getCalledNumber().toLowerCase().contains(searchFieldCalledNumber.getText().toLowerCase())) {
+
                 return false; // Does not match called number
             }
             if (!searchFieldBeginTime.getText().isEmpty()) {
@@ -145,7 +149,8 @@ public class MainTable {
                     return false; // Does not match end time
                 }
             }
-            if (!searchFieldDestinationNumber.getText().isEmpty() && !callForwardingDTO.getDestinationNumber().toLowerCase().contains(searchFieldDestinationNumber.getText().toLowerCase())) {
+            if (!searchFieldDestinationNumber.getText().isEmpty()
+                    && !callForwardingDTO.getDestinationNumber().toLowerCase().contains(searchFieldDestinationNumber.getText().toLowerCase())) {
                 return false; // Does not match destination number
             }
 

@@ -64,13 +64,12 @@ public class CallForwardingRecordsDAO {
         try (Connection connection = Database.getDbConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(LOAD_RECORDS_BY_DATE_SQL)) {
 
-            // convert the LocalDateTime values to timestamp
             Timestamp startTimestamp = Timestamp.valueOf(startDate);
             Timestamp endTimestamp = Timestamp.valueOf(endDate);
 
-            // update the SQL query to use the timestamps
-            preparedStatement.setTimestamp(1, startTimestamp);
-            preparedStatement.setTimestamp(2, endTimestamp);
+            int index = 0;
+            preparedStatement.setTimestamp(++index, startTimestamp);
+            preparedStatement.setTimestamp(++index, endTimestamp);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
@@ -103,6 +102,7 @@ public class CallForwardingRecordsDAO {
         } catch (Exception e) {
             //add logger here
         }
+
         return false;
     }
 
@@ -119,6 +119,7 @@ public class CallForwardingRecordsDAO {
         } catch (Exception e) {
             //add logger here
         }
+
         return false;
     }
 
@@ -137,6 +138,7 @@ public class CallForwardingRecordsDAO {
         } catch (Exception e) {
             //add logger here
         }
+
         return false;
     }
 
@@ -151,6 +153,7 @@ public class CallForwardingRecordsDAO {
         } catch (Exception e) {
             //add logger
         }
+
         return false;
     }
 
@@ -175,6 +178,5 @@ public class CallForwardingRecordsDAO {
             callingForwardingSet.add(currentCallForwardingDTO);
         }
     }
-
 
 }
