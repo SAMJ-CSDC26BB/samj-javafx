@@ -25,7 +25,7 @@ public class CallForwardingRecordsDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(LOAD_RECORDS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            updateCallingForwardingSetFromResultSet(resultSet, callForwardingDTOS);
+            _updateCallingForwardingSetFromResultSet(resultSet, callForwardingDTOS);
 
         } catch (Exception e) {
             // log some message
@@ -45,7 +45,7 @@ public class CallForwardingRecordsDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
-                updateCallingForwardingSetFromResultSet(resultSet, callForwardingDTOS);
+                _updateCallingForwardingSetFromResultSet(resultSet, callForwardingDTOS);
 
             } catch (Exception e) {
                 // log error
@@ -73,7 +73,7 @@ public class CallForwardingRecordsDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
-                updateCallingForwardingSetFromResultSet(resultSet, callForwardingDTOS);
+                _updateCallingForwardingSetFromResultSet(resultSet, callForwardingDTOS);
 
             } catch (Exception e) {
                 // log error
@@ -97,6 +97,7 @@ public class CallForwardingRecordsDAO {
             preparedStatement.setTimestamp(++index, Timestamp.valueOf(callForwardingDTO.getEndTime()));
 
             preparedStatement.executeUpdate();
+
             return true;
 
         } catch (Exception e) {
@@ -115,7 +116,9 @@ public class CallForwardingRecordsDAO {
             preparedStatement.setInt(++index, id);
 
             preparedStatement.executeUpdate();
+
             return true;
+
         } catch (Exception e) {
             //add logger here
         }
@@ -133,6 +136,7 @@ public class CallForwardingRecordsDAO {
             preparedStatement.setInt(++index, callForwardingDTO.getId());
 
             preparedStatement.executeUpdate();
+
             return true;
 
         } catch (Exception e) {
@@ -149,7 +153,9 @@ public class CallForwardingRecordsDAO {
             preparedStatement.setInt(1, id);
 
             preparedStatement.executeUpdate();
+
             return true;
+
         } catch (Exception e) {
             //add logger
         }
@@ -160,8 +166,8 @@ public class CallForwardingRecordsDAO {
     /**
      * Helper method for updating the given callingForwardingSet using the data from the resultSet.
      */
-    private static void updateCallingForwardingSetFromResultSet(ResultSet resultSet,
-                                                                Set<CallForwardingDTO> callingForwardingSet)
+    private static void _updateCallingForwardingSetFromResultSet(ResultSet resultSet,
+                                                                 Set<CallForwardingDTO> callingForwardingSet)
             throws SQLException {
 
         if (resultSet == null || !resultSet.next() || callingForwardingSet == null) {
