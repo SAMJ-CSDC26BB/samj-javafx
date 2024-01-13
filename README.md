@@ -31,10 +31,47 @@ The main purpose of the server/backend package is to manage the database, HTTP S
 
 ## Important for the review 
 
-We merged everything we have already done to DEV. We have a GUI with dummy values, the logic is partly implemented but we did not connect it to the GUI yet. 
+We merged everything we have already done to MAIN branch. We have a GUI with dummy values, the logic is partly implemented but we did not connect the server/DB to the GUI yet. 
 
-In the User interface you can see our values, order them ascending, descending and also search/filter for entries. What needs to be done is the edit mode and settings button and also the settings scene.
+### Current status: 
 
+#### Frontend
+In the User interface you can see our values, order them ascending, descending and also search/filter for values in every column. What needs to be done in the future is the edit mode and settings button and also the settings scene. (is being started in parallel via threads)
+
+#### Backend
+The backend (HTTP server) is started in parallel (threads) with the javafx application. You can test via the console and a curl command: 
+
+```bash
+# Terminal
+╭─andi@MBPvonAndiDro ~/IdeaProjects/samj-javafx/samj  ‹dev*› 
+╰─➤  curl http://localhost:8000/forwardcheck/\{number\=0123456789\;timestamp\=2023\}/
+ERROR in logic!%
+# The console Response is: ERROR in logic!% (because not implemented et)
+# Application Console Reponse: number=0123456789;timestamp=2023 
+
+
+╭─andi@MBPvonAndiDro ~/IdeaProjects/samj-javafx/samj  ‹dev*› 
+╰─➤  curl http://localhost:8000/forwardcheck/number\=0123456789/
+ERROR in logic!%
+# The console Response is: ERROR in logic!% (because not implemented et)
+# Application Console Reponse: number=0123456789
+
+╭─andi@MBPvonAndiDro ~/IdeaProjects/samj-javafx/samj  ‹dev*› 
+╰─➤  curl http://localhost:8000/sms/number\=0123456789/ 
+NOT SUPPORTED%      
+```
+
+```
+#what happens in the Application console
+number=0123456789;timestamp=2023
+number=0123456789
+```
+
+<img width="1728" alt="image" src="https://github.com/SAMJ-CSDC26BB/samj-javafx/assets/45292760/17d53520-f5e1-4a48-89c8-fa5fe070628a">
+<img width="1728" alt="image" src="https://github.com/SAMJ-CSDC26BB/samj-javafx/assets/45292760/909abe07-da3e-4fca-80cd-de82a8e66315">
+
+
+### How to start the Application
 To start you go to the Application Class and run it (you will need the JDK version 17) then the GUI will start with a login window (we have dummy values in there you can user **user2:password2!** ) after a successful login you will see the table with our dummy values. There you test out the filters and ordering features.
 
 
