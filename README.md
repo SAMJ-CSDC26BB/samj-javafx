@@ -3,18 +3,31 @@ SAMJ implemented with JavaFX (Project for the first Semester)
 
 ## Description
 
-This purpose of this project is to have a UI in which you can manage a Oncall Duty plan, which is managed by a telephone system.
+This purpose of this project is to have a UI in which you can manage a Oncall Duty plan. It is managed by a frontend and queried by a external telephone system (via IP / Curl requests).
+The project consists of 2 parts, frontend and backend (and a Database). Both are in the same JavaFX Project. For our DB we use SQLite.
 
-In the UI you can create, delete entries or modify them. In the settings you can set the IP and Port of the Server. 
+### Frontend
+The frontend consists of 3 scenes:
+1. login mask
+2. Table where we can see the queries
+3. Settings
 
-| Telephone number | Start Time | End Time | Forward Number |
-|------------------|------------|----------|----------------|
-| 12312            | 02.02.2024 00:00 | 09.02.2024 23:59 |  333333 |
-| 1231             | 01.01.2024 13:13 | 30.01.2024 15:49 | 35256256|
+In the UI you need to log in first. After a successful login you can see the plan. can create, delete entries or modify them. In the settings you can set the IP and Port of the Server. 
+
+| Telephone number | Start Time       | End Time         | Forward Number |
+|------------------|------------------|------------------|----------------|
+| 12312            | 02.02.2024 00:00 | 09.02.2024 23:59 | 333333         |
+| 1231             | 01.01.2024 13:13 | 30.01.2024 15:49 | 35256256       |
+
+
+### Backend
+
+
+to test, curl comamnd in cli.
 
 
 
-# Important for the review 
+## Important for the review 
 
 We merged everything we have already done to DEV. We have a GUI with dummy values, the logic is partly implemented but we did not connect it to the GUI yet. 
 
