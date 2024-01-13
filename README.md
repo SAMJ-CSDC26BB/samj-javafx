@@ -7,12 +7,13 @@ This purpose of this project is to have a UI in which you can manage a Oncall Du
 The project consists of 2 parts, frontend and backend (and a Database). Both are in the same JavaFX Project. For our DB we use SQLite.
 
 ### Frontend
+
 The frontend consists of 3 scenes:
 1. login mask
-2. Table where we can see the queries
+2. Table where we can see the entries/data from the DB
 3. Settings
 
-In the UI you need to log in first. After a successful login you can see the plan. can create, delete entries or modify them. In the settings you can set the IP and Port of the Server. 
+In the UI you need to log in first. After a successful login you can see the oncall duty plan with its data. Where you can create, delete entries or modify them. In the settings you can set the IP and Port of the Server. 
 
 | Telephone number | Start Time       | End Time         | Forward Number |
 |------------------|------------------|------------------|----------------|
@@ -22,9 +23,10 @@ In the UI you need to log in first. After a successful login you can see the pla
 
 ### Backend
 
-
-to test, curl comamnd in cli.
-
+The main purpose of the server/backend package is to manage the database, HTTP Server and the logic of the requested features (coming from the telephone system).
+* HTTP Server: is waiting for GET HTTP requests. Once a request is being received, the data is being validated and processed.
+* Server: this is the backend, here happens the logic (features e.g. FORWARDCHECK). Manages the DB and HTTP Server. Checks periodically if the local dataset is up to date. 
+* DB: SQLite, as the database will be lightweight. The class contains basic CRUD operations (Create/Read/Update/Delete). The DB is running on the local host.
 
 
 ## Important for the review 
