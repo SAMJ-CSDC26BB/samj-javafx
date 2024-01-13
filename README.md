@@ -35,7 +35,7 @@ We merged everything we have already done to MAIN branch. We have a GUI with dum
 
 ### How to start the Application
 First you need to ensure that you are on the main branch and pulled all the latest commits.
-To start the Application Class, you run it (you will need the JDK version 17). Then the GUI will start in a thread and the HTTP server in another. The GUI shows first a login window (we have dummy values in there you can use following credentials **user2:password2!** ) after a successful login you will see the table with our dummy values. There you can test out the filters and ordering features. The backend is started in parallel, you can test it via curl commands. (See Section Backend below )
+To start the Application Class, you run it (you will need the JDK version 17). Then the GUI will start in a thread and the HTTP server in another. The GUI shows first a login window (we have dummy values in there you can use following credentials **user2:password2!** ) after a successful login you will see the table with our dummy values. There you can test out the filters and sorting features. The backend is started in parallel, you can test it via curl commands. (See Section Backend below )
 
 ### Current status: 
 
