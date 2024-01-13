@@ -76,7 +76,7 @@ number=0123456789
 See images:
 
 <img width="1728" alt="image" src="https://github.com/SAMJ-CSDC26BB/samj-javafx/assets/45292760/17d53520-f5e1-4a48-89c8-fa5fe070628a">
-<img width="1728" alt="image" src="https://github.com/SAMJ-CSDC26BB/samj-javafx/assets/45292760/909abe07-da3e-4fca-80cd-de82a8e66315">
+<img width="1728" alt="image" src="https://github.com/SAMJ-CSDC26BB/samj-javafx/assets/45292760/2ebb1923-1ab4-49c9-b6fa-7edf4700a696">
 
 
 
