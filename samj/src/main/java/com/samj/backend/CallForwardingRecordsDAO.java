@@ -12,7 +12,7 @@ public class CallForwardingRecordsDAO {
     private static final String LOAD_RECORDS_SQL = "SELECT * FROM call_forwarding_records";
     private static final String LOAD_RECORDS_BY_CALLED_NUMBER_SQL = "SELECT * FROM call_forwarding_records WHERE calledNumber=?";
     private static final String LOAD_RECORDS_BY_DATE_SQL = "SELECT * FROM call_forwarding_records WHERE startDate >= ? AND endDate <= ?";
-    private static final String ADD_RECORD_SQL = "INSERT INTO call_forwarding_records (calledNumber, destinationNumber, dateStart, endDate) VALUES (?, ?, ?, ?)";
+    private static final String ADD_RECORD_SQL = "INSERT INTO call_forwarding_records (calledNumber, destinationNumber, startDate, endDate) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_RECORD_SET_DEST_NUMBER_SQL = "UPDATE call_forwarding_records SET destinationNumber = ? WHERE calledNumber = ?";
     private static final String UPDATE_RECORD_SET_DATES_SQL = "UPDATE call_forwarding_records SET startDate = ?, endDate = ? WHERE calledNumber = ?";
     private static final String DELETE_RECORD_SQL = "DELETE FROM call_forwarding_records WHERE calledNumber = ?";
@@ -171,7 +171,7 @@ public class CallForwardingRecordsDAO {
         while (resultSet.next()) {
             CallForwardingDTO currentCallForwardingDTO = new CallForwardingDTO(
                     resultSet.getString("callednumber"),
-                    resultSet.getTimestamp("dateStart").toLocalDateTime(),
+                    resultSet.getTimestamp("startDate").toLocalDateTime(),
                     resultSet.getTimestamp("dateEnd").toLocalDateTime(),
                     resultSet.getString("destinationNumber"));
 
