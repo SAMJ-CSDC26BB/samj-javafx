@@ -132,9 +132,9 @@ public class Application extends javafx.application.Application {
         // Add sample data to the list
 
         tableData.addAll(
-                new CallForwardingDTO("22132131", LocalDateTime.now(), LocalDateTime.of(2024, 2, 1, 23, 59), "1231231"),
-                new CallForwardingDTO("1231", LocalDateTime.of(2024, 2, 2, 0, 0), LocalDateTime.of(2024, 2, 9, 0, 0), "3333"),
-                new CallForwardingDTO("12312", LocalDateTime.of(2024, 3, 26, 12, 11), LocalDateTime.of(2024, 6, 13, 8, 7), "3333")
+                new CallForwardingDTO(1, "22132131", LocalDateTime.now(), LocalDateTime.of(2024, 2, 1, 23, 59), "1231231", "johnDoe","John Doe"),
+                new CallForwardingDTO(2, "1231", LocalDateTime.of(2024, 2, 2, 0, 0), LocalDateTime.of(2024, 2, 9, 0, 0), "3333", "gigiBecaliDollar", "Gigi Becali"),
+                new CallForwardingDTO(3, "12312", LocalDateTime.of(2024, 3, 26, 12, 11), LocalDateTime.of(2024, 6, 13, 8, 7), "3333", "florinSalamNumber1","Florin Salam")
                 // add more CallForwardingDTOs
         );
 

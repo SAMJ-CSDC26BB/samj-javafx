@@ -6,12 +6,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Database {
+    private static final String DATABASE_URL = "jdbc:sqlite:D:\\IDEA_Projects\\SAMJFX-Sem1\\samj\\src\\main\\database\\callForwardingDatabase.db";
 
+    /**
+     * Load SQLite JDBC driver and return the DB connection
+     */
     public static Connection getDbConnection() throws ClassNotFoundException, SQLException {
-        // load SQLite JDBC driver
         Class.forName("org.sqlite.JDBC");
-        // TODO change the url of the db file
-        return DriverManager.getConnection("jdbc:sqlite:path_to_your_database_file.db");
+        return DriverManager.getConnection(DATABASE_URL);
     }
 
     public static void closeResultSet(ResultSet resultSet) {

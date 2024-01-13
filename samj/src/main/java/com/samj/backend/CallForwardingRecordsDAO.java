@@ -9,13 +9,13 @@ import java.util.Set;
 
 public class CallForwardingRecordsDAO {
 
-    private static final String LOAD_RECORDS_SQL = "SELECT * FROM call_forwarding_records";
-    private static final String LOAD_RECORDS_BY_CALLED_NUMBER_SQL = "SELECT * FROM call_forwarding_records WHERE calledNumber=?";
+    private static final String LOAD_RECORDS_SQL = "SELECT c.*, u.number, u.username FROM call_forwarding_records as c JOIN user as u ON u.username=c.username";
+    private static final String LOAD_RECORDS_BY_ID = "SELECT c.*, u.number, u.username FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE c.ID=?";
     private static final String LOAD_RECORDS_BY_DATE_SQL = "SELECT * FROM call_forwarding_records WHERE startDate >= ? AND endDate <= ?";
-    private static final String ADD_RECORD_SQL = "INSERT INTO call_forwarding_records (calledNumber, destinationNumber, dateStart, endDate) VALUES (?, ?, ?, ?)";
-    private static final String UPDATE_RECORD_SET_DEST_NUMBER_SQL = "UPDATE call_forwarding_records SET destinationNumber = ? WHERE calledNumber = ?";
-    private static final String UPDATE_RECORD_SET_DATES_SQL = "UPDATE call_forwarding_records SET startDate = ?, endDate = ? WHERE calledNumber = ?";
-    private static final String DELETE_RECORD_SQL = "DELETE FROM call_forwarding_records WHERE calledNumber = ?";
+    private static final String ADD_RECORD_SQL = "INSERT INTO call_forwarding_records (calledNumber, username, startDate, endDate) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE_RECORD_SET_DESTINATION_USER = "UPDATE call_forwarding_records SET username = ? WHERE ID = ?";
+    private static final String UPDATE_RECORD_SET_DATES_SQL = "UPDATE call_forwarding_records SET startDate = ?, endDate = ? WHERE ID = ?";
+    private static final String DELETE_RECORD_SQL = "DELETE FROM call_forwarding_records WHERE ID = ?";
 
 
     public static Set<CallForwardingDTO> loadRecords() {
@@ -35,13 +35,13 @@ public class CallForwardingRecordsDAO {
     }
 
 
-    public static Set<CallForwardingDTO> loadRecordsByCalledNumber(String calledNumber) {
+    public static Set<CallForwardingDTO> loadRecordsByID(int id) {
         Set<CallForwardingDTO> callForwardingDTOS = new HashSet<>();
 
         try (Connection connection = Database.getDbConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(LOAD_RECORDS_BY_CALLED_NUMBER_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(LOAD_RECORDS_BY_ID)) {
 
-            preparedStatement.setString(1, calledNumber);
+            preparedStatement.setInt(1, id);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
@@ -92,9 +92,9 @@ public class CallForwardingRecordsDAO {
 
             int index = 0;
             preparedStatement.setString(++index, callForwardingDTO.getCalledNumber());
+            preparedStatement.setString(++index, callForwardingDTO.getDestinationUsername());
             preparedStatement.setTimestamp(++index, Timestamp.valueOf(callForwardingDTO.getBeginTime()));
             preparedStatement.setTimestamp(++index, Timestamp.valueOf(callForwardingDTO.getEndTime()));
-            preparedStatement.setString(++index, callForwardingDTO.getDestinationNumber());
 
             preparedStatement.executeUpdate();
             return true;
@@ -106,13 +106,13 @@ public class CallForwardingRecordsDAO {
         return false;
     }
 
-    public static boolean updateDestinationNumber(String calledNumber, String destinationNumber) {
+    public static boolean updateDestinationUser(int id, String username) {
         try (Connection connection = Database.getDbConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECORD_SET_DEST_NUMBER_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECORD_SET_DESTINATION_USER)) {
 
             int index = 0;
-            preparedStatement.setString(++index, destinationNumber);
-            preparedStatement.setString(++index, calledNumber);
+            preparedStatement.setString(++index, username);
+            preparedStatement.setInt(++index, id);
 
             preparedStatement.executeUpdate();
             return true;
@@ -130,7 +130,7 @@ public class CallForwardingRecordsDAO {
             int index = 0;
             preparedStatement.setTimestamp(++index, Timestamp.valueOf(callForwardingDTO.getBeginTime()));
             preparedStatement.setTimestamp(++index, Timestamp.valueOf(callForwardingDTO.getEndTime()));
-            preparedStatement.setString(++index, callForwardingDTO.getCalledNumber());
+            preparedStatement.setInt(++index, callForwardingDTO.getId());
 
             preparedStatement.executeUpdate();
             return true;
@@ -142,11 +142,11 @@ public class CallForwardingRecordsDAO {
         return false;
     }
 
-    public static boolean deleteRecord(String calledNumber) {
+    public static boolean deleteRecord(int id) {
         try (Connection connection = Database.getDbConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(DELETE_RECORD_SQL)) {
 
-            preparedStatement.setString(1, calledNumber);
+            preparedStatement.setInt(1, id);
 
             preparedStatement.executeUpdate();
             return true;
@@ -170,10 +170,13 @@ public class CallForwardingRecordsDAO {
 
         while (resultSet.next()) {
             CallForwardingDTO currentCallForwardingDTO = new CallForwardingDTO(
+                    resultSet.getInt("ID"),
                     resultSet.getString("callednumber"),
-                    resultSet.getTimestamp("dateStart").toLocalDateTime(),
-                    resultSet.getTimestamp("dateEnd").toLocalDateTime(),
-                    resultSet.getString("destinationNumber"));
+                    resultSet.getTimestamp("startDate").toLocalDateTime(),
+                    resultSet.getTimestamp("endDate").toLocalDateTime(),
+                    resultSet.getString("destinationNumber"),
+                    resultSet.getString("username"),
+                    resultSet.getString("fullname"));
 
             callingForwardingSet.add(currentCallForwardingDTO);
         }
