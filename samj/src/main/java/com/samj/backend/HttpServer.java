@@ -11,17 +11,10 @@ public class HttpServer {
     private ServerSocket serverSocket;
 
 
-    public HttpServer(int port) {
-        try {
-            this.serverSocket = new ServerSocket(port);
-            System.out.println("HTTP Server Socket created with port " + port);
-            listener();
-        } catch (IOException e) {
-            System.out.println("error http Server constructor" + e.getMessage());
-            // nachträglich hinzufügen errorhandling
-        }
-
-
+    public HttpServer(int port) throws IOException {
+        this.serverSocket = new ServerSocket(port);
+        System.out.println("HTTP Server Socket created with port " + port);
+        listener();
     }
 
     private void listener() {

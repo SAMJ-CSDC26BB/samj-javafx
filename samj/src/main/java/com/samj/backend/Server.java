@@ -1,15 +1,20 @@
 package com.samj.backend;
 
 import com.samj.shared.CallForwardingDTO;
+import com.samj.shared.DatabaseAPI;
+import eu.hansolo.tilesfx.tools.TimeData;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 // http://192.168.92.8:82/echo.php?called=123456
 public class Server {
-    public static List<String> listFeatures = Arrays.asList("timeBasedForwarding");
-    private int port;
+    public static List<String> listFeatures = List.of("timeBasedForwarding");
+
+    private final int port;
     private HttpServer webServer;
 
     private Set<CallForwardingDTO> timeBasedForwardingSet;
@@ -18,7 +23,7 @@ public class Server {
         this.port = port;
     }
 
-    public void start() {
+    public void start() throws IOException {
         webServer = new HttpServer(this.port);
     }
 
@@ -55,4 +60,11 @@ public class Server {
         return "";
     }
 
+
+    public Set<CallForwardingDTO> getTimeBasedForwardingSet() {
+        return timeBasedForwardingSet;
+    }
+    public void updateTimeBasedForwardingSet() {
+        timeBasedForwardingSet = DatabaseAPI.loadCallForwardingRecords();
+    }
 }

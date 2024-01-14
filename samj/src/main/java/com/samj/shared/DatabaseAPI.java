@@ -65,6 +65,10 @@ public class DatabaseAPI {
         return CallForwardingRecordsDAO.loadRecordsBetweenDates(startDate, endDate);
     }
 
+    public static Set<CallForwardingDTO> loadCallForwardingRecordsByStartDate(LocalDateTime startDate) {
+        return CallForwardingRecordsDAO.loadRecordsByStartDate(startDate);
+    }
+
     public static boolean createNewCallForwardingRecord(CallForwardingDTO callForwardingDTO) {
         return CallForwardingRecordsDAO.addRecord(callForwardingDTO);
     }

@@ -21,9 +21,13 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.awt.*;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public class Application extends javafx.application.Application {
+
+    private static Server backend;
 
     public void start(Stage primaryStage) {
         primaryStage.setTitle("SAMJ Login");
@@ -127,17 +131,11 @@ public class Application extends javafx.application.Application {
      */
 
     private ObservableList<CallForwardingDTO> _getTableData() {
-
         // Original data list
         ObservableList<CallForwardingDTO> tableData = FXCollections.observableArrayList();
-        // Add sample data to the list
-
-        tableData.addAll(
-                new CallForwardingDTO(1, "22132131", LocalDateTime.now(), LocalDateTime.of(2024, 2, 1, 23, 59), "1231231", "johnDoe","John Doe"),
-                new CallForwardingDTO(2, "1231", LocalDateTime.of(2024, 2, 2, 0, 0), LocalDateTime.of(2024, 2, 9, 0, 0), "3333", "gigiBecaliDollar", "Gigi Becali"),
-                new CallForwardingDTO(3, "12312", LocalDateTime.of(2024, 3, 26, 12, 11), LocalDateTime.of(2024, 6, 13, 8, 7), "3333", "florinSalamNumber1","Florin Salam")
-                // add more CallForwardingDTOs
-        );
+        // Get data from backend
+        Set<CallForwardingDTO> temp = backend.getTimeBasedForwardingSet();
+        tableData.addAll(temp);
 
         return tableData;
     }
@@ -146,9 +144,17 @@ public class Application extends javafx.application.Application {
         // Creating the first thread for the server
         Thread serverThread = new Thread(() -> {
             System.out.println("start server");
-            Server backend = new Server(8000);
-            backend.start();
+            backend = new Server(8000);
+            try {
+                backend.start();
+            } catch (IOException e) {
+                // log some message
+            }
         });
+
+        if (backend == null) {
+            return;
+        }
 
         // Creating the second thread for the application launch
         Thread launchThread = new Thread(() -> {
