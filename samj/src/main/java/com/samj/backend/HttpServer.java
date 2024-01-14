@@ -76,7 +76,7 @@ public class HttpServer {
 
             withoutPrefix = request.split("GET /")[1];
             feature = withoutPrefix.split("/")[0];
-            if (Server.list_features.contains(feature)) {
+            if (Server.listFeatures.contains(feature)) {
                 Class<?> c_server = Class.forName("com.samj.backend.Server"); //hohlt sich die Klasse in eine Variable
                 Method method = c_server.getMethod(feature, String.class); //hohlt sich die funktion aus der Klasse in eine Variable
                 Object returnValue = method.invoke(null, withoutPrefix.split("/")[1].split("/")[0]); //führt funktion die wir gespeichert haben aus

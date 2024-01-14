@@ -125,6 +125,7 @@ public class Application extends javafx.application.Application {
      * Helper method for populating the main table with data from the database.
      * TODO implement when database is ready
      */
+
     private ObservableList<CallForwardingDTO> _getTableData() {
 
         // Original data list
