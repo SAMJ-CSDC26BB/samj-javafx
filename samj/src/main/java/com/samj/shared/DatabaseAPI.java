@@ -9,6 +9,7 @@ import java.util.Set;
 public class DatabaseAPI {
 
     public static boolean createNewUser(UserDTO userDTO) {
+        // todo hash the user psw.
         return UserDAO.addUser(userDTO);
     }
 

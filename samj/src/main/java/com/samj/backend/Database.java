@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Database {
-    private static final String DATABASE_URL = "jdbc:sqlite:D:\\IDEA_Projects\\SAMJFX-Sem1\\samj\\src\\main\\database\\callForwardingDatabase.db";
+    private static final String DATABASE_URL = "jdbc:sqlite:samj/src/main/database/callForwardingDatabase.db";
 
     /**
      * Load SQLite JDBC driver and return the DB connection
