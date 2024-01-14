@@ -11,7 +11,7 @@ public class Database {
     /**
      * Load SQLite JDBC driver and return the DB connection
      */
-    public static Connection getDbConnection() throws ClassNotFoundException, SQLException {
+    public static Connection getDbConnection() throws SQLException {
         return DriverManager.getConnection(DATABASE_URL);
     }
 
