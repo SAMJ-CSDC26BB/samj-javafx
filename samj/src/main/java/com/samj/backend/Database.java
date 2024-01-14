@@ -6,13 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Database {
-    private static final String DATABASE_URL = "jdbc:sqlite:samj/src/main/database/callForwardingDatabase.db";
+    private static final String CALL_FORWARDING_DATABASE_URL = "jdbc:sqlite:samj/src/main/database/callForwardingDatabase.db";
 
-    /**
-     * Load SQLite JDBC driver and return the DB connection
-     */
     public static Connection getDbConnection() throws SQLException {
-        return DriverManager.getConnection(DATABASE_URL);
+        return DriverManager.getConnection(CALL_FORWARDING_DATABASE_URL);
     }
 
     public static void closeResultSet(ResultSet resultSet) {
