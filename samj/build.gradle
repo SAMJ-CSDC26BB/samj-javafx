@@ -47,6 +47,9 @@ dependencies {
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+
+  // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
+  implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.44.1.0'
 }
 
 test {
