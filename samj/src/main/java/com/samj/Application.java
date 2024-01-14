@@ -152,10 +152,6 @@ public class Application extends javafx.application.Application {
             }
         });
 
-        if (backend == null) {
-            return;
-        }
-
         // Creating the second thread for the application launch
         Thread launchThread = new Thread(() -> {
             Application.launch(Application.class, args); // Replace MyApplication with your JavaFX Application class

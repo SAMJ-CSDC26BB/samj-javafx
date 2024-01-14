@@ -21,6 +21,7 @@ public class Server {
 
     public Server(int port) {
         this.port = port;
+        updateTimeBasedForwardingSet();
     }
 
     public void start() throws IOException {

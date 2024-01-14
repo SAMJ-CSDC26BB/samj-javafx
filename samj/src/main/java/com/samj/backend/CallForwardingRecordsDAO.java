@@ -3,13 +3,15 @@ package com.samj.backend;
 import com.samj.shared.CallForwardingDTO;
 
 import java.sql.*;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
 public class CallForwardingRecordsDAO {
 
-    private static final String LOAD_RECORDS_SQL = "SELECT c.*, u.number, u.username FROM call_forwarding_records as c JOIN user as u ON u.username=c.username";
+    private static final String LOAD_RECORDS_SQL = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username";
     private static final String LOAD_RECORDS_BY_ID = "SELECT c.*, u.number, u.username FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE c.ID=?";
     private static final String LOAD_RECORDS_BY_DATE_SQL = "SELECT * FROM call_forwarding_records WHERE startDate >= ? AND endDate <= ?";
     private static final String LOAD_RECORDS_BY_START_DATE_SQL = "SELECT * FROM call_forwarding_records WHERE startDate >= ?";
@@ -31,6 +33,7 @@ public class CallForwardingRecordsDAO {
 
         } catch (Exception e) {
             // log some message
+            System.out.println(e.getMessage());
         }
 
         return callForwardingDTOS;
@@ -218,12 +221,19 @@ public class CallForwardingRecordsDAO {
         }
 
         while (resultSet.next()) {
+            String startDateAsString = resultSet.getString("startDate");
+            String endDateAsString = resultSet.getString("endDate");
+            LocalDateTime startDate = Instant.ofEpochMilli(Long.parseLong(startDateAsString)).atZone(ZoneId.of("UTC"))
+                    .toLocalDateTime();
+            LocalDateTime endDate = Instant.ofEpochMilli(Long.parseLong(endDateAsString)).atZone(ZoneId.of("UTC"))
+                    .toLocalDateTime();
+
             CallForwardingDTO currentCallForwardingDTO = new CallForwardingDTO(
                     resultSet.getInt("ID"),
                     resultSet.getString("callednumber"),
-                    resultSet.getTimestamp("startDate").toLocalDateTime(),
-                    resultSet.getTimestamp("endDate").toLocalDateTime(),
-                    resultSet.getString("destinationNumber"),
+                    startDate,
+                    endDate,
+                    resultSet.getString("number"),
                     resultSet.getString("username"),
                     resultSet.getString("fullname"));
 

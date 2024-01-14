@@ -20,6 +20,7 @@ public class MainTable {
     private TableColumn<CallForwardingDTO, String> calledNumberColumn;
     private TableColumn<CallForwardingDTO, String> beginTimeColumn;
     private TableColumn<CallForwardingDTO, String> endTimeColumn;
+    private TableColumn<CallForwardingDTO, String> usernameColumn;
     private TableColumn<CallForwardingDTO, String> destinationNumberColumn;
     private TextField searchFieldCalledNumber;
     private TextField searchFieldBeginTime;
@@ -50,6 +51,7 @@ public class MainTable {
         calledNumberColumn = new TableColumn<>("Called Number");
         beginTimeColumn = new TableColumn<CallForwardingDTO, String>("Begin Time");
         endTimeColumn = new TableColumn<CallForwardingDTO, String>("End Time");
+        usernameColumn = new TableColumn<CallForwardingDTO, String>("Username");
         destinationNumberColumn = new TableColumn<>("Destination Number");
     }
 
@@ -57,6 +59,7 @@ public class MainTable {
         mainTable.getColumns().add(calledNumberColumn);
         mainTable.getColumns().add(beginTimeColumn);
         mainTable.getColumns().add(endTimeColumn);
+        mainTable.getColumns().add(usernameColumn);
         mainTable.getColumns().add(destinationNumberColumn);
     }
 
@@ -92,6 +95,7 @@ public class MainTable {
             }
         });
 
+        usernameColumn.setCellValueFactory(new PropertyValueFactory<>("destinationUsername"));
         destinationNumberColumn.setCellValueFactory(new PropertyValueFactory<>("destinationNumber"));
     }
 
@@ -168,6 +172,7 @@ public class MainTable {
         beginTimeColumn.getStyleClass().add("samj--main-table__column");
         endTimeColumn.getStyleClass().add("samj--main-table__column");
         destinationNumberColumn.getStyleClass().add("samj--main-table__column");
+        usernameColumn.getStyleClass().add("samj--main-table__column");
     }
 
     public TableView<CallForwardingDTO> getMainTable() {
