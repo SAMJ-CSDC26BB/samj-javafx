@@ -63,13 +63,10 @@ public class Application extends javafx.application.Application {
         final Text actionTarget = new Text();
         grid.add(actionTarget, 1, 6);
 
-        // Add event handling (simple example)
-        AuthenticationService authService = new AuthenticationService();
-
         btn.setOnAction(e -> {
             String username = userTextField.getText();
             String password = pwBox.getText();
-            if (authService.authenticate(username, password)) {
+            if (AuthenticationService.authenticate(username, password)) {
                 actionTarget.setText("Login successful.");
                 // Proceed to next view or functionality
                 _setMainSceneAfterLogin(primaryStage);

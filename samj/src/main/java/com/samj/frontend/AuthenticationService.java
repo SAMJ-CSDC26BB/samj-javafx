@@ -1,26 +1,13 @@
 package com.samj.frontend;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.samj.shared.DatabaseAPI;
+import com.samj.shared.UserDTO;
 
 public class AuthenticationService {
-    private final Map<String, String> userStore;
 
-    public AuthenticationService() {
-        this.userStore = new HashMap<>();
-        initializeUsers();
-    }
-
-    private void initializeUsers() {
-        // Pre-populate with some users (username, password)
-        // In a real application, these should be securely hashed
-        userStore.put("admin_test", "test1000!");
-        userStore.put("user2", "password2!");
-        // Add more users as needed
-    }
-
-    public boolean authenticate(String username, String password) {
-        String storedPassword = userStore.get(username);
-        return storedPassword != null && storedPassword.equals(password);
+    public static boolean authenticate(String username, String password) {
+        // TODO - when hash method is done, use it to compare the password
+        UserDTO user = DatabaseAPI.loadUserByUsername(username);
+        return (user != null) && (user.getPassword().equals(password));
     }
 }
