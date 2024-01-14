@@ -40,6 +40,10 @@ public class UserDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
+                if (! resultSet.next()) {
+                    return null;
+                }
+
                 return new UserDTO(resultSet.getString("username"),
                         resultSet.getString("fullname"),
                         resultSet.getString("password"),

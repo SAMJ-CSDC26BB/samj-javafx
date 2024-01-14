@@ -22,7 +22,6 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 public class Application extends javafx.application.Application {

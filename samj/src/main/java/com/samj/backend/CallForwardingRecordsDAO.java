@@ -12,9 +12,9 @@ import java.util.Set;
 public class CallForwardingRecordsDAO {
 
     private static final String LOAD_RECORDS_SQL = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username";
-    private static final String LOAD_RECORDS_BY_ID = "SELECT c.*, u.number, u.username FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE c.ID=?";
-    private static final String LOAD_RECORDS_BY_DATE_SQL = "SELECT * FROM call_forwarding_records WHERE startDate >= ? AND endDate <= ?";
-    private static final String LOAD_RECORDS_BY_START_DATE_SQL = "SELECT * FROM call_forwarding_records WHERE startDate >= ?";
+    private static final String LOAD_RECORDS_BY_ID = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE c.ID=?";
+    private static final String LOAD_RECORDS_BY_DATE_SQL = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE startDate >= ? AND endDate <= ?";
+    private static final String LOAD_RECORDS_BY_START_DATE_SQL = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE startDate >= ?";
     private static final String ADD_RECORD_SQL = "INSERT INTO call_forwarding_records (calledNumber, username, startDate, endDate) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_RECORD_SET_DESTINATION_USER = "UPDATE call_forwarding_records SET username = ? WHERE ID = ?";
     private static final String UPDATE_RECORD_SET_DATES_SQL = "UPDATE call_forwarding_records SET startDate = ?, endDate = ? WHERE ID = ?";
@@ -173,7 +173,7 @@ public class CallForwardingRecordsDAO {
 
     /**
      * Helper method for loading records by date.
-     * If endDate is provided, then it will pe set in the prepared statement, otherwise not used.
+     * If endDate is provided, then it will be set in the prepared statement, otherwise not used.
      */
     private static Set<CallForwardingDTO> _loadRecordsByDateHelper(String sqlQuery,
                                                                    LocalDateTime startDate,
