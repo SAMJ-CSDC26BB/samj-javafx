@@ -10,7 +10,7 @@ public class DatabaseAPI {
 
     public static boolean createNewUser(UserDTO userDTO) {
         // todo hash the user psw.
-        return UserDAO.addUser(userDTO);
+        return UserDAO.createUser(userDTO);
     }
 
     public static Set<UserDTO> loadAllInactiveUsers() {
@@ -41,6 +41,10 @@ public class DatabaseAPI {
         return UserDAO.updateUserPassword(username, password);
     }
 
+    public static boolean updateUserAllFields(UserDTO userDTO) {
+        return UserDAO.updateUserAllFields(userDTO);
+    }
+
     public static boolean updateUserFullName(String username, String fullName) {
         return UserDAO.updateUserFullName(username, fullName);
     }
@@ -67,6 +71,10 @@ public class DatabaseAPI {
 
     public static boolean updateCallForwardingDestinationUser(int id, String username) {
         return CallForwardingRecordsDAO.updateDestinationUser(id, username);
+    }
+
+    public static boolean updateCallForwardingAllFields(CallForwardingDTO callForwardingDTO) {
+        return CallForwardingRecordsDAO.updateCallForwardingAllFields(callForwardingDTO);
     }
 
     public static boolean updateCallForwardingDate(CallForwardingDTO callForwardingDTO) {

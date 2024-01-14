@@ -12,6 +12,21 @@ public class CallForwardingDTO {
     private String destinationUsername;
     private String destinationUserFullName;
 
+    public CallForwardingDTO(String calledNumber,
+                             LocalDateTime beginTime,
+                             LocalDateTime endTime,
+                             String destinationNumber,
+                             String destinationUsername,
+                             String destinationUserFullName) {
+
+        this.calledNumber = calledNumber;
+        this.beginTime = beginTime;
+        this.endTime = endTime;
+        this.destinationNumber = destinationNumber;
+        this.destinationUsername = destinationUsername;
+        this.destinationUserFullName = destinationUserFullName;
+    }
+
     public CallForwardingDTO(int id,
                              String calledNumber,
                              LocalDateTime beginTime,
@@ -20,13 +35,8 @@ public class CallForwardingDTO {
                              String destinationUsername,
                              String destinationUserFullName) {
 
+        this(calledNumber, beginTime, endTime, destinationNumber, destinationUsername, destinationUserFullName);
         this.id = id;
-        this.calledNumber = calledNumber;
-        this.beginTime = beginTime;
-        this.endTime = endTime;
-        this.destinationNumber = destinationNumber;
-        this.destinationUsername = destinationUsername;
-        this.destinationUserFullName = destinationUserFullName;
     }
 
     public String getCalledNumber() {

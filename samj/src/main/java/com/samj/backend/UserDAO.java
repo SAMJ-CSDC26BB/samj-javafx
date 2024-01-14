@@ -20,6 +20,7 @@ public class UserDAO {
     private static final String UPDATE_USER_FULL_NAME_SQL = "UPDATE user SET fullname = ? WHERE username = ?";
     private static final String UPDATE_USER_NUMBER_SQL = "UPDATE user SET number = ? WHERE username = ?";
     private static final String UPDATE_USER_STATUS_SQL = "UPDATE user SET status = ? WHERE username = ?";
+    private static final String UPDATE_USER_SET_ALL_FIELDS = "UPDATE user SET fullname = ?, password = ?, number = ?, status = ? WHERE username = ?";
     private static final String DELETE_USER_SQL = "DELETE FROM user WHERE username=?";
 
     public static Set<UserDTO> loadAllActiveUsers() {
@@ -56,7 +57,7 @@ public class UserDAO {
         return null;
     }
 
-    public static boolean addUser(UserDTO userDTO) {
+    public static boolean createUser(UserDTO userDTO) {
         try (Connection connection = Database.getDbConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(ADD_USER_SQL)) {
 
@@ -107,6 +108,30 @@ public class UserDAO {
 
     public static boolean updateUserStatus(String username, String status) {
         return updateUserHelper(UPDATE_USER_STATUS_SQL, username, status);
+    }
+
+    public static boolean updateUserAllFields(UserDTO userDTO) {
+        try (Connection connection = Database.getDbConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER_SET_ALL_FIELDS)) {
+
+            int index = 0;
+            preparedStatement.setString(++index, userDTO.getFullName());
+            preparedStatement.setString(++index, userDTO.getPassword());
+            preparedStatement.setString(++index, userDTO.getNumber());
+
+            String status = userDTO.getStatus() == null ? ACTIVE_STRING : userDTO.getStatus();
+            preparedStatement.setString(++index, status);
+
+            preparedStatement.setString(++index, userDTO.getUsername());
+            preparedStatement.executeUpdate();
+
+            return true;
+
+        } catch (Exception e) {
+            // log some error message
+        }
+
+        return false;
     }
 
     /**

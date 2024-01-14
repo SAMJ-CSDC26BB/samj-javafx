@@ -15,6 +15,7 @@ public class CallForwardingRecordsDAO {
     private static final String ADD_RECORD_SQL = "INSERT INTO call_forwarding_records (calledNumber, username, startDate, endDate) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_RECORD_SET_DESTINATION_USER = "UPDATE call_forwarding_records SET username = ? WHERE ID = ?";
     private static final String UPDATE_RECORD_SET_DATES_SQL = "UPDATE call_forwarding_records SET startDate = ?, endDate = ? WHERE ID = ?";
+    private static final String UPDATE_RECORD_SET_ALL_FIELDS = "UPDATE call_forwarding_records SET calledNumber = ?, username = ?, startDate = ?, endDate = ? WHERE ID = ?";
     private static final String DELETE_RECORD_SQL = "DELETE FROM call_forwarding_records WHERE ID = ?";
 
 
@@ -131,6 +132,28 @@ public class CallForwardingRecordsDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECORD_SET_DATES_SQL)) {
 
             int index = 0;
+            preparedStatement.setTimestamp(++index, Timestamp.valueOf(callForwardingDTO.getBeginTime()));
+            preparedStatement.setTimestamp(++index, Timestamp.valueOf(callForwardingDTO.getEndTime()));
+            preparedStatement.setInt(++index, callForwardingDTO.getId());
+
+            preparedStatement.executeUpdate();
+
+            return true;
+
+        } catch (Exception e) {
+            //add logger here
+        }
+
+        return false;
+    }
+
+    public static boolean updateCallForwardingAllFields(CallForwardingDTO callForwardingDTO) {
+        try (Connection connection = Database.getDbConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECORD_SET_ALL_FIELDS)) {
+
+            int index = 0;
+            preparedStatement.setString(++index, callForwardingDTO.getCalledNumber());
+            preparedStatement.setString(++index, callForwardingDTO.getDestinationUsername());
             preparedStatement.setTimestamp(++index, Timestamp.valueOf(callForwardingDTO.getBeginTime()));
             preparedStatement.setTimestamp(++index, Timestamp.valueOf(callForwardingDTO.getEndTime()));
             preparedStatement.setInt(++index, callForwardingDTO.getId());
