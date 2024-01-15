@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Set;
 
 public class Application extends javafx.application.Application {
@@ -57,7 +58,7 @@ public class Application extends javafx.application.Application {
         grid.add(pwBox, 1, 1);
 
         Button btn = new Button("Sign in");
-        btn.getStyleClass().add("button");
+        btn.getStyleClass().add("sign-button");
         btn.setDefaultButton(true);
         grid.add(btn, 1, 2);
 
@@ -106,20 +107,31 @@ public class Application extends javafx.application.Application {
      * @param primaryStage - the stage where the new scene is set
      */
     private void _setMainSceneAfterLogin(Stage primaryStage) {
-
         ObservableList<CallForwardingDTO> tableData = _getTableData();
         MainTable mainTable = new MainTable(tableData);
 
-        HBox tableSearchFields = new HBox(mainTable.getSearchFieldCalledNumber(), mainTable.getSearchFieldBeginTime(), mainTable.getSearchFieldEndTime(), mainTable.getSearchFieldDestinationNumber());
-        HBox.setHgrow(tableSearchFields, Priority.ALWAYS); // Makes the search field expand horizontally
+        HBox tableSearchFields = new HBox();
+        tableSearchFields.getChildren().addAll(mainTable.getSearchFieldUser(), mainTable.getSearchFieldCalledNumber(), mainTable.getSearchFieldBeginTime(), mainTable.getSearchFieldEndTime(), mainTable.getSearchFieldDestinationNumber());
+        tableSearchFields.setSpacing(10); // Add spacing between fields
+        HBox.setHgrow(mainTable.getSearchFieldUser(), Priority.ALWAYS);
+        HBox.setHgrow(mainTable.getSearchFieldCalledNumber(), Priority.ALWAYS);
+        HBox.setHgrow(mainTable.getSearchFieldBeginTime(), Priority.ALWAYS);
+        HBox.setHgrow(mainTable.getSearchFieldEndTime(), Priority.ALWAYS);
+        HBox.setHgrow(mainTable.getSearchFieldDestinationNumber(), Priority.ALWAYS);
+
+
+        // Make each search field expand horizontally within the HBox
+        for (TextField searchField : Arrays.asList(mainTable.getSearchFieldUser(), mainTable.getSearchFieldCalledNumber(), mainTable.getSearchFieldBeginTime(), mainTable.getSearchFieldEndTime(), mainTable.getSearchFieldDestinationNumber())) {
+            HBox.setHgrow(searchField, Priority.ALWAYS);
+        }
 
         // Layout setup
         VBox vbox = new VBox(tableSearchFields, mainTable.getMainTable());
+        vbox.setSpacing(10); // Add spacing between the search fields and the table
+
+        // Make the table expand vertically within the VBox
         VBox.setVgrow(mainTable.getMainTable(), Priority.ALWAYS);
 
-        tableSearchFields.setMinWidth(100);
-        tableSearchFields.setMaxWidth(Double.MAX_VALUE); // As wide as possible
-        // Set scene
         Scene scene = new Scene(vbox);
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -154,7 +166,7 @@ public class Application extends javafx.application.Application {
 
         // Creating the second thread for the application launch
         Thread launchThread = new Thread(() -> {
-            Application.launch(Application.class, args); // Replace MyApplication with your JavaFX Application class
+            Application.launch(Application.class, args);
         });
 
         // Starting both threads

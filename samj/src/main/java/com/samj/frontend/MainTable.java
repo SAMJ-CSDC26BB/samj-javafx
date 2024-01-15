@@ -26,6 +26,7 @@ public class MainTable {
     private TableColumn<CallForwardingDTO, String> endTimeColumn;
     private TableColumn<CallForwardingDTO, String> usernameColumn;
     private TableColumn<CallForwardingDTO, String> destinationNumberColumn;
+    private TextField searchFieldUser;
     private TextField searchFieldCalledNumber;
     private TextField searchFieldBeginTime;
     private TextField searchFieldEndTime;
@@ -52,18 +53,18 @@ public class MainTable {
     }
 
     private void _setMainTableColumns() {
+        usernameColumn = new TableColumn<CallForwardingDTO, String>("Username");
         calledNumberColumn = new TableColumn<>("Called Number");
         beginTimeColumn = new TableColumn<CallForwardingDTO, String>("Begin Time");
         endTimeColumn = new TableColumn<CallForwardingDTO, String>("End Time");
-        usernameColumn = new TableColumn<CallForwardingDTO, String>("Username");
         destinationNumberColumn = new TableColumn<>("Destination Number");
     }
 
     private void _addColumnsToTheTable() {
+        mainTable.getColumns().add(usernameColumn);
         mainTable.getColumns().add(calledNumberColumn);
         mainTable.getColumns().add(beginTimeColumn);
         mainTable.getColumns().add(endTimeColumn);
-        mainTable.getColumns().add(usernameColumn);
         mainTable.getColumns().add(destinationNumberColumn);
     }
 
@@ -104,6 +105,7 @@ public class MainTable {
     }
 
     private void _setSearchInputFields() {
+        searchFieldUser = new TextField();
         searchFieldCalledNumber = new TextField();
         searchFieldBeginTime = new TextField();
         searchFieldEndTime = new TextField();
@@ -119,6 +121,7 @@ public class MainTable {
         FilteredList<CallForwardingDTO> filteredData = new FilteredList<>(tableData, p -> true);
 
         // Update predicates for each search field
+        searchFieldUser.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldCalledNumber.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldBeginTime.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldEndTime.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
@@ -140,8 +143,7 @@ public class MainTable {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         filteredData.setPredicate(callForwardingDTO -> {
             // Check each search field for matching criteria
-            if (!searchFieldCalledNumber.getText().isEmpty()
-                    && !callForwardingDTO.getCalledNumber().toLowerCase().contains(searchFieldCalledNumber.getText().toLowerCase())) {
+            if (!searchFieldCalledNumber.getText().isEmpty() && !callForwardingDTO.getCalledNumber().toLowerCase().contains(searchFieldCalledNumber.getText().toLowerCase())) {
 
                 return false; // Does not match called number
             }
@@ -157,8 +159,7 @@ public class MainTable {
                     return false; // Does not match end time
                 }
             }
-            if (!searchFieldDestinationNumber.getText().isEmpty()
-                    && !callForwardingDTO.getDestinationNumber().toLowerCase().contains(searchFieldDestinationNumber.getText().toLowerCase())) {
+            if (!searchFieldDestinationNumber.getText().isEmpty() && !callForwardingDTO.getDestinationNumber().toLowerCase().contains(searchFieldDestinationNumber.getText().toLowerCase())) {
                 return false; // Does not match destination number
             }
 
@@ -261,9 +262,18 @@ public class MainTable {
 
     /**
      * in order to set Date and Time format, standard is DD.MM.YYYY HH:mm
+     *
      * @param timeFormatter
      */
     public void setTimeFormatter(DateTimeFormatter timeFormatter) {
         this.timeFormatter = timeFormatter;
+    }
+
+    public TextField getSearchFieldUser() {
+        return searchFieldUser;
+    }
+
+    public void setSearchFieldUser(TextField searchFieldUser) {
+        this.searchFieldUser = searchFieldUser;
     }
 }

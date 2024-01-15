@@ -3,7 +3,7 @@
     -fx-base: #eeeeee;
 }
 
-.button {
+.sign-button {
     -fx-background-color: #0077cc;
     -fx-text-fill: white;
 }
