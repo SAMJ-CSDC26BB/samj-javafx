@@ -6,6 +6,11 @@ import com.samj.backend.UserDAO;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+/**
+ * Class used as an API containing all the database functionality from both
+ * UserDAO and CallForwardingRecordsDAO.
+ * Additional logic can be added here before making the database calls.
+ */
 public class DatabaseAPI {
 
     public static boolean createNewUser(UserDTO userDTO) {

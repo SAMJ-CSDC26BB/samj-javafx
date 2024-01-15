@@ -9,9 +9,12 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Class used for CRUD operations to manage or read the database table user.
+ */
 public class UserDAO {
-    private static final String ACTIVE_STRING = "active";
-    private static final String INACTIVE_STRING = "inactive";
+    private static final String STATUS_ACTIVE_STRING = "active";
+    private static final String STATUS_INACTIVE_STRING = "inactive";
 
     private static final String LOAD_USERS_SQL = "SELECT * FROM user WHERE status=?";
     private static final String LOAD_USER_BY_USERNAME_SQL = "SELECT * FROM user WHERE username=?";
@@ -123,7 +126,7 @@ public class UserDAO {
             preparedStatement.setString(++index, userDTO.getPassword());
             preparedStatement.setString(++index, userDTO.getNumber());
 
-            String status = userDTO.getStatus() == null ? ACTIVE_STRING : userDTO.getStatus();
+            String status = userDTO.getStatus() == null ? STATUS_ACTIVE_STRING : userDTO.getStatus();
             preparedStatement.setString(++index, status);
 
             preparedStatement.setString(++index, userDTO.getUsername());
@@ -166,7 +169,7 @@ public class UserDAO {
         try (Connection connection = Database.getDbConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(LOAD_USERS_SQL)) {
 
-            String status = isLoadOnlyActiveUsers ? ACTIVE_STRING : INACTIVE_STRING;
+            String status = isLoadOnlyActiveUsers ? STATUS_ACTIVE_STRING : STATUS_INACTIVE_STRING;
 
             preparedStatement.setString(1, status);
 

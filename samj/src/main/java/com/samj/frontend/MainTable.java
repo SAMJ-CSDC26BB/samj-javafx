@@ -14,6 +14,10 @@ import javafx.util.Callback;
 
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Class used to represent the main table containing the CallForwarding records
+ * from the database.
+ */
 public class MainTable {
 
     private TableView<CallForwardingDTO> mainTable;

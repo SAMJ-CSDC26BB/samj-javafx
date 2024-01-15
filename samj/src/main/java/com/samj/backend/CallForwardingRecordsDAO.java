@@ -9,6 +9,9 @@ import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Class used for CRUD operations to manage or read the database table call_forwarding_records.
+ */
 public class CallForwardingRecordsDAO {
 
     private static final String LOAD_RECORDS_SQL = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username";

@@ -2,6 +2,11 @@ package com.samj.shared;
 
 import java.time.LocalDateTime;
 
+/**
+ * Class used as a Data Transfer Object for CallForwarding records from the database.
+ * It contains only some private instance variables, getters and setters and constructors,
+ * no additional logic should be added here.
+ */
 public class CallForwardingDTO {
 
     private int id;
