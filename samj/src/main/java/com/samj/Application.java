@@ -16,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -56,6 +57,7 @@ public class Application extends javafx.application.Application {
         grid.add(pwBox, 1, 1);
 
         Button btn = new Button("Sign in");
+        btn.getStyleClass().add("button");
         btn.setDefaultButton(true);
         grid.add(btn, 1, 2);
 
@@ -92,6 +94,7 @@ public class Application extends javafx.application.Application {
         });
 
         Scene scene = new Scene(grid, 300, 275);
+        scene.getStylesheets().add(getClass().getResource("/com.samj/style.css").toExternalForm());
         primaryStage.setScene(scene);
 
         primaryStage.show();
@@ -107,14 +110,15 @@ public class Application extends javafx.application.Application {
         ObservableList<CallForwardingDTO> tableData = _getTableData();
         MainTable mainTable = new MainTable(tableData);
 
-        HBox tableSearchFields = new HBox(mainTable.getSearchFieldCalledNumber(),
-                mainTable.getSearchFieldBeginTime(),
-                mainTable.getSearchFieldEndTime(),
-                mainTable.getSearchFieldDestinationNumber());
+        HBox tableSearchFields = new HBox(mainTable.getSearchFieldCalledNumber(), mainTable.getSearchFieldBeginTime(), mainTable.getSearchFieldEndTime(), mainTable.getSearchFieldDestinationNumber());
+        HBox.setHgrow(tableSearchFields, Priority.ALWAYS); // Makes the search field expand horizontally
 
         // Layout setup
         VBox vbox = new VBox(tableSearchFields, mainTable.getMainTable());
+        VBox.setVgrow(mainTable.getMainTable(), Priority.ALWAYS);
 
+        tableSearchFields.setMinWidth(100);
+        tableSearchFields.setMaxWidth(Double.MAX_VALUE); // As wide as possible
         // Set scene
         Scene scene = new Scene(vbox);
         primaryStage.setScene(scene);
