@@ -54,6 +54,7 @@ public class UserDAO {
                         resultSet.getString("status"));
 
             } catch (Exception e) {
+                System.out.println(e.getMessage());
                 // log error
             }
 
