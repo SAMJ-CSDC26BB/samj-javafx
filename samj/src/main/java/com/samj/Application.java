@@ -127,13 +127,7 @@ public class Application extends javafx.application.Application {
     }
 
     private void setupTableColumns(MainTable mainTable, HBox searchFields) {
-        List<TableColumn<CallForwardingDTO, String>> columns = Arrays.asList(
-                mainTable.getUserNameColumn(),
-                mainTable.getCalledNumberColumn(),
-                mainTable.getBeginTimeColumn(),
-                mainTable.getEndTimeColumn(),
-                mainTable.getDestinationNumberColumn()
-        );
+        List<TableColumn<CallForwardingDTO, String>> columns = Arrays.asList(mainTable.getUserNameColumn(), mainTable.getCalledNumberColumn(), mainTable.getBeginTimeColumn(), mainTable.getEndTimeColumn(), mainTable.getDestinationNumberColumn());
         double[] columnPercentages = {0.20, 0.20, 0.20, 0.20, 0.20}; // Adjust as necessary
 
         for (int i = 0; i < columns.size(); i++) {
