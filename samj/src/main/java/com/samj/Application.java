@@ -11,8 +11,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -23,7 +23,6 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Set;
 
 public class Application extends javafx.application.Application {
@@ -112,30 +111,71 @@ public class Application extends javafx.application.Application {
 
         HBox tableSearchFields = new HBox();
         tableSearchFields.getChildren().addAll(mainTable.getSearchFieldUser(), mainTable.getSearchFieldCalledNumber(), mainTable.getSearchFieldBeginTime(), mainTable.getSearchFieldEndTime(), mainTable.getSearchFieldDestinationNumber());
-        tableSearchFields.setSpacing(10); // Add spacing between fields
+        tableSearchFields.setSpacing(0); // Spacing between fields
+
+        // Set HGrow for search fields to make them responsive
         HBox.setHgrow(mainTable.getSearchFieldUser(), Priority.ALWAYS);
         HBox.setHgrow(mainTable.getSearchFieldCalledNumber(), Priority.ALWAYS);
         HBox.setHgrow(mainTable.getSearchFieldBeginTime(), Priority.ALWAYS);
         HBox.setHgrow(mainTable.getSearchFieldEndTime(), Priority.ALWAYS);
         HBox.setHgrow(mainTable.getSearchFieldDestinationNumber(), Priority.ALWAYS);
 
+        mainTable.getUserNameColumn().setPrefWidth(0.20); // 25%
+        mainTable.getCalledNumberColumn().setPrefWidth(0.20); // 25%
+        mainTable.getBeginTimeColumn().setPrefWidth(0.20); // 25%
+        mainTable.getEndTimeColumn().setPrefWidth(0.20); // 25%
+        mainTable.getDestinationNumberColumn().setPrefWidth(0.20); // 25%
+        // Add listener to update column widths when table size changes
+        mainTable.getMainTable().widthProperty().addListener((obs, oldVal, newVal) -> {
+            // Adjust the width of each column based on its percentage
+            double tableWidth = newVal.doubleValue();
+            mainTable.getUserNameColumn().setPrefWidth(tableWidth * 0.20); // 20% of the table width
+            mainTable.getCalledNumberColumn().setPrefWidth(tableWidth * 0.20); // 20% of the table width
+            mainTable.getBeginTimeColumn().setPrefWidth(tableWidth * 0.20); // 20% of the table width
+            mainTable.getEndTimeColumn().setPrefWidth(tableWidth * 0.20); // 20% of the table width
+            mainTable.getDestinationNumberColumn().setPrefWidth(tableWidth * 0.20); // 20% of the table width
+            // Adjust other columns similarly...
+        });
 
-        // Make each search field expand horizontally within the HBox
-        for (TextField searchField : Arrays.asList(mainTable.getSearchFieldUser(), mainTable.getSearchFieldCalledNumber(), mainTable.getSearchFieldBeginTime(), mainTable.getSearchFieldEndTime(), mainTable.getSearchFieldDestinationNumber())) {
-            HBox.setHgrow(searchField, Priority.ALWAYS);
-        }
+
+        mainTable.getSearchFieldUser().setPrefWidth(mainTable.getSearchFieldUser().getWidth());
+        mainTable.getSearchFieldCalledNumber().setPrefWidth(mainTable.getCalledNumberColumn().getWidth());
+        mainTable.getSearchFieldBeginTime().setPrefWidth(mainTable.getBeginTimeColumn().getWidth());
+        mainTable.getSearchFieldEndTime().setPrefWidth(mainTable.getEndTimeColumn().getWidth());
+        mainTable.getSearchFieldDestinationNumber().setPrefWidth(mainTable.getDestinationNumberColumn().getWidth());
+        // Repeat for other search fields and columns...
+
+        // Add listener to update search field width when table column width changes
+        mainTable.getUserNameColumn().widthProperty().addListener((obs, oldVal, newVal) -> {
+            mainTable.getSearchFieldUser().setPrefWidth(newVal.doubleValue());
+        });
+        // Add listener to update search field width when table column width changes
+        mainTable.getCalledNumberColumn().widthProperty().addListener((obs, oldVal, newVal) -> {
+            mainTable.getSearchFieldCalledNumber().setPrefWidth(newVal.doubleValue());
+        });
+        // Add listener to update search field width when table column width changes
+        mainTable.getBeginTimeColumn().widthProperty().addListener((obs, oldVal, newVal) -> {
+            mainTable.getSearchFieldBeginTime().setPrefWidth(newVal.doubleValue());
+        });
+        // Add listener to update search field width when table column width changes
+        mainTable.getEndTimeColumn().widthProperty().addListener((obs, oldVal, newVal) -> {
+            mainTable.getSearchFieldEndTime().setPrefWidth(newVal.doubleValue());
+        });
+        // Add listener to update search field width when table column width changes
+        mainTable.getDestinationNumberColumn().widthProperty().addListener((obs, oldVal, newVal) -> {
+            mainTable.getSearchFieldDestinationNumber().setPrefWidth(newVal.doubleValue());
+        });
+
 
         // Layout setup
         VBox vbox = new VBox(tableSearchFields, mainTable.getMainTable());
-        vbox.setSpacing(10); // Add spacing between the search fields and the table
-
-        // Make the table expand vertically within the VBox
-        VBox.setVgrow(mainTable.getMainTable(), Priority.ALWAYS);
+        VBox.setVgrow(mainTable.getMainTable(), Priority.ALWAYS); // Make the table expand vertically
 
         Scene scene = new Scene(vbox);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
 
     /**
      * Helper method for populating the main table with data from the database.
