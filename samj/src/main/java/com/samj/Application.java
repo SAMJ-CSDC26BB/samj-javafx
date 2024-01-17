@@ -164,7 +164,7 @@ public class Application extends javafx.application.Application {
     public static void main(String[] args) {
         // Creating the first thread for the server
         Thread serverThread = new Thread(() -> {
-            System.out.println("start server");
+            System.out.println("Start HTTP server");
             backend = new Server(8000);
             try {
                 backend.start();

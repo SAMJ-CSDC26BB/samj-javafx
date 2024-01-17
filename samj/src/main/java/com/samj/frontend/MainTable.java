@@ -2,7 +2,6 @@ package com.samj.frontend;
 
 import com.samj.shared.CallForwardingDTO;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -12,7 +11,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Comparator;
 
 /**
  * Class used to represent the main table containing the CallForwarding records
@@ -68,40 +70,34 @@ public class MainTable {
         mainTable.getColumns().add(destinationNumberColumn);
     }
 
+    private Comparator<String> createDateComparator(DateTimeFormatter formatter) {
+        return (o1, o2) -> {
+            try {
+                LocalDateTime date1 = LocalDateTime.parse(o1, formatter);
+                LocalDateTime date2 = LocalDateTime.parse(o2, formatter);
+                return date1.compareTo(date2);
+            } catch (DateTimeParseException e) {
+                return 0; // Oder eine andere geeignete Behandlung
+            }
+        };
+    }
+
     /**
      * Configures the cell value factories for each column in a TableView.
      * This method binds the columns to specific properties of the CallForwardingDTO class
      * by using the PropertyValueFactory.
      */
     private void _setUpCellValueFactoriesForColumns() {
-        calledNumberColumn.setCellValueFactory(new PropertyValueFactory<>("calledNumber"));
-
-        // Format beginTimeColumn
-        beginTimeColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<CallForwardingDTO, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<CallForwardingDTO, String> param) {
-                if (param.getValue() != null && param.getValue().getBeginTime() != null) {
-                    return new SimpleStringProperty(param.getValue().getBeginTime().format(timeFormatter));
-                } else {
-                    return new SimpleStringProperty("");
-                }
-            }
-        });
-
-        // Format endTimeColumn
-        endTimeColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<CallForwardingDTO, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<CallForwardingDTO, String> param) {
-                if (param.getValue() != null && param.getValue().getEndTime() != null) {
-                    return new SimpleStringProperty(param.getValue().getEndTime().format(timeFormatter));
-                } else {
-                    return new SimpleStringProperty("");
-                }
-            }
-        });
-
         userNameColumn.setCellValueFactory(new PropertyValueFactory<>("destinationUsername"));
+        calledNumberColumn.setCellValueFactory(new PropertyValueFactory<>("calledNumber"));
+        setupDateColumn(beginTimeColumn, CallForwardingDTO::getBeginTime, timeFormatter);
+        setupDateColumn(endTimeColumn, CallForwardingDTO::getEndTime, timeFormatter);
         destinationNumberColumn.setCellValueFactory(new PropertyValueFactory<>("destinationNumber"));
+    }
+
+    private void setupDateColumn(TableColumn<CallForwardingDTO, String> column, Callback<CallForwardingDTO, LocalDateTime> dateSupplier, DateTimeFormatter formatter) {
+        column.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue() != null && dateSupplier.call(cellData.getValue()) != null ? dateSupplier.call(cellData.getValue()).format(formatter) : ""));
+        column.setComparator(createDateComparator(formatter));
     }
 
     private void _setSearchInputFields() {
@@ -159,11 +155,8 @@ public class MainTable {
                     return false; // Does not match end time
                 }
             }
-            if (!searchFieldDestinationNumber.getText().isEmpty() && !callForwardingDTO.getDestinationNumber().toLowerCase().contains(searchFieldDestinationNumber.getText().toLowerCase())) {
-                return false; // Does not match destination number
-            }
-
-            return true; // All criteria are matched
+            return searchFieldDestinationNumber.getText().isEmpty() || callForwardingDTO.getDestinationNumber().toLowerCase().contains(searchFieldDestinationNumber.getText().toLowerCase()); // Does not match destination number
+// All criteria are matched
         });
     }
 
