@@ -133,6 +133,7 @@ public class Application extends javafx.application.Application {
         for (int i = 0; i < columns.size(); i++) {
             TableColumn<CallForwardingDTO, ?> column = columns.get(i);
             column.prefWidthProperty().bind(mainTable.getMainTable().widthProperty().multiply(columnPercentages[i]));
+            column.setResizable(false); // Disable manual resizing
             setupColumnWidthListener(column, (TextField) searchFields.getChildren().get(i));
         }
     }
