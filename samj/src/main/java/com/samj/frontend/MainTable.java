@@ -166,11 +166,13 @@ public class MainTable {
      */
     private void _addClassesToTableComponents() {
         mainTable.getStyleClass().add("samj--main-table");
-        calledNumberColumn.getStyleClass().add("samj--main-table__column");
-        beginTimeColumn.getStyleClass().add("samj--main-table__column");
-        endTimeColumn.getStyleClass().add("samj--main-table__column");
-        destinationNumberColumn.getStyleClass().add("samj--main-table__column");
-        userNameColumn.getStyleClass().add("samj--main-table__column");
+
+        String columnClassName = "samj--main-table__column";
+        calledNumberColumn.getStyleClass().add(columnClassName);
+        beginTimeColumn.getStyleClass().add(columnClassName);
+        endTimeColumn.getStyleClass().add(columnClassName);
+        destinationNumberColumn.getStyleClass().add(columnClassName);
+        userNameColumn.getStyleClass().add(columnClassName);
     }
 
     public TableView<CallForwardingDTO> getMainTable() {

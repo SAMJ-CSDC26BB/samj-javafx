@@ -20,3 +20,13 @@
 .test {
     overflow-x: hidden;
 }
+
+
+.samj--main-table .scroll-bar * {
+    /*hide the horizontal scroll*/
+    /*https://stackoverflow.com/questions/55093764/javafx-how-to-disable-scrollbars-in-tableview*/
+
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
