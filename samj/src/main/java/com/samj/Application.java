@@ -121,6 +121,16 @@ public class Application extends javafx.application.Application {
      * @param primaryStage - the stage where the new scene is set
      */
     private void _setMainSceneAfterLogin(Stage primaryStage) {
+        primaryStage.setTitle("SAMJ - Oncall Duty Plan");
+        try {
+            // Make sure to import javafx.scene.image.Image
+            InputStream iconStream = getClass().getResourceAsStream("/com.samj/images/samj_logo.png");
+            assert iconStream != null;
+            Image applicationIcon = new Image(iconStream);
+            primaryStage.getIcons().add(applicationIcon);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         ObservableList<CallForwardingDTO> tableData = _getTableData();
         MainTable mainTable = new MainTable(tableData);
 
