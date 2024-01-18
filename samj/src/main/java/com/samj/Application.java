@@ -21,6 +21,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -32,10 +33,19 @@ public class Application extends javafx.application.Application {
 
     private static Server backend;
 
+    private GridPane createLoginGrid() {
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(25, 25, 25, 25));
+        return grid;
+    }
+
     public void start(Stage primaryStage) {
         primaryStage.setTitle("SAMJ Login");
         try {
-            // Make sure to import javafx.scene.image.Image
+            // Make sure to import javafx.loginScene.image.Image
             InputStream iconStream = getClass().getResourceAsStream("/com.samj/images/samj_logo.png");
             assert iconStream != null;
             Image applicationIcon = new Image(iconStream);
@@ -44,13 +54,12 @@ public class Application extends javafx.application.Application {
             e.printStackTrace();
         }
 
-
-        // Create the layout
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setVgap(10);
-        grid.setHgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
+        GridPane loginGrid = createLoginGrid();
+        Button settingsButtonLogin = createSettingsButton(primaryStage);
+        BorderPane borderPaneLogin = new BorderPane();
+        borderPaneLogin.setTop(settingsButtonLogin);
+        BorderPane.setAlignment(settingsButtonLogin, Pos.TOP_RIGHT);
+        borderPaneLogin.setCenter(loginGrid);
 
         //Label CapsLock
         Label capsLockLabel = new Label("Caps Lock is ON");
@@ -58,40 +67,24 @@ public class Application extends javafx.application.Application {
 
         // Create the components
         Label userName = new Label("User: ");
-        grid.add(userName, 0, 0);
+        loginGrid.add(userName, 0, 0);
 
         TextField userTextField = new TextField();
-        grid.add(userTextField, 1, 0);
+        loginGrid.add(userTextField, 1, 0);
 
         Label pw = new Label("Password:");
-        grid.add(pw, 0, 1);
+        loginGrid.add(pw, 0, 1);
 
         PasswordField pwBox = new PasswordField();
-        grid.add(pwBox, 1, 1);
+        loginGrid.add(pwBox, 1, 1);
 
         Button btn = new Button("Sign in");
         btn.getStyleClass().add("sign-button");
         btn.setDefaultButton(true);
-        grid.add(btn, 1, 2);
-
-        Button settingsButton = new Button();
-        Image settingsIcon = new Image(getClass().getResourceAsStream("/com.samj/images/settings-icon.png"));
-        ImageView settingsIconView = new ImageView(settingsIcon);
-        settingsIconView.setFitHeight(20); // Set the size as needed
-        settingsIconView.setFitWidth(20);
-        settingsButton.setGraphic(settingsIconView);
-        BorderPane borderPane = new BorderPane();
-        borderPane.setTop(settingsButton);
-        BorderPane.setAlignment(settingsButton, Pos.TOP_RIGHT);
-
-        // Add action for the settings button
-        settingsButton.setOnAction(e -> {
-            // Switch to settings scene
-            _setSettingsScene(primaryStage);
-        });
+        loginGrid.add(btn, 1, 2);
 
         final Text actionTarget = new Text();
-        grid.add(actionTarget, 1, 6);
+        loginGrid.add(actionTarget, 1, 6);
 
         btn.setOnAction(e -> {
             String username = userTextField.getText();
@@ -106,7 +99,7 @@ public class Application extends javafx.application.Application {
         });
 
         pwBox.setOnKeyReleased(event -> {
-            boolean isCapsOn = Toolkit.getDefaultToolkit().getLockingKeyState(java.awt.event.KeyEvent.VK_CAPS_LOCK);
+            boolean isCapsOn = Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK);
             capsLockLabel.setVisible(isCapsOn);
         });
 
@@ -122,11 +115,39 @@ public class Application extends javafx.application.Application {
             }
         });
 
-        Scene scene = new Scene(grid, 300, 275);
-        scene.getStylesheets().add(getClass().getResource("/com.samj/style.css").toExternalForm());
-        primaryStage.setScene(scene);
+
+        Scene loginScene = new Scene(borderPaneLogin, 300, 275);
+        loginScene.getStylesheets().add(getClass().getResource("/com.samj/style.css").toExternalForm());
+        primaryStage.setScene(loginScene);
 
         primaryStage.show();
+    }
+
+    private Button createSettingsButton(Stage primaryStage) {
+        Button settingsButton = new Button();
+        Image settingsIcon = new Image(getClass().getResourceAsStream("/com.samj/images/settings-icon.png"));
+        ImageView settingsIconView = new ImageView(settingsIcon);
+        settingsIconView.setFitHeight(20); // Set the size as needed
+        settingsIconView.setFitWidth(20);
+        settingsButton.setGraphic(settingsIconView);
+
+        // Add action for the settings button
+        settingsButton.setOnAction(e -> _setSettingsScene(primaryStage));
+
+        return settingsButton;
+    }
+
+    private Button createGoBackButton(Stage primaryStage) {
+        Button goBackButton = new Button();
+        Image goBackIcon = new Image(getClass().getResourceAsStream("/com.samj/images/back-icon.png"));
+        ImageView goBackIconView = new ImageView(goBackIcon);
+        goBackIconView.setFitHeight(20); // Set the size as needed
+        goBackIconView.setFitWidth(20);
+        goBackButton.setGraphic(goBackIconView);
+
+        // Add action for the settings button
+        goBackButton.setOnAction(e -> _setMainSceneAfterLogin(primaryStage));
+        return goBackButton;
     }
 
     /**
@@ -135,8 +156,11 @@ public class Application extends javafx.application.Application {
      * @param primaryStage - the stage where the new scene is set
      */
     private void _setMainSceneAfterLogin(Stage primaryStage) {
-
         primaryStage.setTitle("SAMJ - Oncall Duty Plan");
+        Button settingsButtonMain = createSettingsButton(primaryStage);
+        BorderPane borderPaneMain = new BorderPane();
+        borderPaneMain.setTop(settingsButtonMain);
+        BorderPane.setAlignment(settingsButtonMain, Pos.TOP_RIGHT);
         try {
             // Make sure to import javafx.scene.image.Image
             InputStream iconStream = getClass().getResourceAsStream("/com.samj/images/samj_logo.png");
@@ -153,25 +177,30 @@ public class Application extends javafx.application.Application {
         setupTableColumns(mainTable, tableSearchFields);
 
         VBox vbox = new VBox(tableSearchFields, mainTable.getMainTable());
-        VBox.setVgrow(mainTable.getMainTable(), Priority.ALWAYS); // Make the table expand vertically
+        VBox.setVgrow(mainTable.getMainTable(), Priority.ALWAYS);
+        borderPaneMain.setCenter(vbox);
 
-        vbox.getStyleClass().add("test");
-        Scene scene = new Scene(vbox);
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
-        primaryStage.setScene(scene);
+        Scene mainScene = new Scene(borderPaneMain);
+        mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
+        primaryStage.setScene(mainScene);
         primaryStage.show();
     }
 
     private void _setSettingsScene(Stage primaryStage) {
+        primaryStage.setTitle("SAMJ - Settings");
         GridPane settingsGrid = new GridPane();
         settingsGrid.setAlignment(Pos.CENTER);
         settingsGrid.setVgap(10);
         settingsGrid.setHgap(10);
         settingsGrid.setPadding(new Insets(10));
 
+        Button goBackButton = createGoBackButton(primaryStage);
+        BorderPane borderPaneMain = new BorderPane();
+        borderPaneMain.setTop(goBackButton);
+        BorderPane.setAlignment(goBackButton, Pos.TOP_LEFT);
         // Add settings controls to settingsGrid as needed
 
-        Scene settingsScene = new Scene(settingsGrid, 300, 275); // Adjust size as needed
+        Scene settingsScene = new Scene(settingsGrid, 1000, 750); // Adjust size as needed
         settingsScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
         primaryStage.setScene(settingsScene);
     }
