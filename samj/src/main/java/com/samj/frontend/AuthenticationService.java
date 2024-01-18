@@ -14,10 +14,10 @@ public class AuthenticationService {
 
     public static boolean authenticate(String username, String password) {
         UserDTO user = DatabaseAPI.loadUserByUsername(username);
-        return validateUserPassword(user, password);
+        return validateUserAndPassword(user, password);
     }
 
-    private static boolean validateUserPassword(UserDTO user, String password) {
+    private static boolean validateUserAndPassword(UserDTO user, String password) {
         return user != null && user.getPassword() != null && BCrypt.checkpw(password, user.getPassword());
     }
 }
