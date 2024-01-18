@@ -14,7 +14,7 @@ import java.util.Set;
 public class DatabaseAPI {
 
     public static boolean createNewUser(UserDTO userDTO) {
-        // todo hash the user psw.
+        encryptUserPassword(userDTO);
         return UserDAO.createUser(userDTO);
     }
 
@@ -92,5 +92,15 @@ public class DatabaseAPI {
 
     public static boolean deleteCallForwardingRecord(int id) {
         return CallForwardingRecordsDAO.deleteRecord(id);
+    }
+
+    public static void encryptUserPassword(UserDTO userDTO) {
+        if (userDTO == null) {
+            return;
+        }
+
+        String plainPassword = userDTO.getPassword();
+        String encryptedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
+        userDTO.setPassword(encryptedPassword);
     }
 }
