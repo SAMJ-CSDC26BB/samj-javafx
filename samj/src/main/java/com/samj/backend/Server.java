@@ -33,8 +33,7 @@ public class Server {
         System.out.println(calledNumber);
         String ForwardedNummer = "";
 
-        //if(checkSyntaxNumber(CalledNumber) &&
-        //checkCalledNumberExists(CalledNumber) &&
+        //if(checkCalledNumberExists(CalledNumber) &&
         //isForwardingActive(CalledNumber)){
         //    ForwardedNummer = getForwardedNumber(CalledNumber);
         //    return ForwardedNummer;
@@ -42,11 +41,23 @@ public class Server {
         return "ERROR in logic!";
     }
 
+    /**
+     * This function will be implemented in the future.
+     *
+     * https://repo1.maven.org/maven2/com/googlecode/libphonenumber/libphonenumber/8.12.56/
+     * com/googlecode/libphonenumber/libphonenumber/8.12.56
+     * Features that are possible:
+     * 1) find out location code (AT, DE,...)
+     * 2) syntax checking
+     * @param calledNumber
+     * @return true/false
+     */
     private boolean checkSyntaxNumber(String calledNumber) {
         return false;
     }
 
     private boolean checkCalledNumberExists(String calledNumber) {
+
         return false;
     }
 
