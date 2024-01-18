@@ -13,14 +13,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.scene.image.Image;
 
 import java.awt.*;
 import java.io.IOException;
@@ -76,6 +74,22 @@ public class Application extends javafx.application.Application {
         btn.setDefaultButton(true);
         grid.add(btn, 1, 2);
 
+        Button settingsButton = new Button();
+        Image settingsIcon = new Image(getClass().getResourceAsStream("/com.samj/images/settings-icon.png"));
+        ImageView settingsIconView = new ImageView(settingsIcon);
+        settingsIconView.setFitHeight(20); // Set the size as needed
+        settingsIconView.setFitWidth(20);
+        settingsButton.setGraphic(settingsIconView);
+        BorderPane borderPane = new BorderPane();
+        borderPane.setTop(settingsButton);
+        BorderPane.setAlignment(settingsButton, Pos.TOP_RIGHT);
+
+        // Add action for the settings button
+        settingsButton.setOnAction(e -> {
+            // Switch to settings scene
+            _setSettingsScene(primaryStage);
+        });
+
         final Text actionTarget = new Text();
         grid.add(actionTarget, 1, 6);
 
@@ -121,6 +135,7 @@ public class Application extends javafx.application.Application {
      * @param primaryStage - the stage where the new scene is set
      */
     private void _setMainSceneAfterLogin(Stage primaryStage) {
+
         primaryStage.setTitle("SAMJ - Oncall Duty Plan");
         try {
             // Make sure to import javafx.scene.image.Image
@@ -145,6 +160,20 @@ public class Application extends javafx.application.Application {
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void _setSettingsScene(Stage primaryStage) {
+        GridPane settingsGrid = new GridPane();
+        settingsGrid.setAlignment(Pos.CENTER);
+        settingsGrid.setVgap(10);
+        settingsGrid.setHgap(10);
+        settingsGrid.setPadding(new Insets(10));
+
+        // Add settings controls to settingsGrid as needed
+
+        Scene settingsScene = new Scene(settingsGrid, 300, 275); // Adjust size as needed
+        settingsScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
+        primaryStage.setScene(settingsScene);
     }
 
     private HBox setupSearchFields(MainTable mainTable) {
