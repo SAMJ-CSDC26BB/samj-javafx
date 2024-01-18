@@ -17,7 +17,7 @@ public class CallForwardingRecordsDAO {
     private static final String LOAD_RECORDS_SQL = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username";
     private static final String LOAD_RECORDS_BY_ID = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE c.ID=?";
 
-    private static final String LOAD_RECORDS_BY_CALLED_NUMBER = "SELECT c.*, u.number from call_forwarding_records as c JOIN user as u on u.username=c.username WHERE c.calledNumber=?";
+    private static final String LOAD_RECORDS_BY_CALLED_NUMBER = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u on u.username=c.username WHERE c.calledNumber=?";
     private static final String LOAD_RECORDS_BY_DATE_SQL = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE startDate >= ? AND endDate <= ?";
     private static final String LOAD_RECORDS_BY_START_DATE_SQL = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE startDate >= ?";
     private static final String ADD_RECORD_SQL = "INSERT INTO call_forwarding_records (calledNumber, username, startDate, endDate) VALUES (?, ?, ?, ?)";
@@ -224,7 +224,7 @@ public class CallForwardingRecordsDAO {
                                                            Set<CallForwardingDTO> callForwardingSet)
             throws SQLException {
 
-        if (resultSet == null || !resultSet.next() || callForwardingSet == null) {
+        if (resultSet == null || callForwardingSet == null) {
             return;
         }
 
