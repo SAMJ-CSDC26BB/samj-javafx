@@ -29,18 +29,34 @@ public class Server {
      * @param calledNumber number incoming from tel
      * @return maybe throws Exception in future?
      */
-    static public String timeBasedForwarding(String calledNumber) {
-        System.out.println(calledNumber);
-        String ForwardedNummer = "";
+    static public String timeBasedForwarding(String args) {
+        System.out.println(args);
 
-        //if(checkCalledNumberExists(CalledNumber) &&
-        //isForwardingActive(CalledNumber)){
-        //    ForwardedNummer = getForwardedNumber(CalledNumber);
-        //    return ForwardedNummer;
-        //}
-        return "ERROR in logic!";
+        return apiCall(args.split("number=")[1]);
+    }
+    static private String apiCall(String calledNumber){
+        Set<CallForwardingDTO> forwardingSet = DatabaseAPI.loadCallForwardingRecordByCalledNumber(calledNumber);
+        if(checkCalledNumberExists(forwardingSet) && isForwardingActive(forwardingSet))
+            return "number!";
+        return "Error in Logic of Application!";
     }
 
+    static private boolean checkCalledNumberExists(Set<CallForwardingDTO> forwardingSet) {
+        System.out.print(!forwardingSet.isEmpty());
+        return forwardingSet.isEmpty();
+    }
+
+    static private boolean isForwardingActive(Set<CallForwardingDTO> forwardingSet) {
+        for(CallForwardingDTO DTO : forwardingSet){
+            System.out.println(DTO.getDestinationUsername());
+        }
+        System.out.print("isForwardingActive?!");
+        return false;
+    }
+
+    private String getForwardedNumber(String calledNumber) {
+        return "";
+    }
     /**
      * This function will be implemented in the future.
      *
@@ -56,18 +72,7 @@ public class Server {
         return false;
     }
 
-    private boolean checkCalledNumberExists(String calledNumber) {
 
-        return false;
-    }
-
-    private boolean isForwardingActive(String calledNumber) {
-        return false;
-    }
-
-    private String getForwardedNumber(String calledNumber) {
-        return "";
-    }
 
 
     public Set<CallForwardingDTO> getTimeBasedForwardingSet() {
