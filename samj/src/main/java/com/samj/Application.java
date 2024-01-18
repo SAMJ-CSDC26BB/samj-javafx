@@ -4,6 +4,7 @@ import com.samj.backend.Server;
 import com.samj.frontend.AuthenticationService;
 import com.samj.frontend.MainTable;
 import com.samj.shared.CallForwardingDTO;
+import com.samj.shared.DatabaseAPI;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -11,13 +12,11 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
@@ -34,8 +33,12 @@ public class Application extends javafx.application.Application {
 
     private static Server backend;
 
+    private Stage mainStage;
+
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("SAMJ Login");
+        mainStage = primaryStage;
+
+        mainStage.setTitle("SAMJ Login");
         try {
             // Make sure to import javafx.scene.image.Image
             InputStream iconStream = getClass().getResourceAsStream("/com.samj/images/samj_logo.png");
@@ -85,7 +88,7 @@ public class Application extends javafx.application.Application {
             if (AuthenticationService.authenticate(username, password)) {
                 actionTarget.setText("Login successful.");
                 // Proceed to next view or functionality
-                _setMainSceneAfterLogin(primaryStage);
+                _setMainSceneAfterLogin();
             } else {
                 actionTarget.setText("Login failed.");
             }
@@ -110,32 +113,107 @@ public class Application extends javafx.application.Application {
 
         Scene scene = new Scene(grid, 300, 275);
         scene.getStylesheets().add(getClass().getResource("/com.samj/style.css").toExternalForm());
-        primaryStage.setScene(scene);
+        mainStage.setScene(scene);
 
-        primaryStage.show();
+        mainStage.show();
     }
 
     /**
      * Method responsible for setting the scene after login. The scene contains a table with CallForwardingDTOs.
-     *
-     * @param primaryStage - the stage where the new scene is set
      */
-    private void _setMainSceneAfterLogin(Stage primaryStage) {
+    private void _setMainSceneAfterLogin() {
         ObservableList<CallForwardingDTO> tableData = _getTableData();
         MainTable mainTable = new MainTable(tableData);
 
         HBox tableSearchFields = setupSearchFields(mainTable);
         setupTableColumns(mainTable, tableSearchFields);
 
-        VBox vbox = new VBox(tableSearchFields, mainTable.getMainTable());
+        // Create MenuButton and MenuItems
+        MenuButton menuButton = new MenuButton("Options");
+        MenuItem createUserItem = new MenuItem("Create New User");
+        createUserItem.setOnAction(e -> openCreateUserForm());
+        menuButton.getItems().add(createUserItem);
+
+        // Layout for the header with MenuButton
+        BorderPane headerPane = new BorderPane();
+        headerPane.setRight(menuButton); // Align to the right, adjust as needed
+        headerPane.setPadding(new Insets(10, 10, 10, 10)); // Add some padding, adjust as needed
+        headerPane.getStyleClass().add("header-pane"); // Add a style class for custom styling
+
+        // Main layout
+        VBox vbox = new VBox(headerPane, tableSearchFields, mainTable.getMainTable());
         VBox.setVgrow(mainTable.getMainTable(), Priority.ALWAYS); // Make the table expand vertically
 
-        vbox.getStyleClass().add("test");
+        vbox.getStyleClass().add("main-container");
         Scene scene = new Scene(vbox);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        mainStage.setScene(scene);
+        mainStage.show();
     }
+
+
+    private void openCreateUserForm() {
+        // New Stage for Create User Form
+        Stage newUserStage = new Stage();
+        newUserStage.setTitle("Create New User");
+
+        // GridPane for layout
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(10, 10, 10, 10));
+
+        // Creating fields for user input
+        TextField fullNameField = new TextField();
+        TextField usernameField = new TextField();
+        PasswordField passwordField = new PasswordField();
+        TextField phoneNumberField = new TextField();
+
+        // Adding labels and fields to the grid
+        grid.add(new Label("Full Name:"), 0, 0);
+        grid.add(fullNameField, 1, 0);
+
+        grid.add(new Label("Username:"), 0, 1);
+        grid.add(usernameField, 1, 1);
+
+        grid.add(new Label("Password:"), 0, 2);
+        grid.add(passwordField, 1, 2);
+
+        grid.add(new Label("Phone Number:"), 0, 3);
+        grid.add(phoneNumberField, 1, 3);
+
+        // Submit Button with action to handle the input data
+        Button submitButton = new Button("Submit");
+        submitButton.setOnAction(e -> onSubmitCreateUserForm(
+                fullNameField.getText(),
+                usernameField.getText(),
+                passwordField.getText(),
+                phoneNumberField.getText()
+        ));
+
+        // Placing the submit button in the grid
+        grid.add(submitButton, 1, 4);
+
+        // Setting the scene and showing the new stage
+        Scene scene = new Scene(grid, 300, 200); // Adjust the size as needed
+        newUserStage.setScene(scene);
+
+        // Centering newUserStage relative to mainStage
+        double centerXPosition = mainStage.getX() + mainStage.getWidth() / 2d - newUserStage.getWidth() / 2d;
+        double centerYPosition = mainStage.getY() + mainStage.getHeight() / 2d - newUserStage.getHeight() / 2d;
+        newUserStage.setOnShown(e -> {
+            newUserStage.setX(centerXPosition);
+            newUserStage.setY(centerYPosition);
+        });
+
+        newUserStage.show();
+    }
+
+    private void onSubmitCreateUserForm(String fullName, String username, String password, String phoneNumber) {
+        DatabaseAPI.createNewUser(fullName, username, password, phoneNumber);
+    }
+
 
     private HBox setupSearchFields(MainTable mainTable) {
         return new HBox(mainTable.getSearchFieldUser(), mainTable.getSearchFieldCalledNumber(), mainTable.getSearchFieldBeginTime(), mainTable.getSearchFieldEndTime(), mainTable.getSearchFieldDestinationNumber());
@@ -163,9 +241,7 @@ public class Application extends javafx.application.Application {
 
     /**
      * Helper method for populating the main table with data from the database.
-     * TODO implement when database is ready
      */
-
     private ObservableList<CallForwardingDTO> _getTableData() {
         // Original data list
         ObservableList<CallForwardingDTO> tableData = FXCollections.observableArrayList();
