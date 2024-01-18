@@ -16,3 +16,7 @@
     -fx-background-color: white;
     -fx-border-color: grey;
 }
+
+.test {
+    overflow-x: hidden;
+}

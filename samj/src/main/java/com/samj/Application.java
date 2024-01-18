@@ -25,6 +25,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class Application extends javafx.application.Application {
@@ -117,7 +118,9 @@ public class Application extends javafx.application.Application {
         VBox vbox = new VBox(tableSearchFields, mainTable.getMainTable());
         VBox.setVgrow(mainTable.getMainTable(), Priority.ALWAYS); // Make the table expand vertically
 
+        vbox.getStyleClass().add("test");
         Scene scene = new Scene(vbox);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
