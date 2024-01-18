@@ -20,9 +20,11 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
 
 import java.awt.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +36,16 @@ public class Application extends javafx.application.Application {
 
     public void start(Stage primaryStage) {
         primaryStage.setTitle("SAMJ Login");
+        try {
+            // Make sure to import javafx.scene.image.Image
+            InputStream iconStream = getClass().getResourceAsStream("/com.samj/images/samj_logo.png");
+            assert iconStream != null;
+            Image applicationIcon = new Image(iconStream);
+            primaryStage.getIcons().add(applicationIcon);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         // Create the layout
         GridPane grid = new GridPane();
