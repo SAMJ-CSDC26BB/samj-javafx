@@ -18,6 +18,16 @@ public class DatabaseAPI {
         return UserDAO.createUser(userDTO);
     }
 
+    public static boolean createNewUser(String fullName, String username, String password, String phoneNumber) {
+        if (! _validateUserData(fullName, username, password, phoneNumber)) {
+            return false;
+        }
+
+        UserDTO userDTO = new UserDTO(username, fullName, password, phoneNumber);
+        encryptUserPassword(userDTO);
+        return UserDAO.createUser(userDTO);
+    }
+
     public static Set<UserDTO> loadAllInactiveUsers() {
         return UserDAO.loadAllInActiveUsers();
     }
@@ -106,5 +116,12 @@ public class DatabaseAPI {
         String plainPassword = userDTO.getPassword();
         String encryptedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
         userDTO.setPassword(encryptedPassword);
+    }
+
+    /**
+     * TODO more validation needed.
+     */
+    private static boolean _validateUserData(String fullName, String username, String password, String phoneNumber) {
+        return fullName != null && username != null && password != null && phoneNumber != null;
     }
 }
