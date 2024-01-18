@@ -1,5 +1,10 @@
 package com.samj.shared;
 
+/**
+ * Class used as a Data Transfer Object for User records from the database.
+ * It contains only some private instance variables, getters and setters and constructors,
+ * no additional logic should be added here.
+ */
 public class UserDTO {
     private String username;
     private String fullName;

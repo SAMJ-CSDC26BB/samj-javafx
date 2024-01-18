@@ -2,7 +2,6 @@ package com.samj.frontend;
 
 import com.samj.shared.CallForwardingDTO;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -12,15 +11,24 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Comparator;
 
+/**
+ * Class used to represent the main table containing the CallForwarding records
+ * from the database.
+ */
 public class MainTable {
 
     private TableView<CallForwardingDTO> mainTable;
     private TableColumn<CallForwardingDTO, String> calledNumberColumn;
     private TableColumn<CallForwardingDTO, String> beginTimeColumn;
     private TableColumn<CallForwardingDTO, String> endTimeColumn;
+    private TableColumn<CallForwardingDTO, String> userNameColumn;
     private TableColumn<CallForwardingDTO, String> destinationNumberColumn;
+    private TextField searchFieldUser;
     private TextField searchFieldCalledNumber;
     private TextField searchFieldBeginTime;
     private TextField searchFieldEndTime;
@@ -47,6 +55,7 @@ public class MainTable {
     }
 
     private void _setMainTableColumns() {
+        userNameColumn = new TableColumn<CallForwardingDTO, String>("Username");
         calledNumberColumn = new TableColumn<>("Called Number");
         beginTimeColumn = new TableColumn<CallForwardingDTO, String>("Begin Time");
         endTimeColumn = new TableColumn<CallForwardingDTO, String>("End Time");
@@ -54,10 +63,23 @@ public class MainTable {
     }
 
     private void _addColumnsToTheTable() {
+        mainTable.getColumns().add(userNameColumn);
         mainTable.getColumns().add(calledNumberColumn);
         mainTable.getColumns().add(beginTimeColumn);
         mainTable.getColumns().add(endTimeColumn);
         mainTable.getColumns().add(destinationNumberColumn);
+    }
+
+    private Comparator<String> createDateComparator(DateTimeFormatter formatter) {
+        return (o1, o2) -> {
+            try {
+                LocalDateTime date1 = LocalDateTime.parse(o1, formatter);
+                LocalDateTime date2 = LocalDateTime.parse(o2, formatter);
+                return date1.compareTo(date2);
+            } catch (DateTimeParseException e) {
+                return 0; // Oder eine andere geeignete Behandlung
+            }
+        };
     }
 
     /**
@@ -66,36 +88,20 @@ public class MainTable {
      * by using the PropertyValueFactory.
      */
     private void _setUpCellValueFactoriesForColumns() {
+        userNameColumn.setCellValueFactory(new PropertyValueFactory<>("destinationUsername"));
         calledNumberColumn.setCellValueFactory(new PropertyValueFactory<>("calledNumber"));
-
-        // Format beginTimeColumn
-        beginTimeColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<CallForwardingDTO, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<CallForwardingDTO, String> param) {
-                if (param.getValue() != null && param.getValue().getBeginTime() != null) {
-                    return new SimpleStringProperty(param.getValue().getBeginTime().format(timeFormatter));
-                } else {
-                    return new SimpleStringProperty("");
-                }
-            }
-        });
-
-        // Format endTimeColumn
-        endTimeColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<CallForwardingDTO, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<CallForwardingDTO, String> param) {
-                if (param.getValue() != null && param.getValue().getEndTime() != null) {
-                    return new SimpleStringProperty(param.getValue().getEndTime().format(timeFormatter));
-                } else {
-                    return new SimpleStringProperty("");
-                }
-            }
-        });
-
+        setupDateColumn(beginTimeColumn, CallForwardingDTO::getBeginTime, timeFormatter);
+        setupDateColumn(endTimeColumn, CallForwardingDTO::getEndTime, timeFormatter);
         destinationNumberColumn.setCellValueFactory(new PropertyValueFactory<>("destinationNumber"));
     }
 
+    private void setupDateColumn(TableColumn<CallForwardingDTO, String> column, Callback<CallForwardingDTO, LocalDateTime> dateSupplier, DateTimeFormatter formatter) {
+        column.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue() != null && dateSupplier.call(cellData.getValue()) != null ? dateSupplier.call(cellData.getValue()).format(formatter) : ""));
+        column.setComparator(createDateComparator(formatter));
+    }
+
     private void _setSearchInputFields() {
+        searchFieldUser = new TextField();
         searchFieldCalledNumber = new TextField();
         searchFieldBeginTime = new TextField();
         searchFieldEndTime = new TextField();
@@ -111,6 +117,7 @@ public class MainTable {
         FilteredList<CallForwardingDTO> filteredData = new FilteredList<>(tableData, p -> true);
 
         // Update predicates for each search field
+        searchFieldUser.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldCalledNumber.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldBeginTime.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldEndTime.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
@@ -132,8 +139,7 @@ public class MainTable {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         filteredData.setPredicate(callForwardingDTO -> {
             // Check each search field for matching criteria
-            if (!searchFieldCalledNumber.getText().isEmpty()
-                    && !callForwardingDTO.getCalledNumber().toLowerCase().contains(searchFieldCalledNumber.getText().toLowerCase())) {
+            if (!searchFieldCalledNumber.getText().isEmpty() && !callForwardingDTO.getCalledNumber().toLowerCase().contains(searchFieldCalledNumber.getText().toLowerCase())) {
 
                 return false; // Does not match called number
             }
@@ -149,12 +155,8 @@ public class MainTable {
                     return false; // Does not match end time
                 }
             }
-            if (!searchFieldDestinationNumber.getText().isEmpty()
-                    && !callForwardingDTO.getDestinationNumber().toLowerCase().contains(searchFieldDestinationNumber.getText().toLowerCase())) {
-                return false; // Does not match destination number
-            }
-
-            return true; // All criteria are matched
+            return searchFieldDestinationNumber.getText().isEmpty() || callForwardingDTO.getDestinationNumber().toLowerCase().contains(searchFieldDestinationNumber.getText().toLowerCase()); // Does not match destination number
+// All criteria are matched
         });
     }
 
@@ -168,6 +170,7 @@ public class MainTable {
         beginTimeColumn.getStyleClass().add("samj--main-table__column");
         endTimeColumn.getStyleClass().add("samj--main-table__column");
         destinationNumberColumn.getStyleClass().add("samj--main-table__column");
+        userNameColumn.getStyleClass().add("samj--main-table__column");
     }
 
     public TableView<CallForwardingDTO> getMainTable() {
@@ -176,6 +179,10 @@ public class MainTable {
 
     public void setMainTable(TableView<CallForwardingDTO> mainTable) {
         this.mainTable = mainTable;
+    }
+
+    public TableColumn<CallForwardingDTO, String> getUserNameColumn() {
+        return userNameColumn;
     }
 
     public TableColumn<CallForwardingDTO, String> getCalledNumberColumn() {
@@ -252,9 +259,18 @@ public class MainTable {
 
     /**
      * in order to set Date and Time format, standard is DD.MM.YYYY HH:mm
+     *
      * @param timeFormatter
      */
     public void setTimeFormatter(DateTimeFormatter timeFormatter) {
         this.timeFormatter = timeFormatter;
+    }
+
+    public TextField getSearchFieldUser() {
+        return searchFieldUser;
+    }
+
+    public void setSearchFieldUser(TextField searchFieldUser) {
+        this.searchFieldUser = searchFieldUser;
     }
 }
