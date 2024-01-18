@@ -11,19 +11,26 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.awt.*;
-import java.time.LocalDateTime;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public class Application extends javafx.application.Application {
+
+    private static Server backend;
 
     public void start(Stage primaryStage) {
         primaryStage.setTitle("SAMJ Login");
@@ -53,19 +60,17 @@ public class Application extends javafx.application.Application {
         grid.add(pwBox, 1, 1);
 
         Button btn = new Button("Sign in");
+        btn.getStyleClass().add("sign-button");
         btn.setDefaultButton(true);
         grid.add(btn, 1, 2);
 
         final Text actionTarget = new Text();
         grid.add(actionTarget, 1, 6);
 
-        // Add event handling (simple example)
-        AuthenticationService authService = new AuthenticationService();
-
         btn.setOnAction(e -> {
             String username = userTextField.getText();
             String password = pwBox.getText();
-            if (authService.authenticate(username, password)) {
+            if (AuthenticationService.authenticate(username, password)) {
                 actionTarget.setText("Login successful.");
                 // Proceed to next view or functionality
                 _setMainSceneAfterLogin(primaryStage);
@@ -92,6 +97,7 @@ public class Application extends javafx.application.Application {
         });
 
         Scene scene = new Scene(grid, 300, 275);
+        scene.getStylesheets().add(getClass().getResource("/com.samj/style.css").toExternalForm());
         primaryStage.setScene(scene);
 
         primaryStage.show();
@@ -103,40 +109,57 @@ public class Application extends javafx.application.Application {
      * @param primaryStage - the stage where the new scene is set
      */
     private void _setMainSceneAfterLogin(Stage primaryStage) {
-
         ObservableList<CallForwardingDTO> tableData = _getTableData();
         MainTable mainTable = new MainTable(tableData);
 
-        HBox tableSearchFields = new HBox(mainTable.getSearchFieldCalledNumber(),
-                mainTable.getSearchFieldBeginTime(),
-                mainTable.getSearchFieldEndTime(),
-                mainTable.getSearchFieldDestinationNumber());
+        HBox tableSearchFields = setupSearchFields(mainTable);
+        setupTableColumns(mainTable, tableSearchFields);
 
-        // Layout setup
         VBox vbox = new VBox(tableSearchFields, mainTable.getMainTable());
+        VBox.setVgrow(mainTable.getMainTable(), Priority.ALWAYS); // Make the table expand vertically
 
-        // Set scene
+        vbox.getStyleClass().add("test");
         Scene scene = new Scene(vbox);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
+    private HBox setupSearchFields(MainTable mainTable) {
+        return new HBox(mainTable.getSearchFieldUser(), mainTable.getSearchFieldCalledNumber(), mainTable.getSearchFieldBeginTime(), mainTable.getSearchFieldEndTime(), mainTable.getSearchFieldDestinationNumber());
+    }
+
+    private void setupTableColumns(MainTable mainTable, HBox searchFields) {
+        List<TableColumn<CallForwardingDTO, String>> columns = Arrays.asList(mainTable.getUserNameColumn(), mainTable.getCalledNumberColumn(), mainTable.getBeginTimeColumn(), mainTable.getEndTimeColumn(), mainTable.getDestinationNumberColumn());
+        double[] columnPercentages = {0.20, 0.20, 0.20, 0.20, 0.20}; // Adjust as necessary
+
+        for (int i = 0; i < columns.size(); i++) {
+            TableColumn<CallForwardingDTO, ?> column = columns.get(i);
+            column.prefWidthProperty().bind(mainTable.getMainTable().widthProperty().multiply(columnPercentages[i]));
+            column.setResizable(false); // Disable manual resizing
+            setupColumnWidthListener(column, (TextField) searchFields.getChildren().get(i));
+        }
+    }
+
+
+    private void setupColumnWidthListener(TableColumn<CallForwardingDTO, ?> column, TextField searchField) {
+        column.widthProperty().addListener((obs, oldVal, newVal) -> {
+            searchField.setPrefWidth(newVal.doubleValue());
+        });
+    }
+
 
     /**
      * Helper method for populating the main table with data from the database.
      * TODO implement when database is ready
      */
-    private ObservableList<CallForwardingDTO> _getTableData() {
 
+    private ObservableList<CallForwardingDTO> _getTableData() {
         // Original data list
         ObservableList<CallForwardingDTO> tableData = FXCollections.observableArrayList();
-        // Add sample data to the list
-
-        tableData.addAll(
-                new CallForwardingDTO(1, "22132131", LocalDateTime.now(), LocalDateTime.of(2024, 2, 1, 23, 59), "1231231", "johnDoe","John Doe"),
-                new CallForwardingDTO(2, "1231", LocalDateTime.of(2024, 2, 2, 0, 0), LocalDateTime.of(2024, 2, 9, 0, 0), "3333", "gigiBecaliDollar", "Gigi Becali"),
-                new CallForwardingDTO(3, "12312", LocalDateTime.of(2024, 3, 26, 12, 11), LocalDateTime.of(2024, 6, 13, 8, 7), "3333", "florinSalamNumber1","Florin Salam")
-                // add more CallForwardingDTOs
-        );
+        // Get data from backend
+        Set<CallForwardingDTO> temp = backend.getTimeBasedForwardingSet();
+        tableData.addAll(temp);
 
         return tableData;
     }
@@ -144,14 +167,18 @@ public class Application extends javafx.application.Application {
     public static void main(String[] args) {
         // Creating the first thread for the server
         Thread serverThread = new Thread(() -> {
-            System.out.println("start server");
-            Server backend = new Server(8000);
-            backend.start();
+            System.out.println("Start HTTP server");
+            backend = new Server(8000);
+            try {
+                backend.start();
+            } catch (IOException e) {
+                // log some message
+            }
         });
 
         // Creating the second thread for the application launch
         Thread launchThread = new Thread(() -> {
-            Application.launch(Application.class, args); // Replace MyApplication with your JavaFX Application class
+            Application.launch(Application.class, args);
         });
 
         // Starting both threads
