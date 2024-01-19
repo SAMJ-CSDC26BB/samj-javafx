@@ -1,4 +1,4 @@
-package com.samj.frontend;
+package com.samj.frontend.tables;
 
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
