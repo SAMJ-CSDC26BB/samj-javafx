@@ -1,4 +1,4 @@
-package com.samj.frontend;
+package com.samj.frontend.tables;
 
 import com.samj.shared.UserDTO;
 import javafx.collections.ObservableList;
