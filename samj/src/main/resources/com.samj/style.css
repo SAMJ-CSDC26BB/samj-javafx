@@ -22,11 +22,16 @@
 }
 
 
-.samj--main-table .scroll-bar * {
+.samj--table__column .scroll-bar * {
     /*hide the horizontal scroll*/
     /*https://stackoverflow.com/questions/55093764/javafx-how-to-disable-scrollbars-in-tableview*/
 
     -fx-min-height: 0;
     -fx-pref-height: 0;
     -fx-max-height: 0;
+}
+
+.error-text {
+    -fx-text-fill: red;
+    -fx-fill: red;
 }

@@ -14,8 +14,22 @@ import java.util.Set;
 public class DatabaseAPI {
 
     public static boolean createNewUser(UserDTO userDTO) {
+        if (! Utils.validateUserDTO(userDTO)) {
+            return false;
+        }
+
         encryptUserPassword(userDTO);
         return UserDAO.createUser(userDTO);
+    }
+
+    public static boolean createNewUser(String fullName, String username, String password, String phoneNumber) {
+        UserDTO userDTO = new UserDTO(username, fullName, password, phoneNumber);
+        encryptUserPassword(userDTO);
+        return UserDAO.createUser(userDTO);
+    }
+
+    public static Set<UserDTO> loadAllUsers() {
+        return UserDAO.loadAllUsers();
     }
 
     public static Set<UserDTO> loadAllInactiveUsers() {
