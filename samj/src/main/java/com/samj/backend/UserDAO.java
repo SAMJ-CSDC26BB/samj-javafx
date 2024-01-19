@@ -16,7 +16,8 @@ public class UserDAO {
     private static final String STATUS_ACTIVE_STRING = "active";
     private static final String STATUS_INACTIVE_STRING = "inactive";
 
-    private static final String LOAD_USERS_SQL = "SELECT * FROM user WHERE status=?";
+    private static final String LOAD_ALL_USERS_SQL = "SELECT * FROM user";
+    private static final String LOAD_USERS_BY_STATUS_SQL = "SELECT * FROM user WHERE status=?";
     private static final String LOAD_USER_BY_USERNAME_SQL = "SELECT * FROM user WHERE username=?";
     private static final String ADD_USER_SQL = "INSERT INTO user (username, fullname, password, number) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_USER_PASSWORD_SQL = "UPDATE user SET password = ? WHERE username = ?";
@@ -25,6 +26,27 @@ public class UserDAO {
     private static final String UPDATE_USER_STATUS_SQL = "UPDATE user SET status = ? WHERE username = ?";
     private static final String UPDATE_USER_SET_ALL_FIELDS = "UPDATE user SET fullname = ?, password = ?, number = ?, status = ? WHERE username = ?";
     private static final String DELETE_USER_SQL = "DELETE FROM user WHERE username=?";
+
+    public static Set<UserDTO> loadAllUsers() {
+        Set<UserDTO> userDTOs = new HashSet<>();
+
+        try (Connection connection = Database.getDbConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(LOAD_ALL_USERS_SQL)) {
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                _updateUserDTOSetFromResultSet(resultSet, userDTOs);
+
+            } catch (Exception e) {
+                // log some message
+            }
+
+        } catch (Exception e) {
+            // log some message
+        }
+
+        return userDTOs;
+    }
 
     public static Set<UserDTO> loadAllActiveUsers() {
         return _loadAllUsersHelper(true);
@@ -168,7 +190,7 @@ public class UserDAO {
         Set<UserDTO> userDTOs = new HashSet<>();
 
         try (Connection connection = Database.getDbConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(LOAD_USERS_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(LOAD_USERS_BY_STATUS_SQL)) {
 
             String status = isLoadOnlyActiveUsers ? STATUS_ACTIVE_STRING : STATUS_INACTIVE_STRING;
 
@@ -193,7 +215,7 @@ public class UserDAO {
                                                        Set<UserDTO> userDTOSet)
             throws SQLException {
 
-        if (resultSet == null || !resultSet.next() || userDTOSet == null) {
+        if (resultSet == null || userDTOSet == null) {
             return;
         }
 

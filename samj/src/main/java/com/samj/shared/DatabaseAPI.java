@@ -14,18 +14,22 @@ import java.util.Set;
 public class DatabaseAPI {
 
     public static boolean createNewUser(UserDTO userDTO) {
+        if (! Utils.validateUserDTO(userDTO)) {
+            return false;
+        }
+
         encryptUserPassword(userDTO);
         return UserDAO.createUser(userDTO);
     }
 
     public static boolean createNewUser(String fullName, String username, String password, String phoneNumber) {
-        if (! _validateUserData(fullName, username, password, phoneNumber)) {
-            return false;
-        }
-
         UserDTO userDTO = new UserDTO(username, fullName, password, phoneNumber);
         encryptUserPassword(userDTO);
         return UserDAO.createUser(userDTO);
+    }
+
+    public static Set<UserDTO> loadAllUsers() {
+        return UserDAO.loadAllUsers();
     }
 
     public static Set<UserDTO> loadAllInactiveUsers() {
@@ -112,12 +116,5 @@ public class DatabaseAPI {
         String plainPassword = userDTO.getPassword();
         String encryptedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
         userDTO.setPassword(encryptedPassword);
-    }
-
-    /**
-     * TODO more validation needed.
-     */
-    private static boolean _validateUserData(String fullName, String username, String password, String phoneNumber) {
-        return fullName != null && username != null && password != null && phoneNumber != null;
     }
 }
