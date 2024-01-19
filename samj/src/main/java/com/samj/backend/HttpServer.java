@@ -75,12 +75,12 @@ public class HttpServer {
                 Object returnValue = method.invoke(null, withoutPrefix.split("/")[1].split("/")[0]); //führt funktion die wir gespeichert haben aus
                 sendResponse(clientSocket, (String) returnValue);
             } else {
-                sendResponse(clientSocket, "NOT SUPPORTED");
+                sendResponse(clientSocket, Server.notSupportedFeature);
             }
 
 
         } else {
-            sendResponse(clientSocket, "NOT SUPPORTED");
+            sendResponse(clientSocket, Server.notSupportedFeature);
         }
 
     }
