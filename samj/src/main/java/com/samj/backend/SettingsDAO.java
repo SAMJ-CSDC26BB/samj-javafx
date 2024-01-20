@@ -52,7 +52,7 @@ public class SettingsDAO {
 
                 return new SettingsDTO(resultSet.getString("settings_name"),
                         resultSet.getString("server_url"),
-                        resultSet.getString("server_port"),
+                        resultSet.getInt("server_port"),
                         resultSet.getString("database_url"));
 
             } catch (Exception e) {
@@ -137,7 +137,7 @@ public class SettingsDAO {
             SettingsDTO currentSettingsDTO = new SettingsDTO(
                     resultSet.getString("settings_name"),
                     resultSet.getString("server_url"),
-                    resultSet.getString("server_port"),
+                    resultSet.getInt("server_port"),
                     resultSet.getString("database_url")
             );
 
