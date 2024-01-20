@@ -17,11 +17,31 @@ public class UserDTO {
         this.fullName = fullName;
         this.password = password;
         this.number = number;
+        
+        this.status = "active"; // default value
     }
 
     public UserDTO(String username, String fullName, String password, String number, String status) {
         this(username, fullName, password, number);
         this.status = status;
+    }
+
+    @Override
+    public boolean equals(Object compareToObj) {
+        // compare to himself
+        if (this == compareToObj) {
+            return true;
+        }
+
+        if (!(compareToObj instanceof UserDTO compareTo)) {
+            return false;
+        }
+
+        return this.getUsername().equals(compareTo.getUsername())
+                && this.getFullName().equals(compareTo.getFullName())
+                && this.getPassword().equals(compareTo.getPassword())
+                && this.getNumber().equals(compareTo.getNumber())
+                && this.getStatus().equals(compareTo.getStatus());
     }
 
     public String getUsername() {

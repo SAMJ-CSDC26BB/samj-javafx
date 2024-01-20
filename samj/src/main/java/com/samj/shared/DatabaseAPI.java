@@ -19,13 +19,16 @@ public class DatabaseAPI {
             return false;
         }
 
-        encryptUserPassword(userDTO);
+        Utils.encryptUserPassword(userDTO);
         return UserDAO.createUser(userDTO);
     }
 
-    public static boolean createNewUser(String fullName, String username, String password, String phoneNumber) {
-        UserDTO userDTO = new UserDTO(username, fullName, password, phoneNumber);
-        encryptUserPassword(userDTO);
+    /**
+     * In some cases, we already do the validation in the frontEnd, this method will
+     * create the new user without validating the data.
+     */
+    public static boolean createNewUserWithoutValidation(UserDTO userDTO) {
+        Utils.encryptUserPassword(userDTO);
         return UserDAO.createUser(userDTO);
     }
 
@@ -64,6 +67,21 @@ public class DatabaseAPI {
 
     public static boolean updateUserAllFields(UserDTO userDTO) {
         return UserDAO.updateUserAllFields(userDTO);
+    }
+
+    /**
+     * In some cases, we already do the validation in the frontEnd, this method will
+     * update the user without validating the data.
+     * Additionally, if the oldUserDTO is passed, we check if the password was changed. If it was, we
+     * need to make sure we encrypt it before updating it.
+     */
+    public static boolean updateUserAllFieldsWithoutValidation(UserDTO newUserDTO, UserDTO oldUserDTO) {
+        if (! newUserDTO.getPassword().equals(oldUserDTO.getPassword())) {
+            String newPassword = Utils.encryptPassword(newUserDTO.getPassword());
+            newUserDTO.setPassword(newPassword);
+        }
+
+        return UserDAO.updateUserAllFields(newUserDTO);
     }
 
     public static boolean updateUserFullName(String username, String fullName) {
@@ -111,15 +129,6 @@ public class DatabaseAPI {
         return CallForwardingRecordsDAO.deleteRecord(id);
     }
 
-    public static void encryptUserPassword(UserDTO userDTO) {
-        if (userDTO == null) {
-            return;
-        }
-
-        String plainPassword = userDTO.getPassword();
-        String encryptedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
-        userDTO.setPassword(encryptedPassword);
-    }
     // Settings API
     public static Set<SettingsDTO> loadAllSettings() {
         return SettingsDAO.loadAllSettings();

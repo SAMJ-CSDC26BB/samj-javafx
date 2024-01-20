@@ -327,24 +327,35 @@ public class Application extends javafx.application.Application {
         });
     }
 
+    private void _showUserTableSceneAfterCreateEditUser() {
+        createEditUserStage.close();
+        _showUserTableScene();
+    }
+
     private void _openEditUserForm(UserDTO userDTO) {
         if (userDTO != null && userDTO.getUsername() != null) {
-            _openCreateEditUserHelper(true, userDTO.getUsername());
+            _openCreateEditUserHelper(true, userDTO);
         }
     }
 
     private void _openCreateUserForm() {
-        _openCreateEditUserHelper(false, null);
+        _openCreateEditUserHelper(false,  null);
     }
 
     /**
      * Helper method responsible for opening a new stage for edit/create user.
-     * @param isOpenEditUser if edit mode set to true
-     * @param username if edit mode set to the current user which is being edited, otherwise null
+     * @param isUserEditAction if edit mode set to true
+     * @param oldUserDTO if edit mode set to the old user, will be used to get the username and
+     *                    in the event handlers methods for getting user's old data
      */
-    private void _openCreateEditUserHelper(boolean isOpenEditUser, String username) {
+    private void _openCreateEditUserHelper(boolean isUserEditAction, UserDTO oldUserDTO) {
         createEditUserStage = new Stage();
-        createEditUserStage.setTitle("SAMJ - Create New User");
+
+        String stageTitle = isUserEditAction && oldUserDTO != null
+                ? "SAMJ - Edit " + oldUserDTO.getUsername()
+                : "SAMJ - Create New User";
+
+        createEditUserStage.setTitle(stageTitle);
 
         // GridPane for layout
         GridPane grid = _createGridPane();
@@ -356,10 +367,13 @@ public class Application extends javafx.application.Application {
         TextField phoneNumberField = new TextField();
 
         // in edit mode, changing the username is not allowed as the username is used as primary key
-        if (isOpenEditUser && username != null) {
-            usernameField.setText(username);
+        if (isUserEditAction && oldUserDTO != null) {
+            usernameField.setText(oldUserDTO.getUsername());
             usernameField.setEditable(false);
             usernameField.getStyleClass().add("read-only-input");
+
+            fullNameField.setText(oldUserDTO.getFullName());
+            phoneNumberField.setText(oldUserDTO.getNumber());
         }
 
         final Label missingDataErrorLabel = new Label();
@@ -368,11 +382,16 @@ public class Application extends javafx.application.Application {
         // place the error text above the submit button
         grid.add(missingDataErrorLabel, 1, 4);
 
-        EventHandler<KeyEvent> enterKeyPressedHandler = event -> _onCreateUserFormEnterKeyPressed(event, fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel);
+        EventHandler<KeyEvent> enterKeyPressedHandler;
+        if (isUserEditAction) {
+            enterKeyPressedHandler = event -> _onEditUserFormEnterKeyPressed(event, oldUserDTO, fullNameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel);
+        } else {
+            enterKeyPressedHandler = event -> _onCreateUserFormEnterKeyPressed(event, fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel);
+        }
 
         fullNameField.setOnKeyPressed(enterKeyPressedHandler);
 
-        if (! isOpenEditUser) {
+        if (! isUserEditAction) {
             usernameField.setOnKeyPressed(enterKeyPressedHandler);
         }
 
@@ -399,7 +418,12 @@ public class Application extends javafx.application.Application {
         // Submit Button with action to handle the input data
         Button submitButton = new Button("Submit");
         submitButton.getStyleClass().add(BUTTON_CLASS);
-        submitButton.setOnAction(e -> _onSubmitCreateUserForm(fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel));
+
+        if (isUserEditAction) {
+            submitButton.setOnAction(e -> _onSubmitEditUserForm(oldUserDTO, fullNameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel));
+        } else {
+            submitButton.setOnAction(e -> _onSubmitCreateUserForm(fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel));
+        }
 
         grid.add(submitButton, 1, 5);
 
@@ -528,8 +552,62 @@ public class Application extends javafx.application.Application {
             return false;
         }
 
+        if (DatabaseAPI.loadUserByUsername(username) != null) {
+            missingDataErrorLabel.setText("Username already taken!");
+            return false;
+        }
+
         // All validations passed
         return true;
+    }
+
+    /**
+     * For edit mode, validate the fields only if they are not blank, if blank, we will not
+     * update those fields.
+     */
+    private boolean _validateDataForUserEdit(String fullName,
+                                             String password,
+                                             String number,
+                                             Label missingDataErrorLabel) {
+
+        if (!fullName.isBlank() && !Utils.validateUserFullName(fullName)) {
+            missingDataErrorLabel.setText("Full name cannot be empty.");
+            return false;
+        }
+
+        if (!password.isBlank() && !Utils.validateUserPassword(password)) {
+            missingDataErrorLabel.setText("Password must be at least 8 characters, with one uppercase and one special character.");
+            return false;
+        }
+
+        if (!number.isBlank() && !Utils.validateUserNumber(number)) {
+            missingDataErrorLabel.setText("Phone number must be a number or start with '+'.");
+            return false;
+        }
+
+        // All validations passed
+        return true;
+    }
+
+    /**
+     * Return a new userDTO from the values given by the user in edit form.
+     * If some fields were left blank, we use the old values.
+     */
+    private UserDTO _createUserDTOFromEditFormValues(UserDTO oldUserDTO,
+                                                     String fullName,
+                                                     String password,
+                                                     String phoneNumber) {
+        if (fullName.isBlank()) {
+            fullName = oldUserDTO.getFullName();
+        }
+        if (password.isBlank()) {
+            password = oldUserDTO.getPassword();
+        }
+        if (phoneNumber.isBlank()) {
+            phoneNumber = oldUserDTO.getNumber();
+        }
+
+        return new UserDTO(oldUserDTO.getUsername(), fullName, password, phoneNumber);
     }
 
     /**
@@ -537,17 +615,40 @@ public class Application extends javafx.application.Application {
      * After creating the user, show the scene containing the users table. This will
      * ensure the current window is closed and the users are fetched again from the database.
      */
-    private void _onSubmitCreateUserForm(String fullName, String username, String password, String phoneNumber, Label missingDataErrorLabel) {
+    private void _onSubmitCreateUserForm(String fullName,
+                                         String username,
+                                         String password,
+                                         String phoneNumber,
+                                         Label missingDataErrorLabel) {
 
         if (!_validateDataForUserCreation(fullName, username, password, phoneNumber, missingDataErrorLabel)) {
             return;
         }
 
-        DatabaseAPI.createNewUser(fullName, username, password, phoneNumber);
+        UserDTO userDTO = new UserDTO(username, fullName, password, phoneNumber);
+        DatabaseAPI.createNewUserWithoutValidation(userDTO);
 
-        // make sure the create user form is closed and new users are fetched again from DB
-        createEditUserStage.close();
-        _showUserTableScene();
+        _showUserTableSceneAfterCreateEditUser();
+    }
+
+    private void _onSubmitEditUserForm(UserDTO oldUserDTO,
+                                       String fullName,
+                                       String password,
+                                       String phoneNumber,
+                                       Label missingDataErrorLabel) {
+
+        if (!_validateDataForUserEdit(fullName, password, phoneNumber, missingDataErrorLabel)) {
+            return;
+        }
+
+        UserDTO newUserDTO = _createUserDTOFromEditFormValues(oldUserDTO, fullName, password, phoneNumber);
+
+        // no update needed if the user did not change
+        if (! newUserDTO.equals(oldUserDTO)) {
+            DatabaseAPI.updateUserAllFieldsWithoutValidation(newUserDTO, oldUserDTO);
+        }
+
+        _showUserTableSceneAfterCreateEditUser();
     }
 
     /**
@@ -584,9 +685,26 @@ public class Application extends javafx.application.Application {
     /**
      * On enter key pressed in the create new user form, use the _onSubmitCreateUserForm method to create new user.
      */
-    private void _onCreateUserFormEnterKeyPressed(KeyEvent event, String fullName, String username, String password, String phoneNumber, Label missingDataErrorLabel) {
+    private void _onCreateUserFormEnterKeyPressed(KeyEvent event,
+                                                  String fullName,
+                                                  String username,
+                                                  String password,
+                                                  String phoneNumber,
+                                                  Label missingDataErrorLabel) {
+
         if (event.getCode() == KeyCode.ENTER) {
             _onSubmitCreateUserForm(fullName, username, password, phoneNumber, missingDataErrorLabel);
+        }
+    }
+
+    private void _onEditUserFormEnterKeyPressed(KeyEvent event,
+                                                UserDTO oldUserDTO,
+                                                String fullName,
+                                                String password,
+                                                String phoneNumber,
+                                                Label missingDataErrorLabel) {
+        if (event.getCode() == KeyCode.ENTER) {
+            _onSubmitEditUserForm(oldUserDTO, fullName, password, phoneNumber, missingDataErrorLabel);
         }
     }
 
