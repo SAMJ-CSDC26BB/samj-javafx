@@ -20,6 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -61,13 +62,18 @@ public class Application extends javafx.application.Application {
             InputStream iconStream = getClass().getResourceAsStream("/com.samj/images/samj_logo.png");
             assert iconStream != null;
             applicationIcon = new Image(iconStream);
-            primaryStage.getIcons().add(applicationIcon);
+            mainStage.getIcons().add(applicationIcon);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         // Create the layout
         GridPane grid = _createGridPane();
+        Button settingsButtonLogin = createSettingsButton(mainStage);
+        BorderPane borderPaneLogin = new BorderPane();
+        borderPaneLogin.setTop(settingsButtonLogin);
+        BorderPane.setAlignment(settingsButtonLogin, Pos.TOP_RIGHT);
+        borderPaneLogin.setCenter(grid);
 
         //Label CapsLock
         Label capsLockLabel = new Label("Caps Lock is ON");
@@ -105,10 +111,57 @@ public class Application extends javafx.application.Application {
         mainStage.show();
     }
 
+    private Button createSettingsButton(Stage primaryStage) {
+        Button settingsButton = new Button();
+        Image settingsIcon = new Image(getClass().getResourceAsStream("/com.samj/images/settings-icon.png"));
+        ImageView settingsIconView = new ImageView(settingsIcon);
+        settingsIconView.setFitHeight(20); // Set the size as needed
+        settingsIconView.setFitWidth(20);
+        settingsButton.setGraphic(settingsIconView);
+
+        // Add action for the settings button
+        settingsButton.setOnAction(e -> _setSettingsScene(primaryStage));
+
+        return settingsButton;
+    }
+
+    private Button createGoBackButton(Stage primaryStage) {
+        Button goBackButton = new Button();
+        Image goBackIcon = new Image(getClass().getResourceAsStream("/com.samj/images/back-icon.png"));
+        ImageView goBackIconView = new ImageView(goBackIcon);
+        goBackIconView.setFitHeight(20); // Set the size as needed
+        goBackIconView.setFitWidth(20);
+        goBackButton.setGraphic(goBackIconView);
+
+        // Add action for the settings button
+        goBackButton.setOnAction(e -> _showCallForwardingTableScene());
+        return goBackButton;
+    }
+
+    private void _setSettingsScene(Stage primaryStage) {
+        primaryStage.setTitle("SAMJ - Settings");
+        GridPane settingsGrid = new GridPane();
+        settingsGrid.setAlignment(Pos.CENTER);
+        settingsGrid.setVgap(10);
+        settingsGrid.setHgap(10);
+        settingsGrid.setPadding(new Insets(10));
+
+        Button goBackButton = createGoBackButton(primaryStage);
+        BorderPane borderPaneMain = new BorderPane();
+        borderPaneMain.setTop(goBackButton);
+        BorderPane.setAlignment(goBackButton, Pos.TOP_LEFT);
+        // Add settings controls to settingsGrid as needed
+
+        Scene settingsScene = new Scene(settingsGrid, 1000, 750); // Adjust size as needed
+        settingsScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
+        primaryStage.setScene(settingsScene);
+    }
+
     /**
      * Method responsible for setting the scene after login. The scene contains a table with CallForwardingDTOs.
      */
     private void _showCallForwardingTableScene() {
+        mainStage.setTitle("SAMJ - Call Forwarding Table");
         ObservableList<CallForwardingDTO> callForwardingData = _getTableData();
         CallForwardingTable callForwardingTable = new CallForwardingTable(callForwardingData);
 
@@ -204,13 +257,7 @@ public class Application extends javafx.application.Application {
         // place the error text above the submit button
         grid.add(missingDataErrorLabel, 1, 4);
 
-        EventHandler<KeyEvent> enterKeyPressedHandler = event -> _onCreateUserFormEnterKeyPressed(
-                event,
-                fullNameField.getText(),
-                usernameField.getText(),
-                passwordField.getText(),
-                phoneNumberField.getText(),
-                missingDataErrorLabel);
+        EventHandler<KeyEvent> enterKeyPressedHandler = event -> _onCreateUserFormEnterKeyPressed(event, fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel);
 
         fullNameField.setOnKeyPressed(enterKeyPressedHandler);
         usernameField.setOnKeyPressed(enterKeyPressedHandler);
@@ -236,13 +283,7 @@ public class Application extends javafx.application.Application {
 
         // Submit Button with action to handle the input data
         Button submitButton = new Button("Submit");
-        submitButton.setOnAction(e -> _onSubmitCreateUserForm(
-                fullNameField.getText(),
-                usernameField.getText(),
-                passwordField.getText(),
-                phoneNumberField.getText(),
-                missingDataErrorLabel
-        ));
+        submitButton.setOnAction(e -> _onSubmitCreateUserForm(fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel));
 
         grid.add(submitButton, 1, 5);
 
@@ -342,30 +383,26 @@ public class Application extends javafx.application.Application {
         return tableData;
     }
 
-    private boolean _validateDataForUserCreation(String fullName,
-                                                 String username,
-                                                 String password,
-                                                 String number,
-                                                 Label missingDataErrorLabel) {
+    private boolean _validateDataForUserCreation(String fullName, String username, String password, String number, Label missingDataErrorLabel) {
 
-        if (! Utils.validateUserFullName(fullName)) {
+        if (!Utils.validateUserFullName(fullName)) {
             missingDataErrorLabel.setText("Full name cannot be empty.");
             return false;
         }
 
-        if (! Utils.validateUserName(username)) {
+        if (!Utils.validateUserName(username)) {
             missingDataErrorLabel.setText("Username cannot be empty.");
             return false;
         }
 
         // Password validation: at least one special character, one uppercase letter and length min 8
-        if (! Utils.validateUserPassword(password)) {
+        if (!Utils.validateUserPassword(password)) {
             missingDataErrorLabel.setText("Password must be at least 8 characters, with one uppercase and one special character.");
             return false;
         }
 
         // Number validation: either a number or a number starting with +
-        if (! Utils.validateUserNumber(number)) {
+        if (!Utils.validateUserNumber(number)) {
             missingDataErrorLabel.setText("Phone number must be a number or start with '+'.");
             return false;
         }
@@ -379,13 +416,9 @@ public class Application extends javafx.application.Application {
      * After creating the user, show the scene containing the users table. This will
      * ensure the current window is closed and the users are fetched again from the database.
      */
-    private void _onSubmitCreateUserForm(String fullName,
-                                         String username,
-                                         String password,
-                                         String phoneNumber,
-                                         Label missingDataErrorLabel) {
+    private void _onSubmitCreateUserForm(String fullName, String username, String password, String phoneNumber, Label missingDataErrorLabel) {
 
-        if (! _validateDataForUserCreation(fullName, username, password, phoneNumber, missingDataErrorLabel)) {
+        if (!_validateDataForUserCreation(fullName, username, password, phoneNumber, missingDataErrorLabel)) {
             return;
         }
 
@@ -400,7 +433,7 @@ public class Application extends javafx.application.Application {
      * On clicking the login button, authenticate the user and display success/error info text.
      */
     private void _onLoginButtonClick(String username, String password, Text loginInfoText) {
-        if (! AuthenticationService.authenticate(username, password)) {
+        if (!AuthenticationService.authenticate(username, password)) {
             loginInfoText.getStyleClass().add(ERROR_TEXT_CLASS);
             loginInfoText.setText("Login failed.");
             return;
@@ -430,12 +463,7 @@ public class Application extends javafx.application.Application {
     /**
      * On enter key pressed in the create new user form, use the _onSubmitCreateUserForm method to create new user.
      */
-    private void _onCreateUserFormEnterKeyPressed(KeyEvent event,
-                                                  String fullName,
-                                                  String username,
-                                                  String password,
-                                                  String phoneNumber,
-                                                  Label missingDataErrorLabel) {
+    private void _onCreateUserFormEnterKeyPressed(KeyEvent event, String fullName, String username, String password, String phoneNumber, Label missingDataErrorLabel) {
 
         if (event.getCode() == KeyCode.ENTER) {
             _onSubmitCreateUserForm(fullName, username, password, phoneNumber, missingDataErrorLabel);
