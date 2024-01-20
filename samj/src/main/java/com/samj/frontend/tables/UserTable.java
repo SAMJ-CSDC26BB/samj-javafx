@@ -19,6 +19,8 @@ public class UserTable extends AbstractTable<UserDTO> {
     private TableColumn<UserDTO, String> numberColumn;
     private TableColumn<UserDTO, String> statusColumn;
 
+    private TableColumn<UserDTO, Void> actionsColumn;
+
     private TextField searchFieldUserName;
     private TextField searchFieldFullName;
     private TextField searchFieldNumber;
@@ -34,6 +36,7 @@ public class UserTable extends AbstractTable<UserDTO> {
         fullNameColumn = new TableColumn<>("Full Name");
         numberColumn = new TableColumn<>("Phone number");
         statusColumn = new TableColumn<>("Status");
+        actionsColumn = new TableColumn<>("Actions");
     }
 
     @Override
@@ -42,6 +45,7 @@ public class UserTable extends AbstractTable<UserDTO> {
         table.getColumns().add(fullNameColumn);
         table.getColumns().add(numberColumn);
         table.getColumns().add(statusColumn);
+        table.getColumns().add(actionsColumn);
     }
 
     @Override
@@ -146,6 +150,14 @@ public class UserTable extends AbstractTable<UserDTO> {
 
     public void setStatusColumn(TableColumn<UserDTO, String> statusColumn) {
         this.statusColumn = statusColumn;
+    }
+
+    public TableColumn<UserDTO, Void> getActionsColumn() {
+        return actionsColumn;
+    }
+
+    public void setActionsColumn(TableColumn<UserDTO, Void> actionsColumn) {
+        this.actionsColumn = actionsColumn;
     }
 
     public TextField getSearchFieldUserName() {

@@ -41,3 +41,9 @@
     -fx-max-height: 30px;
     -fx-pref-height: 30px;
 }
+
+.read-only-input {
+    -fx-control-inner-background: #f0f0f0;
+    -fx-text-fill: #a0a0a0;
+    -fx-font-style: italic;
+}
