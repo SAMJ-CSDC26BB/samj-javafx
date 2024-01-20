@@ -51,3 +51,16 @@
 .margin-bottom-10 {
     -fx-margin-bottom: 10px;
 }
+
+.delete-button {
+    -fx-start-margin: 10px;
+}
+
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border: none;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-focus-color: transparent;
+}
