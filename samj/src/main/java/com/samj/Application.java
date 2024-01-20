@@ -1,8 +1,8 @@
 package com.samj;
 
 import com.samj.backend.Server;
-import com.samj.frontend.tables.AbstractTable;
 import com.samj.frontend.AuthenticationService;
+import com.samj.frontend.tables.AbstractTable;
 import com.samj.frontend.tables.CallForwardingTable;
 import com.samj.frontend.tables.UserTable;
 import com.samj.shared.*;
@@ -11,19 +11,20 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.scene.image.Image;
 
 import java.awt.*;
 import java.io.IOException;
@@ -241,9 +242,6 @@ public class Application extends javafx.application.Application {
         mainScene = new Scene(vbox);
         mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(CSS_STYLE_PATH)).toExternalForm());
 
-        mainStage.setWidth(1300);
-        mainStage.setHeight(900);
-
         mainStage.setScene(mainScene);
         mainStage.show();
 
@@ -370,6 +368,8 @@ public class Application extends javafx.application.Application {
         PasswordField passwordField = new PasswordField();
         TextField phoneNumberField = new TextField();
 
+        ComboBox<String> userStatusComboBox;
+
         // in edit mode, changing the username is not allowed as the username is used as primary key
         if (isUserEditAction && oldUserDTO != null) {
             usernameField.setText(oldUserDTO.getUsername());
@@ -378,17 +378,23 @@ public class Application extends javafx.application.Application {
 
             fullNameField.setText(oldUserDTO.getFullName());
             phoneNumberField.setText(oldUserDTO.getNumber());
+
+            userStatusComboBox = _createStringComboBox(Set.of("active", "inactive"), oldUserDTO.getStatus());
+        } else {
+            userStatusComboBox = null;
         }
 
         final Label missingDataErrorLabel = new Label();
         missingDataErrorLabel.getStyleClass().add(ERROR_TEXT_CLASS);
         missingDataErrorLabel.setWrapText(true);
-        // place the error text above the submit button
-        grid.add(missingDataErrorLabel, 1, 4);
 
         EventHandler<KeyEvent> enterKeyPressedHandler;
         if (isUserEditAction) {
-            enterKeyPressedHandler = event -> _onEditUserFormEnterKeyPressed(event, oldUserDTO, fullNameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel);
+            String statusDefaultValue = userStatusComboBox != null
+                    ? userStatusComboBox.getValue()
+                    : "";
+
+            enterKeyPressedHandler = event -> _onEditUserFormEnterKeyPressed(event, oldUserDTO, fullNameField.getText(), passwordField.getText(), phoneNumberField.getText(), statusDefaultValue, missingDataErrorLabel);
         } else {
             enterKeyPressedHandler = event -> _onCreateUserFormEnterKeyPressed(event, fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel);
         }
@@ -405,45 +411,48 @@ public class Application extends javafx.application.Application {
         // Adding labels and fields to the grid
         Label fullNameLabel = new Label("Full Name");
         fullNameLabel.setMinWidth(Region.USE_PREF_SIZE);
-        _addLabelInputPairToGrid(grid, fullNameLabel, fullNameField, 0, 0);
+
+        int labelRowIndex = 0; // incremented every time a new label is added to the grid
+
+        _addLabelInputPairToGrid(grid, fullNameLabel, fullNameField, 0, labelRowIndex);
 
         Label usernameLabel = new Label("Username");
         usernameLabel.setMinWidth(Region.USE_PREF_SIZE);
-        _addLabelInputPairToGrid(grid, usernameLabel, usernameField, 0, 1);
+        _addLabelInputPairToGrid(grid, usernameLabel, usernameField, 0, ++labelRowIndex);
 
         Label passwordLabel = new Label("Password");
         passwordLabel.setMinWidth(Region.USE_PREF_SIZE);
-        _addLabelInputPairToGrid(grid, passwordLabel, passwordField, 0, 2);
+        _addLabelInputPairToGrid(grid, passwordLabel, passwordField, 0, ++labelRowIndex);
 
         Label phoneLabel = new Label("Phone Number");
         phoneLabel.setMinWidth(Region.USE_PREF_SIZE);
-        _addLabelInputPairToGrid(grid, phoneLabel, phoneNumberField, 0, 3);
+        _addLabelInputPairToGrid(grid, phoneLabel, phoneNumberField, 0, ++labelRowIndex);
+
+        if (userStatusComboBox != null) {
+            Label statusLabel = new Label("Status");
+            _addLabelInputPairToGrid(grid, statusLabel, userStatusComboBox, 0, ++labelRowIndex);
+        }
+
+        // place the error text above the submit button
+        grid.add(missingDataErrorLabel, 1, ++labelRowIndex);
 
         // Submit Button with action to handle the input data
         Button submitButton = new Button("Submit");
         submitButton.getStyleClass().add(BUTTON_CLASS);
 
         if (isUserEditAction) {
-            submitButton.setOnAction(e -> _onSubmitEditUserForm(oldUserDTO, fullNameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel));
+            submitButton.setOnAction(e -> _onSubmitEditUserForm(oldUserDTO, fullNameField.getText(), passwordField.getText(), phoneNumberField.getText(), userStatusComboBox.getValue(), missingDataErrorLabel));
         } else {
             submitButton.setOnAction(e -> _onSubmitCreateUserForm(fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel));
         }
 
-        grid.add(submitButton, 1, 5);
+        labelRowIndex += 2;
+        grid.add(submitButton, 1, ++labelRowIndex);
 
         Scene scene = new Scene(grid, 500, 300);
         scene.getStylesheets().add(getClass().getResource(CSS_STYLE_PATH).toExternalForm());
 
         createEditUserStage.setScene(scene);
-
-        // Centering createUserStage relative to mainStage
-        double centerXPosition = mainStage.getX() + mainStage.getWidth() / 2d - createEditUserStage.getWidth() / 2d;
-        double centerYPosition = mainStage.getY() + mainStage.getHeight() / 2d - createEditUserStage.getHeight() / 2d;
-        createEditUserStage.setOnShown(e -> {
-            createEditUserStage.setX(centerXPosition);
-            createEditUserStage.setY(centerYPosition);
-        });
-
         createEditUserStage.getIcons().add(applicationIcon);
         createEditUserStage.show();
     }
@@ -475,7 +484,7 @@ public class Application extends javafx.application.Application {
      */
     private void _addLabelInputPairToGrid(GridPane grid,
                                           Label label,
-                                          TextField input,
+                                          Node input,
                                           int labelColumnIndex,
                                           int labelRowIndex) {
 
@@ -593,6 +602,17 @@ public class Application extends javafx.application.Application {
         return true;
     }
 
+    private ComboBox<String> _createStringComboBox(Set<String> values, String defaultValue) {
+        ComboBox<String> comboBox = new ComboBox<>();;
+        comboBox.getItems().addAll(values);
+
+        if (defaultValue != null) {
+            comboBox.setValue(defaultValue);
+        }
+
+        return comboBox;
+    }
+
     /**
      * Return a new userDTO from the values given by the user in edit form.
      * If some fields were left blank, we use the old values.
@@ -639,6 +659,7 @@ public class Application extends javafx.application.Application {
                                        String fullName,
                                        String password,
                                        String phoneNumber,
+                                       String status,
                                        Label missingDataErrorLabel) {
 
         if (!_validateDataForUserEdit(fullName, password, phoneNumber, missingDataErrorLabel)) {
@@ -646,6 +667,10 @@ public class Application extends javafx.application.Application {
         }
 
         UserDTO newUserDTO = _createUserDTOFromEditFormValues(oldUserDTO, fullName, password, phoneNumber);
+
+        if (!status.isEmpty()) {
+            newUserDTO.setStatus(status);
+        }
 
         // no update needed if the user did not change
         if (! newUserDTO.equals(oldUserDTO)) {
@@ -706,9 +731,10 @@ public class Application extends javafx.application.Application {
                                                 String fullName,
                                                 String password,
                                                 String phoneNumber,
+                                                String status,
                                                 Label missingDataErrorLabel) {
         if (event.getCode() == KeyCode.ENTER) {
-            _onSubmitEditUserForm(oldUserDTO, fullName, password, phoneNumber, missingDataErrorLabel);
+            _onSubmitEditUserForm(oldUserDTO, fullName, password, phoneNumber, status, missingDataErrorLabel);
         }
     }
 
