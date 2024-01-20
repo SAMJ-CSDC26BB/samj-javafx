@@ -61,6 +61,10 @@ public class DatabaseAPI {
         return UserDAO.deleteUser(username);
     }
 
+    public static boolean markUserAsDeleted(String username) {
+        return UserDAO.markUserAsDeleted(username);
+    }
+
     public static boolean updateUserPassword(String username, String password) {
         return UserDAO.updateUserPassword(username, password);
     }

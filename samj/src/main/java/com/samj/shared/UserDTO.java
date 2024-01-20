@@ -12,7 +12,7 @@ public class UserDTO {
     private String number;
     private String status;
 
-    private final String DEFAULT_STATUS = "active";
+    private final String ACTIVE_STATUS = "active";
 
     public UserDTO(String username, String fullName, String password, String number) {
         this.username = username;
@@ -20,7 +20,7 @@ public class UserDTO {
         this.password = password;
         this.number = number;
         
-        this.status = DEFAULT_STATUS;
+        this.status = ACTIVE_STATUS;
     }
 
     public UserDTO(String username, String fullName, String password, String number, String status) {
@@ -84,5 +84,9 @@ public class UserDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public boolean isUserActive() {
+        return this.status.equals(ACTIVE_STATUS);
     }
 }

@@ -24,6 +24,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -296,6 +297,9 @@ public class Application extends javafx.application.Application {
         userTable.getTable().requestFocus();
     }
 
+    /**
+     * Create edit/delete buttons for each row in user table.
+     */
     private void _setCellValueFactoryForUserTableActionButtons(UserTable userTable) {
         TableColumn<UserDTO, Void> actionsColumn = userTable.getActionsColumn();
         actionsColumn.setCellFactory(col -> {
@@ -305,12 +309,12 @@ public class Application extends javafx.application.Application {
                 private final Button deleteBtn = new Button("Delete");
                 {
                     editBtn.setOnAction(event -> {
-                        UserDTO user = getTableView().getItems().get(getIndex());
-                        _openEditUserForm(user);
+                        UserDTO userDTO = getTableView().getItems().get(getIndex());
+                        _openEditUserForm(userDTO);
                     });
                     deleteBtn.setOnAction(event -> {
-                        UserDTO user = getTableView().getItems().get(getIndex());
-                        //_openDeleteUserConfirmWindow(user);
+                        UserDTO userDTO = getTableView().getItems().get(getIndex());
+                        _openDeleteUserConfirmWindow(userDTO);
                     });
                 }
 
@@ -329,8 +333,8 @@ public class Application extends javafx.application.Application {
         });
     }
 
-    private void _showUserTableSceneAfterCreateEditUser() {
-        createEditUserStage.close();
+    private void _closeCurrentStageAndShowUserTable(Stage currentStage) {
+        currentStage.close();
         _showUserTableScene();
     }
 
@@ -352,6 +356,9 @@ public class Application extends javafx.application.Application {
      */
     private void _openCreateEditUserHelper(boolean isUserEditAction, UserDTO oldUserDTO) {
         createEditUserStage = new Stage();
+
+        // modality will make sure, the other windows are not clickable when this one is open
+        createEditUserStage.initModality(Modality.APPLICATION_MODAL);
 
         String stageTitle = isUserEditAction && oldUserDTO != null
                 ? "SAMJ - Edit " + oldUserDTO.getUsername()
@@ -456,6 +463,42 @@ public class Application extends javafx.application.Application {
         createEditUserStage.getIcons().add(applicationIcon);
         createEditUserStage.show();
     }
+
+    /**
+     * Open confirm dialog when delete user button is clicked.
+     */
+    private void _openDeleteUserConfirmWindow(UserDTO userDTO) {
+        Stage confirmStage = new Stage();
+        confirmStage.setWidth(350);
+
+        // modality will make sure, the other windows are not clickable when this one is open
+        confirmStage.initModality(Modality.APPLICATION_MODAL);
+        confirmStage.setTitle("SAMJ - Confirm Delete");
+
+        Label messageLabel = new Label("Are you sure you want to delete  " + userDTO.getUsername() + "?");
+        messageLabel.getStylesheets().add("danger-text");
+        messageLabel.setWrapText(true);
+
+        Button confirmButton = new Button("Confirm");
+        confirmButton.setOnAction(e -> _onDeleteUserConfirmButtonClick(userDTO, confirmStage));
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(e -> confirmStage.close());
+
+        HBox buttonLayout = new HBox(10, confirmButton, cancelButton);
+        buttonLayout.setAlignment(Pos.CENTER);
+
+        VBox layout = new VBox(10, messageLabel, buttonLayout);
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(20));
+
+        Scene scene = new Scene(layout);
+        scene.getStylesheets().add(getClass().getResource(CSS_STYLE_PATH).toExternalForm());
+        confirmStage.setScene(scene);
+        confirmStage.getIcons().add(applicationIcon);
+        confirmStage.showAndWait();
+    }
+
 
     private BorderPane _createHeaderPane() {
         BorderPane headerPane = new BorderPane();
@@ -652,7 +695,7 @@ public class Application extends javafx.application.Application {
         UserDTO userDTO = new UserDTO(username, fullName, password, phoneNumber);
         DatabaseAPI.createNewUserWithoutValidation(userDTO);
 
-        _showUserTableSceneAfterCreateEditUser();
+        _closeCurrentStageAndShowUserTable(createEditUserStage);
     }
 
     private void _onSubmitEditUserForm(UserDTO oldUserDTO,
@@ -677,7 +720,7 @@ public class Application extends javafx.application.Application {
             DatabaseAPI.updateUserAllFieldsWithoutValidation(newUserDTO, oldUserDTO);
         }
 
-        _showUserTableSceneAfterCreateEditUser();
+        _closeCurrentStageAndShowUserTable(createEditUserStage);
     }
 
     /**
@@ -736,6 +779,15 @@ public class Application extends javafx.application.Application {
         if (event.getCode() == KeyCode.ENTER) {
             _onSubmitEditUserForm(oldUserDTO, fullName, password, phoneNumber, status, missingDataErrorLabel);
         }
+    }
+
+    /**
+     * On deletion, the user will just be marked as deleted and not used anymore, but it will still exists
+     * in the database.
+     */
+    private void _onDeleteUserConfirmButtonClick(UserDTO userDTO, Stage confirmStage) {
+        DatabaseAPI.markUserAsDeleted(userDTO.getUsername());
+        _closeCurrentStageAndShowUserTable(confirmStage);
     }
 
     /**
