@@ -47,3 +47,7 @@
     -fx-text-fill: #a0a0a0;
     -fx-font-style: italic;
 }
+
+.margin-bottom-10 {
+    -fx-margin-bottom: 10px;
+}

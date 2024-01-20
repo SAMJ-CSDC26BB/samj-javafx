@@ -12,13 +12,15 @@ public class UserDTO {
     private String number;
     private String status;
 
+    private final String DEFAULT_STATUS = "active";
+
     public UserDTO(String username, String fullName, String password, String number) {
         this.username = username;
         this.fullName = fullName;
         this.password = password;
         this.number = number;
         
-        this.status = "active"; // default value
+        this.status = DEFAULT_STATUS;
     }
 
     public UserDTO(String username, String fullName, String password, String number, String status) {
@@ -78,5 +80,9 @@ public class UserDTO {
 
     public String getStatus() {
         return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
