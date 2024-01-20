@@ -1,7 +1,6 @@
 package com.samj.backend;
 
 import com.samj.shared.SettingsDTO;
-import com.samj.shared.UserDTO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,13 +18,13 @@ public class SettingsDAO {
     private static final String UPDATE_SETTINGS_SQL = "UPDATE settings SET server_url = ?, server_port = ?, database_url = ? WHERE settings_name = ?";
 
     public static Set<SettingsDTO> loadAllSettings() {
-        Set<SettingsDTO> userDTOs = new HashSet<>();
+        Set<SettingsDTO> settingsDTOS = new HashSet<>();
 
         try (Connection connection = Database.getDbConnection(); PreparedStatement preparedStatement = connection.prepareStatement(LOAD_ALL_SETTINGS_SQL)) {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
-                _updateSettingsDTOSetFromResultSet(resultSet, userDTOs);
+                _updateSettingsDTOSetFromResultSet(resultSet, settingsDTOS);
 
             } catch (Exception e) {
                 // log some message
@@ -35,11 +34,36 @@ public class SettingsDAO {
             // log some message
         }
 
-        return userDTOs;
+        return settingsDTOS;
     }
 
-    public static boolean loadSettingsByName(String settingsName) {
+    public static SettingsDTO loadSettingsByName(String settingsName) {
 
+        try (Connection connection = Database.getDbConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(LOAD_SETTINGS_BY_NAME_SQL)) {
+
+            preparedStatement.setString(1, settingsName);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                if (!resultSet.isBeforeFirst()) {
+                    return null;
+                }
+
+                return new SettingsDTO(resultSet.getString("settings_name"),
+                        resultSet.getString("server_url"),
+                        resultSet.getString("server_port"),
+                        resultSet.getString("database_url"));
+
+            } catch (Exception e) {
+                // log some message
+            }
+
+        } catch (Exception e) {
+            // log some message
+        }
+
+        return null;
     }
 
     public static boolean createSettings(SettingsDTO settingsDTO) {
@@ -54,6 +78,43 @@ public class SettingsDAO {
 
             preparedStatement.executeUpdate();
 
+            return true;
+
+        } catch (Exception e) {
+            // log some error
+            System.out.println(e.getMessage());
+        }
+
+        return false;
+    }
+
+    public static boolean updateSettings(SettingsDTO settingsDTO) {
+        try (Connection connection = Database.getDbConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_SETTINGS_SQL)) {
+
+            int index = 0;
+            preparedStatement.setString(++index, settingsDTO.getServerURL());
+            preparedStatement.setString(++index, settingsDTO.getServerPort());
+            preparedStatement.setString(++index, settingsDTO.getDb());
+            preparedStatement.setString(++index, settingsDTO.getName());
+
+            preparedStatement.executeUpdate();
+
+            return true;
+
+        } catch (Exception e) {
+            // log some error
+            System.out.println(e.getMessage());
+        }
+
+        return false;
+    }
+
+    public static boolean deleteSettings(String name) {
+        try (Connection connection = Database.getDbConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_SETTINGS_SQL)) {
+
+            preparedStatement.setString(1, name);
             return true;
 
         } catch (Exception e) {
