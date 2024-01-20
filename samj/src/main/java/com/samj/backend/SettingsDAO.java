@@ -73,7 +73,7 @@ public class SettingsDAO {
             int index = 0;
             preparedStatement.setString(++index, settingsDTO.getName());
             preparedStatement.setString(++index, settingsDTO.getServerURL());
-            preparedStatement.setString(++index, settingsDTO.getServerPort());
+            preparedStatement.setInt(++index, settingsDTO.getServerPort());
             preparedStatement.setString(++index, settingsDTO.getDb());
 
             preparedStatement.executeUpdate();
@@ -94,7 +94,7 @@ public class SettingsDAO {
 
             int index = 0;
             preparedStatement.setString(++index, settingsDTO.getServerURL());
-            preparedStatement.setString(++index, settingsDTO.getServerPort());
+            preparedStatement.setInt(++index, settingsDTO.getServerPort());
             preparedStatement.setString(++index, settingsDTO.getDb());
             preparedStatement.setString(++index, settingsDTO.getName());
 
