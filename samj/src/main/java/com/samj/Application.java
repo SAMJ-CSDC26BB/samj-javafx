@@ -208,7 +208,7 @@ public class Application extends javafx.application.Application {
         HBox tableSearchFields = setupSearchFields(userTable);
         setupTableColumns(userTable, tableSearchFields);
 
-        Button backButton = new Button("Back");
+        Button backButton = createGoBackButton(mainStage);
         backButton.getStyleClass().add(BUTTON_CLASS);
         backButton.setDefaultButton(false);
         backButton.setOnAction(e -> mainStage.setScene(mainScene)); // Action to go back
