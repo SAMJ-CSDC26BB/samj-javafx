@@ -38,7 +38,7 @@ public class Application extends javafx.application.Application {
 
     private Stage mainStage;
 
-    private Stage createUserStage;
+    private Stage createEditUserStage;
 
     private Scene mainScene;
 
@@ -133,7 +133,7 @@ public class Application extends javafx.application.Application {
     private void _onSubmitApplySettings(String server, int port) {
         
         // make sure the create user form is closed and new users are fetched again from DB
-        createUserStage.close();
+        createEditUserStage.close();
         _showUserTableScene();
     }
 
@@ -143,7 +143,7 @@ public class Application extends javafx.application.Application {
         DatabaseAPI.updateSettings(settings);
 
         // make sure the create user form is closed and new users are fetched again from DB
-        createUserStage.close();
+        createEditUserStage.close();
         _showUserTableScene();
     }
 
@@ -286,18 +286,65 @@ public class Application extends javafx.application.Application {
         Scene userScene = new Scene(vBox, 800, 600); // Adjust size as needed
         userScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(CSS_STYLE_PATH)).toExternalForm());
 
+        _setCellValueFactoryForUserTableActionButtons(userTable);
+
         mainStage.setScene(userScene);
         mainStage.show();
 
         userTable.getTable().requestFocus();
     }
 
-    /**
-     * Method responsible for opening a new stage where a user is able to create new users.
-     */
+    private void _setCellValueFactoryForUserTableActionButtons(UserTable userTable) {
+        TableColumn<UserDTO, Void> actionsColumn = userTable.getActionsColumn();
+        actionsColumn.setCellFactory(col -> {
+
+            return new TableCell<UserDTO, Void>() {
+                private final Button editBtn = new Button("Edit");
+                private final Button deleteBtn = new Button("Delete");
+                {
+                    editBtn.setOnAction(event -> {
+                        UserDTO user = getTableView().getItems().get(getIndex());
+                        _openEditUserForm(user);
+                    });
+                    deleteBtn.setOnAction(event -> {
+                        UserDTO user = getTableView().getItems().get(getIndex());
+                        //_openDeleteUserConfirmWindow(user);
+                    });
+                }
+
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                    } else {
+                        HBox container = new HBox(editBtn, deleteBtn);
+                        container.setSpacing(10); // Set spacing as needed
+                        setGraphic(container);
+                    }
+                }
+            };
+        });
+    }
+
+    private void _openEditUserForm(UserDTO userDTO) {
+        if (userDTO != null && userDTO.getUsername() != null) {
+            _openCreateEditUserHelper(true, userDTO.getUsername());
+        }
+    }
+
     private void _openCreateUserForm() {
-        createUserStage = new Stage();
-        createUserStage.setTitle("SAMJ - Create New User");
+        _openCreateEditUserHelper(false, null);
+    }
+
+    /**
+     * Helper method responsible for opening a new stage for edit/create user.
+     * @param isOpenEditUser if edit mode set to true
+     * @param username if edit mode set to the current user which is being edited, otherwise null
+     */
+    private void _openCreateEditUserHelper(boolean isOpenEditUser, String username) {
+        createEditUserStage = new Stage();
+        createEditUserStage.setTitle("SAMJ - Create New User");
 
         // GridPane for layout
         GridPane grid = _createGridPane();
@@ -308,6 +355,13 @@ public class Application extends javafx.application.Application {
         PasswordField passwordField = new PasswordField();
         TextField phoneNumberField = new TextField();
 
+        // in edit mode, changing the username is not allowed as the username is used as primary key
+        if (isOpenEditUser && username != null) {
+            usernameField.setText(username);
+            usernameField.setEditable(false);
+            usernameField.getStyleClass().add("read-only-input");
+        }
+
         final Label missingDataErrorLabel = new Label();
         missingDataErrorLabel.getStyleClass().add(ERROR_TEXT_CLASS);
         missingDataErrorLabel.setWrapText(true);
@@ -317,12 +371,16 @@ public class Application extends javafx.application.Application {
         EventHandler<KeyEvent> enterKeyPressedHandler = event -> _onCreateUserFormEnterKeyPressed(event, fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel);
 
         fullNameField.setOnKeyPressed(enterKeyPressedHandler);
-        usernameField.setOnKeyPressed(enterKeyPressedHandler);
+
+        if (! isOpenEditUser) {
+            usernameField.setOnKeyPressed(enterKeyPressedHandler);
+        }
+
         passwordField.setOnKeyPressed(enterKeyPressedHandler);
         phoneNumberField.setOnKeyPressed(enterKeyPressedHandler);
 
         // Adding labels and fields to the grid
-        Label fullNameLabel = new Label("Full Name:");
+        Label fullNameLabel = new Label("Full Name");
         fullNameLabel.setMinWidth(Region.USE_PREF_SIZE);
         _addLabelInputPairToGrid(grid, fullNameLabel, fullNameField, 0, 0);
 
@@ -348,18 +406,18 @@ public class Application extends javafx.application.Application {
         Scene scene = new Scene(grid, 500, 300);
         scene.getStylesheets().add(getClass().getResource(CSS_STYLE_PATH).toExternalForm());
 
-        createUserStage.setScene(scene);
+        createEditUserStage.setScene(scene);
 
         // Centering createUserStage relative to mainStage
-        double centerXPosition = mainStage.getX() + mainStage.getWidth() / 2d - createUserStage.getWidth() / 2d;
-        double centerYPosition = mainStage.getY() + mainStage.getHeight() / 2d - createUserStage.getHeight() / 2d;
-        createUserStage.setOnShown(e -> {
-            createUserStage.setX(centerXPosition);
-            createUserStage.setY(centerYPosition);
+        double centerXPosition = mainStage.getX() + mainStage.getWidth() / 2d - createEditUserStage.getWidth() / 2d;
+        double centerYPosition = mainStage.getY() + mainStage.getHeight() / 2d - createEditUserStage.getHeight() / 2d;
+        createEditUserStage.setOnShown(e -> {
+            createEditUserStage.setX(centerXPosition);
+            createEditUserStage.setY(centerYPosition);
         });
 
-        createUserStage.getIcons().add(applicationIcon);
-        createUserStage.show();
+        createEditUserStage.getIcons().add(applicationIcon);
+        createEditUserStage.show();
     }
 
     private BorderPane _createHeaderPane() {
@@ -387,7 +445,12 @@ public class Application extends javafx.application.Application {
      * Example: if columnIndex of label = 0, then the columnIndex of input will be 1 (displayed on the same
      * line, but different columns). RowIndex is the same.
      */
-    private void _addLabelInputPairToGrid(GridPane grid, Label label, TextField input, int labelColumnIndex, int labelRowIndex) {
+    private void _addLabelInputPairToGrid(GridPane grid,
+                                          Label label,
+                                          TextField input,
+                                          int labelColumnIndex,
+                                          int labelRowIndex) {
+
         grid.add(label, labelColumnIndex, labelRowIndex);
         grid.add(input, ++labelColumnIndex, labelRowIndex);
     }
@@ -483,7 +546,7 @@ public class Application extends javafx.application.Application {
         DatabaseAPI.createNewUser(fullName, username, password, phoneNumber);
 
         // make sure the create user form is closed and new users are fetched again from DB
-        createUserStage.close();
+        createEditUserStage.close();
         _showUserTableScene();
     }
 
@@ -522,7 +585,6 @@ public class Application extends javafx.application.Application {
      * On enter key pressed in the create new user form, use the _onSubmitCreateUserForm method to create new user.
      */
     private void _onCreateUserFormEnterKeyPressed(KeyEvent event, String fullName, String username, String password, String phoneNumber, Label missingDataErrorLabel) {
-
         if (event.getCode() == KeyCode.ENTER) {
             _onSubmitCreateUserForm(fullName, username, password, phoneNumber, missingDataErrorLabel);
         }
