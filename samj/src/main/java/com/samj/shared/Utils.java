@@ -30,4 +30,21 @@ public class Utils {
                 validateUserPassword(userDTO.getPassword()) && validateUserFullName(userDTO.getFullName()) &&
                 validateUserNumber(userDTO.getNumber());
     }
+
+    public static void encryptUserPassword(UserDTO userDTO) {
+        if (userDTO == null) {
+            return;
+        }
+
+        String plainPassword = userDTO.getPassword();
+        userDTO.setPassword(encryptPassword(plainPassword));
+    }
+
+    public static String encryptPassword(String password) {
+        if (password == null || password.isEmpty()) {
+            return "";
+        }
+
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
 }
