@@ -135,8 +135,9 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
      */
     protected void updatePredicate(FilteredList<CallForwardingDTO> filteredData) {
         DateTimeFormatter fullFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        DateTimeFormatter shortFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+        DateTimeFormatter shortFormatter = DateTimeFormatter.ofPattern("d.M.yy HH:mm");
         DateTimeFormatter shortFormatterWithAmPm = DateTimeFormatter.ofPattern("dd.MM.yy h:mm a", Locale.ENGLISH);
+        DateTimeFormatter customFormatter = DateTimeFormatter.ofPattern("d.M.yy H:mm", Locale.ENGLISH);
         // Function to normalize date input (e.g., "1.1.21" -> "01.01.2021")
         // Function to normalize date and time input
         Function<String, String> normalizeDateInput = input -> {
@@ -150,6 +151,9 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
                         dateTime = LocalDateTime.parse(input, shortFormatter);
                     }
                     return dateTime.format(fullFormatter);
+                } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2}\\s\\d{1,2}:\\d{2}")) {
+                    LocalDateTime dateTime = LocalDateTime.parse(input, customFormatter);
+                    return dateTime.format(fullFormatter); // Convert to "dd.MM.yyyy HH:mm" format
                 } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}")) {
                     // Normalize "d.m.yy" or "d.m.yyyy" format to "dd.MM.yyyy"
                     LocalDate date = LocalDate.parse(input, DateTimeFormatter.ofPattern("d.M.yy[yy]"));
@@ -180,12 +184,23 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
                     return term.startsWith(input);
                 } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}")) { // dd.mm.yy or dd.mm.yyyy
                     return term.startsWith(input);
+                } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2}\\s\\d{1,2}:\\d{2}\\s*([AaPp][Mm])")) { // "d.m.yy h:mm a" or "d.m.yy H:mm"
+                    try {
+                        LocalDateTime parsedDate = LocalDateTime.parse(input, shortFormatterWithAmPm);
+                        return term.equals(fullFormatter.format(parsedDate));
+                    } catch (DateTimeParseException e) {
+                        return false; // Invalid format
+                    }
                 } else if (input.matches("\\d{1,2}:\\d{2}\\s*([AaPp][Mm])")) {
                     // Time search with AM/PM (e.g., "2:00 AM" or "3:00 pm")
                     try {
-                        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH);
-                        String formattedTimeInput = LocalTime.parse(input.toUpperCase(), timeFormatter).format(DateTimeFormatter.ofPattern("HH:mm"));
-                        return term.contains(formattedTimeInput);
+                        if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2}\\s\\d{1,2}:\\d{2}")) { // d.M.yy H:mm
+                            LocalDateTime parsedDate = LocalDateTime.parse(input, shortFormatter);
+                            return term.equals(fullFormatter.format(parsedDate));
+                        } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2}\\s\\d{1,2}:\\d{2}\\s*([AaPp][Mm])")) { // d.M.yy h:mm a
+                            LocalDateTime parsedDate = LocalDateTime.parse(input, shortFormatterWithAmPm);
+                            return term.equals(fullFormatter.format(parsedDate));
+                        }
                     } catch (DateTimeParseException e) {
                         return false; // Invalid time format
                     }
@@ -197,10 +212,8 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
                     } catch (DateTimeParseException e) {
                         return false; // Invalid time format
                     }
-                } else {
-                    // Partial match search
-                    return term.toLowerCase().contains(input.toLowerCase().trim());
                 }
+                return term.toLowerCase().contains(input.toLowerCase().trim());
             };
 
             // Check each search field for matching criteria
