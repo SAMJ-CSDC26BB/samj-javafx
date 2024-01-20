@@ -1,6 +1,7 @@
 package com.samj.shared;
 
 import com.samj.backend.CallForwardingRecordsDAO;
+import com.samj.backend.SettingsDAO;
 import com.samj.backend.UserDAO;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ import java.util.Set;
 public class DatabaseAPI {
 
     public static boolean createNewUser(UserDTO userDTO) {
-        if (! Utils.validateUserDTO(userDTO)) {
+        if (!Utils.validateUserDTO(userDTO)) {
             return false;
         }
 
@@ -28,6 +29,7 @@ public class DatabaseAPI {
         return UserDAO.createUser(userDTO);
     }
 
+    //User API
     public static Set<UserDTO> loadAllUsers() {
         return UserDAO.loadAllUsers();
     }
@@ -72,6 +74,7 @@ public class DatabaseAPI {
         return UserDAO.updateUserNumber(username, number);
     }
 
+    //User API
     public static Set<CallForwardingDTO> loadCallForwardingRecords() {
         return CallForwardingRecordsDAO.loadRecords();
     }
@@ -121,4 +124,20 @@ public class DatabaseAPI {
         String encryptedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
         userDTO.setPassword(encryptedPassword);
     }
+    // Settings API
+    public static Set<SettingsDTO> loadAllSettings() {
+        return SettingsDAO.loadAllSettings();
+    }
+
+    public static boolean createSettings(SettingsDTO settings){return SettingsDAO.createSettings(settings);}
+    public static boolean deleteSettings(String name){return SettingsDAO.deleteSettings(name);}
+
+    public static SettingsDTO loadSettingsByName(String settingsName) {
+        return SettingsDAO.loadSettingsByName(settingsName);
+    }
+
+    public static boolean updateSettings(SettingsDTO settingsDTO) {
+        return SettingsDAO.updateSettings(settingsDTO);
+    }
+
 }
