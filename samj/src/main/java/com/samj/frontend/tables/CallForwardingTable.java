@@ -10,13 +10,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Class used to represent the main table containing the CallForwarding records
@@ -131,28 +134,69 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
      * Helper method to update the filter predicate based on search fields.
      */
     protected void updatePredicate(FilteredList<CallForwardingDTO> filteredData) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter fullFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        DateTimeFormatter shortFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+        DateTimeFormatter shortFormatterWithAmPm = DateTimeFormatter.ofPattern("dd.MM.yy h:mm a", Locale.ENGLISH);
+        // Function to normalize date input (e.g., "1.1.21" -> "01.01.2021")
+        // Function to normalize date and time input
+        Function<String, String> normalizeDateInput = input -> {
+            try {
+                if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2}\\s\\d{1,2}:\\d{2}(\\s*[AaPp][Mm])?")) {
+                    // Normalize "d.m.yy H:mm" or "d.m.yy h:mm a" format to "dd.MM.yyyy HH:mm"
+                    LocalDateTime dateTime;
+                    if (input.toLowerCase().contains("am") || input.toLowerCase().contains("pm")) {
+                        dateTime = LocalDateTime.parse(input, shortFormatterWithAmPm);
+                    } else {
+                        dateTime = LocalDateTime.parse(input, shortFormatter);
+                    }
+                    return dateTime.format(fullFormatter);
+                } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}")) {
+                    // Normalize "d.m.yy" or "d.m.yyyy" format to "dd.MM.yyyy"
+                    LocalDate date = LocalDate.parse(input, DateTimeFormatter.ofPattern("d.M.yy[yy]"));
+                    return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+                } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.")) {
+                    // Normalize "d.m." format to "dd.MM."
+                    String[] parts = input.split("\\.");
+                    return String.format("%02d.%02d.", Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+                } else if (input.matches("\\d{1,2}")) {
+                    // Normalize day only (e.g., "1" -> "01.")
+                    return String.format("%02d.", Integer.parseInt(input));
+                }
+            } catch (DateTimeParseException ignored) {
+            }
+            return input; // Return original input if no match
+        };
         filteredData.setPredicate(callForwardingDTO -> {
-            // Function to check match depending on whether input is quoted
             BiFunction<String, String, Boolean> match = (input, term) -> {
+                input = normalizeDateInput.apply(input); // Normalize the input
                 if (input.startsWith("\"") && input.endsWith("\"")) {
                     // Full match search (removing quotes)
                     return term.equalsIgnoreCase(input.substring(1, input.length() - 1).trim());
-                } else if (input.matches("\\d{2}\\.\\d{2}\\.")) {
-                    // Date fragment search (e.g., "02.09.")
-                    return term.startsWith(input.trim());
-                } else if (input.matches("\\d{1,2}:\\d{2}\\s*(AM|PM|am|pm)")) {
+                } else if (input.matches("\\d{1,2}")) { // Day only (e.g., "26")
+                    return term.startsWith(String.format("%02d", Integer.parseInt(input)) + ".");
+                } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2}\\s\\d{1,2}:\\d{2}")) { // dd.mm.yy h:mm
+                    return term.equals(shortFormatter.format(fullFormatter.parse(input)));
+                } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.")) { // dd.mm
+                    return term.startsWith(input);
+                } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}")) { // dd.mm.yy or dd.mm.yyyy
+                    return term.startsWith(input);
+                } else if (input.matches("\\d{1,2}:\\d{2}\\s*([AaPp][Mm])")) {
                     // Time search with AM/PM (e.g., "2:00 AM" or "3:00 pm")
                     try {
-                        String formattedTimeInput = LocalTime.parse(input, DateTimeFormatter.ofPattern("h:mm a")).format(DateTimeFormatter.ofPattern("HH:mm"));
+                        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH);
+                        String formattedTimeInput = LocalTime.parse(input.toUpperCase(), timeFormatter).format(DateTimeFormatter.ofPattern("HH:mm"));
                         return term.contains(formattedTimeInput);
                     } catch (DateTimeParseException e) {
                         return false; // Invalid time format
                     }
                 } else if (input.matches("\\d{1,2}:\\d{2}")) {
                     // Time search (24-hour format, e.g., "15:00")
-                    String formattedTimeInput = LocalTime.parse(input, DateTimeFormatter.ofPattern("H:mm")).format(DateTimeFormatter.ofPattern("HH:mm"));
-                    return term.contains(formattedTimeInput);
+                    try {
+                        String formattedTimeInput = LocalTime.parse(input, DateTimeFormatter.ofPattern("H:mm")).format(DateTimeFormatter.ofPattern("HH:mm"));
+                        return term.contains(formattedTimeInput);
+                    } catch (DateTimeParseException e) {
+                        return false; // Invalid time format
+                    }
                 } else {
                     // Partial match search
                     return term.toLowerCase().contains(input.toLowerCase().trim());
@@ -168,13 +212,13 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
             }
             // Check each search field for matching criteria
             if (!searchFieldBeginTime.getText().isEmpty()) {
-                String beginTimeString = formatter.format(callForwardingDTO.getBeginTime());
+                String beginTimeString = fullFormatter.format(callForwardingDTO.getBeginTime());
                 if (!match.apply(searchFieldBeginTime.getText(), beginTimeString)) {
                     return false; // Does not match begin time
                 }
             }
             if (!searchFieldEndTime.getText().isEmpty()) {
-                String endTimeString = formatter.format(callForwardingDTO.getEndTime());
+                String endTimeString = fullFormatter.format(callForwardingDTO.getEndTime());
                 if (!match.apply(searchFieldEndTime.getText(), endTimeString)) {
                     return false; // Does not match end time
                 }
