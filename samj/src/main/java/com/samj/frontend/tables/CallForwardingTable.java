@@ -11,6 +11,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Comparator;
@@ -137,6 +138,21 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
                 if (input.startsWith("\"") && input.endsWith("\"")) {
                     // Full match search (removing quotes)
                     return term.equalsIgnoreCase(input.substring(1, input.length() - 1).trim());
+                } else if (input.matches("\\d{2}\\.\\d{2}\\.")) {
+                    // Date fragment search (e.g., "02.09.")
+                    return term.startsWith(input.trim());
+                } else if (input.matches("\\d{1,2}:\\d{2}\\s*(AM|PM|am|pm)")) {
+                    // Time search with AM/PM (e.g., "2:00 AM" or "3:00 pm")
+                    try {
+                        String formattedTimeInput = LocalTime.parse(input, DateTimeFormatter.ofPattern("h:mm a")).format(DateTimeFormatter.ofPattern("HH:mm"));
+                        return term.contains(formattedTimeInput);
+                    } catch (DateTimeParseException e) {
+                        return false; // Invalid time format
+                    }
+                } else if (input.matches("\\d{1,2}:\\d{2}")) {
+                    // Time search (24-hour format, e.g., "15:00")
+                    String formattedTimeInput = LocalTime.parse(input, DateTimeFormatter.ofPattern("H:mm")).format(DateTimeFormatter.ofPattern("HH:mm"));
+                    return term.contains(formattedTimeInput);
                 } else {
                     // Partial match search
                     return term.toLowerCase().contains(input.toLowerCase().trim());
@@ -150,6 +166,7 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
             if (!searchFieldCalledNumber.getText().isEmpty() && !match.apply(searchFieldCalledNumber.getText(), callForwardingDTO.getCalledNumber())) {
                 return false; // Does not match called number
             }
+            // Check each search field for matching criteria
             if (!searchFieldBeginTime.getText().isEmpty()) {
                 String beginTimeString = formatter.format(callForwardingDTO.getBeginTime());
                 if (!match.apply(searchFieldBeginTime.getText(), beginTimeString)) {
@@ -162,6 +179,7 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
                     return false; // Does not match end time
                 }
             }
+
 
             return searchFieldDestinationNumber.getText().isEmpty() || match.apply(searchFieldDestinationNumber.getText(), callForwardingDTO.getDestinationNumber()); // Does not match destination number
         });
