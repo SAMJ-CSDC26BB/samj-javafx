@@ -35,3 +35,9 @@
     -fx-text-fill: red;
     -fx-fill: red;
 }
+
+.samj--button {
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+    -fx-pref-height: 30px;
+}

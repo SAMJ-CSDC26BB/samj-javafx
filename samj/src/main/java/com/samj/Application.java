@@ -42,6 +42,8 @@ public class Application extends javafx.application.Application {
 
     private Scene mainScene;
 
+    private final String CALL_FORWARDING_SCENE_TITLE = "SAMJ - Call Forwarding Table";
+
     private final String MAIN_CONTAINER_CLASS = "samj--main-container";
     private final String BUTTON_CLASS = "samj--button";
 
@@ -81,7 +83,7 @@ public class Application extends javafx.application.Application {
         _addLabelInputPairToGrid(grid, pw, pwBox, 0, 1);
 
         Button signInButton = new Button("Sign in");
-        signInButton.getStyleClass().add("sign-button");
+        signInButton.getStyleClass().addAll("sign-button", BUTTON_CLASS);
         signInButton.setDefaultButton(true);
         grid.add(signInButton, 1, 2);
 
@@ -117,7 +119,7 @@ public class Application extends javafx.application.Application {
         return settingsButton;
     }
 
-    private Button createGoBackButton(Stage primaryStage) {
+    private Button createGoBackButton() {
         Button goBackButton = new Button();
         Image goBackIcon = new Image(getClass().getResourceAsStream("/com.samj/images/back-icon.png"));
         ImageView goBackIconView = new ImageView(goBackIcon);
@@ -125,8 +127,6 @@ public class Application extends javafx.application.Application {
         goBackIconView.setFitWidth(20);
         goBackButton.setGraphic(goBackIconView);
 
-        // Add action for the settings button
-        goBackButton.setOnAction(e -> _showCallForwardingTableScene());
         return goBackButton;
     }
 
@@ -165,12 +165,16 @@ public class Application extends javafx.application.Application {
         _addLabelInputPairToGrid(settingsGrid, port, portField, 0, 2);
 
         // Go Back Button
-        Button goBackButton = createGoBackButton(primaryStage);
+        Button goBackButton = createGoBackButton();
+        // Add action for the settings button
+        goBackButton.setOnAction(e -> _showCallForwardingTableScene());
         settingsGrid.add(goBackButton, 0, 0); // Top left corner
 
         // Apply and Save Buttons
         Button applyButton = new Button("Apply");
         Button saveButton = new Button("Save");
+        applyButton.getStyleClass().add(BUTTON_CLASS);
+        saveButton.getStyleClass().add(BUTTON_CLASS);
 
         HBox buttonBox = new HBox(10); // Spacing between buttons
         buttonBox.setAlignment(Pos.BOTTOM_RIGHT); // Align to bottom right
@@ -202,7 +206,7 @@ public class Application extends javafx.application.Application {
      * Method responsible for setting the scene after login. The scene contains a table with CallForwardingDTOs.
      */
     private void _showCallForwardingTableScene() {
-        mainStage.setTitle("SAMJ - Call Forwarding Table");
+        mainStage.setTitle(CALL_FORWARDING_SCENE_TITLE);
         ObservableList<CallForwardingDTO> callForwardingData = _getTableData();
         CallForwardingTable callForwardingTable = new CallForwardingTable(callForwardingData);
 
@@ -246,6 +250,8 @@ public class Application extends javafx.application.Application {
      * Method responsible for showing the user scene. The scene contains a table with UserDTOs.
      */
     private void _showUserTableScene() {
+        mainStage.setTitle("SAMJ - Users Table");
+
         ObservableList<UserDTO> userData = _getUserTableData();
         UserTable userTable = new UserTable(userData);
 
@@ -254,19 +260,21 @@ public class Application extends javafx.application.Application {
         HBox tableSearchFields = setupSearchFields(userTable);
         setupTableColumns(userTable, tableSearchFields);
 
-        Button backButton = createGoBackButton(mainStage);
-        backButton.getStyleClass().add(BUTTON_CLASS);
-        backButton.setDefaultButton(false);
-        backButton.setOnAction(e -> mainStage.setScene(mainScene)); // Action to go back
+        Button goBackButton = createGoBackButton();
+        // Add action for the settings button
+        goBackButton.setOnAction(e -> _showCallForwardingTableScene());
+        goBackButton.getStyleClass().add(BUTTON_CLASS);
+        goBackButton.setDefaultButton(false);
+        goBackButton.setOnAction(event -> _onBackButtonClickFromUserTable()); // Action to go back
 
         Button createUserButton = new Button("Create New User");
         createUserButton.setDefaultButton(false);
         createUserButton.getStyleClass().add(BUTTON_CLASS);
-        createUserButton.setOnAction(e -> _openCreateUserForm());
+        createUserButton.setOnAction(event -> _openCreateUserForm());
 
         // HBox to hold both buttons
         HBox buttonBox = new HBox(10); // Spacing of 10 between buttons
-        buttonBox.getChildren().addAll(backButton, createUserButton);
+        buttonBox.getChildren().addAll(goBackButton, createUserButton);
 
         BorderPane headerPane = _createHeaderPane();
         headerPane.setLeft(buttonBox); // Placing the HBox in the header
@@ -289,7 +297,7 @@ public class Application extends javafx.application.Application {
      */
     private void _openCreateUserForm() {
         createUserStage = new Stage();
-        createUserStage.setTitle("Create New User");
+        createUserStage.setTitle("SAMJ - Create New User");
 
         // GridPane for layout
         GridPane grid = _createGridPane();
@@ -332,6 +340,7 @@ public class Application extends javafx.application.Application {
 
         // Submit Button with action to handle the input data
         Button submitButton = new Button("Submit");
+        submitButton.getStyleClass().add(BUTTON_CLASS);
         submitButton.setOnAction(e -> _onSubmitCreateUserForm(fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), missingDataErrorLabel));
 
         grid.add(submitButton, 1, 5);
@@ -517,6 +526,14 @@ public class Application extends javafx.application.Application {
         if (event.getCode() == KeyCode.ENTER) {
             _onSubmitCreateUserForm(fullName, username, password, phoneNumber, missingDataErrorLabel);
         }
+    }
+
+    /**
+     * On back button click from user table, return to the Call Forwarding table.
+     */
+    private void _onBackButtonClickFromUserTable() {
+        mainStage.setTitle(CALL_FORWARDING_SCENE_TITLE);
+        mainStage.setScene(mainScene);
     }
 
     public static void main(String[] args) {
