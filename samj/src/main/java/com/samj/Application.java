@@ -5,10 +5,7 @@ import com.samj.frontend.tables.AbstractTable;
 import com.samj.frontend.AuthenticationService;
 import com.samj.frontend.tables.CallForwardingTable;
 import com.samj.frontend.tables.UserTable;
-import com.samj.shared.CallForwardingDTO;
-import com.samj.shared.DatabaseAPI;
-import com.samj.shared.UserDTO;
-import com.samj.shared.Utils;
+import com.samj.shared.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -131,6 +128,16 @@ public class Application extends javafx.application.Application {
         // Add action for the settings button
         goBackButton.setOnAction(e -> _showCallForwardingTableScene());
         return goBackButton;
+    }
+
+    private void _onSubmitSaveSettings(String server, String port, String dbURL) {
+        SettingsDTO = new SettingsDTO(server, port, dbURL);
+
+        DatabaseAPI.createSettings();
+
+        // make sure the create user form is closed and new users are fetched again from DB
+        createUserStage.close();
+        _showUserTableScene();
     }
 
     private void _setSettingsScene(Stage primaryStage) {
