@@ -161,6 +161,16 @@ public class Application extends javafx.application.Application {
         _showUserTableScene();
     }
 
+    private void _onSubmitSaveSettings(String server, String port, String dbURL) {
+        SettingsDTO = new SettingsDTO(server, port, dbURL);
+
+        DatabaseAPI.createSettings();
+
+        // make sure the create user form is closed and new users are fetched again from DB
+        createUserStage.close();
+        _showUserTableScene();
+    }
+
     private void _setSettingsScene(Stage primaryStage) {
         primaryStage.setTitle("SAMJ - Settings");
         GridPane settingsGrid = new GridPane();
