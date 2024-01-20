@@ -30,11 +30,11 @@ public class SettingsDTO {
         this.serverURL = serverURL;
     }
 
-    public String getServerPort() {
+    public int getServerPort() {
         return serverPort;
     }
 
-    public void setServerPort(String serverPort) {
+    public void setServerPort(int serverPort) {
         this.serverPort = serverPort;
     }
 
