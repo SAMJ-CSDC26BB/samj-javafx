@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * Class used to represent the main table containing the CallForwarding records
@@ -129,33 +130,43 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
      * Helper method to update the filter predicate based on search fields.
      */
     protected void updatePredicate(FilteredList<CallForwardingDTO> filteredData) {
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         filteredData.setPredicate(callForwardingDTO -> {
+            // Function to check match depending on whether input is quoted
+            BiFunction<String, String, Boolean> match = (input, term) -> {
+                if (input.startsWith("\"") && input.endsWith("\"")) {
+                    // Full match search (removing quotes)
+                    return term.equalsIgnoreCase(input.substring(1, input.length() - 1).trim());
+                } else {
+                    // Partial match search
+                    return term.toLowerCase().contains(input.toLowerCase().trim());
+                }
+            };
+
             // Check each search field for matching criteria
-            if (!searchFieldUser.getText().isEmpty() && !callForwardingDTO.getDestinationUsername().toLowerCase().contains(searchFieldUser.getText().toLowerCase())) {
+            if (!searchFieldUser.getText().isEmpty() && !match.apply(searchFieldUser.getText(), callForwardingDTO.getDestinationUsername())) {
                 return false; // Does not match user
             }
-            if (!searchFieldCalledNumber.getText().isEmpty() && !callForwardingDTO.getCalledNumber().toLowerCase().contains(searchFieldCalledNumber.getText().toLowerCase())) {
-
+            if (!searchFieldCalledNumber.getText().isEmpty() && !match.apply(searchFieldCalledNumber.getText(), callForwardingDTO.getCalledNumber())) {
                 return false; // Does not match called number
             }
             if (!searchFieldBeginTime.getText().isEmpty()) {
                 String beginTimeString = formatter.format(callForwardingDTO.getBeginTime());
-                if (!beginTimeString.contains(searchFieldBeginTime.getText().toLowerCase())) {
+                if (!match.apply(searchFieldBeginTime.getText(), beginTimeString)) {
                     return false; // Does not match begin time
                 }
             }
             if (!searchFieldEndTime.getText().isEmpty()) {
                 String endTimeString = formatter.format(callForwardingDTO.getEndTime());
-                if (!endTimeString.contains(searchFieldEndTime.getText().toLowerCase())) {
+                if (!match.apply(searchFieldEndTime.getText(), endTimeString)) {
                     return false; // Does not match end time
                 }
             }
 
-            return searchFieldDestinationNumber.getText().isEmpty() || callForwardingDTO.getDestinationNumber().toLowerCase().contains(searchFieldDestinationNumber.getText().toLowerCase()); // Does not match destination number
+            return searchFieldDestinationNumber.getText().isEmpty() || match.apply(searchFieldDestinationNumber.getText(), callForwardingDTO.getDestinationNumber()); // Does not match destination number
         });
     }
+
 
     /**
      * Helper method for adding classes to the table components.
