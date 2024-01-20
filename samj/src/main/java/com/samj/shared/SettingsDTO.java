@@ -4,10 +4,10 @@ public class SettingsDTO {
 
     private String name;
     private String serverURL;
-    private String serverPort;
+    private int serverPort;
     private String db;
 
-    public SettingsDTO(String name, String serverURL, String serverPort, String db) {
+    public SettingsDTO(String name, String serverURL, int serverPort, String db) {
         this.name = name;
         this.serverURL = serverURL;
         this.serverPort = serverPort;

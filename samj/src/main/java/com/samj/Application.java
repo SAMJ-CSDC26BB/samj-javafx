@@ -130,10 +130,17 @@ public class Application extends javafx.application.Application {
         return goBackButton;
     }
 
-    private void _onSubmitSaveSettings(String server, String port, String dbURL) {
-        SettingsDTO = new SettingsDTO(server, port, dbURL);
+    private void _onSubmitApplySettings(String server, int port) {
+        
+        // make sure the create user form is closed and new users are fetched again from DB
+        createUserStage.close();
+        _showUserTableScene();
+    }
 
-        DatabaseAPI.createSettings();
+    private void _onSubmitSaveSettings(String name, String server, int port, String dbURL) {
+        SettingsDTO settings = new SettingsDTO(name, server, port, dbURL);
+
+        DatabaseAPI.updateSettings(settings);
 
         // make sure the create user form is closed and new users are fetched again from DB
         createUserStage.close();
