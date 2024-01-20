@@ -240,6 +240,10 @@ public class Application extends javafx.application.Application {
         vbox.getStyleClass().add(MAIN_CONTAINER_CLASS);
         mainScene = new Scene(vbox);
         mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(CSS_STYLE_PATH)).toExternalForm());
+
+        mainStage.setWidth(1300);
+        mainStage.setHeight(900);
+
         mainStage.setScene(mainScene);
         mainStage.show();
 
