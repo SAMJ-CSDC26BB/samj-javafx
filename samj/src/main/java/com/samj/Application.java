@@ -141,16 +141,48 @@ public class Application extends javafx.application.Application {
         settingsGrid.setHgap(10);
         settingsGrid.setPadding(new Insets(10));
 
-        Button goBackButton = createGoBackButton(primaryStage);
-        BorderPane borderPaneMain = new BorderPane();
-        borderPaneMain.setTop(goBackButton);
-        BorderPane.setAlignment(goBackButton, Pos.TOP_LEFT);
-        // Add settings controls to settingsGrid as needed
+        // Create the components
+        Label server = new Label("Server: ");
+        TextField serverField = new TextField();
+        _addLabelInputPairToGrid(settingsGrid, server, serverField, 0, 1);
 
-        Scene settingsScene = new Scene(borderPaneMain, 1000, 750); // Adjust size as needed
+        Label port = new Label("Port:");
+        TextField portField = new TextField();
+        _addLabelInputPairToGrid(settingsGrid, port, portField, 0, 2);
+
+        // Go Back Button
+        Button goBackButton = createGoBackButton(primaryStage);
+        settingsGrid.add(goBackButton, 0, 0); // Top left corner
+
+        // Apply and Save Buttons
+        Button applyButton = new Button("Apply");
+        Button saveButton = new Button("Save");
+
+        HBox buttonBox = new HBox(10); // Spacing between buttons
+        buttonBox.setAlignment(Pos.BOTTOM_RIGHT); // Align to bottom right
+        buttonBox.getChildren().addAll(applyButton, saveButton);
+
+        // Add HBox to the GridPane
+        settingsGrid.add(buttonBox, 1, 3); // Adjust row and column indices as needed
+
+        // Expand the last row and column
+        ColumnConstraints column1 = new ColumnConstraints();
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setHgrow(Priority.ALWAYS); // Second column grows
+        settingsGrid.getColumnConstraints().addAll(column1, column2);
+
+        RowConstraints row1 = new RowConstraints();
+        RowConstraints row2 = new RowConstraints();
+        RowConstraints row3 = new RowConstraints();
+        RowConstraints row4 = new RowConstraints();
+        row4.setVgrow(Priority.ALWAYS); // Last row grows
+        settingsGrid.getRowConstraints().addAll(row1, row2, row3, row4);
+
+        Scene settingsScene = new Scene(settingsGrid, 500, 300); // Adjust size as needed
         settingsScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
         primaryStage.setScene(settingsScene);
     }
+
 
     /**
      * Method responsible for setting the scene after login. The scene contains a table with CallForwardingDTOs.
