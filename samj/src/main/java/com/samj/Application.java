@@ -108,12 +108,7 @@ public class Application extends javafx.application.Application {
     }
 
     private Button createSettingsButton(Stage primaryStage) {
-        Button settingsButton = new Button();
-        Image settingsIcon = new Image(getClass().getResourceAsStream("/com.samj/images/settings-icon.png"));
-        ImageView settingsIconView = new ImageView(settingsIcon);
-        settingsIconView.setFitHeight(20); // Set the size as needed
-        settingsIconView.setFitWidth(20);
-        settingsButton.setGraphic(settingsIconView);
+        Button settingsButton = createIconButton("/com.samj/images/settings-icon.png", 20, 20, "");
 
         // Add action for the settings button
         settingsButton.setOnAction(e -> _setSettingsScene(primaryStage));
@@ -122,14 +117,28 @@ public class Application extends javafx.application.Application {
     }
 
     private Button createGoBackButton() {
-        Button goBackButton = new Button();
-        Image goBackIcon = new Image(getClass().getResourceAsStream("/com.samj/images/back-icon.png"));
-        ImageView goBackIconView = new ImageView(goBackIcon);
-        goBackIconView.setFitHeight(20); // Set the size as needed
-        goBackIconView.setFitWidth(20);
-        goBackButton.setGraphic(goBackIconView);
+        return createIconButton("/com.samj/images/back-icon.png", 20, 20, "");
+    }
 
-        return goBackButton;
+    private ImageView createIconViewFromImageURL(String url, double fitWidth, double fitHeight) {
+        Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(url)));
+        ImageView iconView = new ImageView(image);
+        iconView.setFitHeight(fitWidth);
+        iconView.setFitWidth(fitHeight);
+
+        return iconView;
+    }
+
+    private Button createIconButton(String url, double fitWidth, double fitHeight, String buttonClass) {
+        Button button = new Button();
+        ImageView editUserIconView = createIconViewFromImageURL(url, fitWidth, fitHeight);
+        button.setGraphic(editUserIconView);
+
+        if (buttonClass != null && ! buttonClass.isEmpty()) {
+            button.getStyleClass().add(buttonClass);
+        }
+
+        return button;
     }
 
     private void _onSubmitApplySettings(String server, int port) {
@@ -305,13 +314,16 @@ public class Application extends javafx.application.Application {
         actionsColumn.setCellFactory(col -> {
 
             return new TableCell<UserDTO, Void>() {
-                private final Button editBtn = new Button("Edit");
-                private final Button deleteBtn = new Button("Delete");
+                private final Button editBtn = createIconButton("/com.samj/images/edit-icon.png", 25, 25, "icon-button");
+                private final Button deleteBtn = createIconButton("/com.samj/images/delete-icon.png", 25, 25, "icon-button");
                 {
                     editBtn.setOnAction(event -> {
                         UserDTO userDTO = getTableView().getItems().get(getIndex());
                         _openEditUserForm(userDTO);
                     });
+
+                    deleteBtn.getStyleClass().add("delete-button");
+
                     deleteBtn.setOnAction(event -> {
                         UserDTO userDTO = getTableView().getItems().get(getIndex());
                         _openDeleteUserConfirmWindow(userDTO);
