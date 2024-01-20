@@ -15,8 +15,9 @@ import java.util.Set;
 public class UserDAO {
     private static final String STATUS_ACTIVE_STRING = "active";
     private static final String STATUS_INACTIVE_STRING = "inactive";
+    private static final String STATUS_DELETED_STRING = "deleted";
 
-    private static final String LOAD_ALL_USERS_SQL = "SELECT * FROM user";
+    private static final String LOAD_ALL_USERS_SQL = "SELECT * FROM user WHERE status != 'deleted'";
     private static final String LOAD_USERS_BY_STATUS_SQL = "SELECT * FROM user WHERE status=?";
     private static final String LOAD_USER_BY_USERNAME_SQL = "SELECT * FROM user WHERE username=?";
     private static final String ADD_USER_SQL = "INSERT INTO user (username, fullname, password, number) VALUES (?, ?, ?, ?)";
@@ -26,6 +27,7 @@ public class UserDAO {
     private static final String UPDATE_USER_STATUS_SQL = "UPDATE user SET status = ? WHERE username = ?";
     private static final String UPDATE_USER_SET_ALL_FIELDS = "UPDATE user SET fullname = ?, password = ?, number = ?, status = ? WHERE username = ?";
     private static final String DELETE_USER_SQL = "DELETE FROM user WHERE username=?";
+    private static final String MARK_USER_AS_DELETED_SQL = "UPDATE user SET status = ? WHERE username = ?";
 
     public static Set<UserDTO> loadAllUsers() {
         Set<UserDTO> userDTOs = new HashSet<>();
@@ -122,6 +124,10 @@ public class UserDAO {
         }
 
         return false;
+    }
+
+    public static boolean markUserAsDeleted(String username) {
+        return updateUserHelper(MARK_USER_AS_DELETED_SQL, username, STATUS_DELETED_STRING);
     }
 
     public static boolean updateUserPassword(String username, String password) {

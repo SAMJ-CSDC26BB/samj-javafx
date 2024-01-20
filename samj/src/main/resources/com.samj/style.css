@@ -31,7 +31,7 @@
     -fx-max-height: 0;
 }
 
-.error-text {
+.error-text, .danger-text {
     -fx-text-fill: red;
     -fx-fill: red;
 }

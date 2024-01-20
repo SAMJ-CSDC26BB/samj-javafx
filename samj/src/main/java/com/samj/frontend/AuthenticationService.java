@@ -19,6 +19,7 @@ public class AuthenticationService {
     }
 
     private static boolean validateUserAndPassword(UserDTO user, String password) {
-        return user != null && user.getPassword() != null && BCrypt.checkpw(password, user.getPassword());
+        return user != null && user.isUserActive()
+                && user.getPassword() != null && BCrypt.checkpw(password, user.getPassword());
     }
 }
