@@ -69,11 +69,6 @@ public class Application extends javafx.application.Application {
 
         // Create the layout
         GridPane grid = _createGridPane();
-        Button settingsButtonLogin = createSettingsButton(mainStage);
-        BorderPane borderPaneLogin = new BorderPane();
-        borderPaneLogin.setTop(settingsButtonLogin);
-        BorderPane.setAlignment(settingsButtonLogin, Pos.TOP_RIGHT);
-        borderPaneLogin.setCenter(grid);
 
         //Label CapsLock
         Label capsLockLabel = new Label("Caps Lock is ON");
@@ -152,7 +147,7 @@ public class Application extends javafx.application.Application {
         BorderPane.setAlignment(goBackButton, Pos.TOP_LEFT);
         // Add settings controls to settingsGrid as needed
 
-        Scene settingsScene = new Scene(settingsGrid, 1000, 750); // Adjust size as needed
+        Scene settingsScene = new Scene(borderPaneMain, 1000, 750); // Adjust size as needed
         settingsScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
         primaryStage.setScene(settingsScene);
     }
@@ -168,6 +163,9 @@ public class Application extends javafx.application.Application {
         HBox tableSearchFields = setupSearchFields(callForwardingTable);
         setupTableColumns(callForwardingTable, tableSearchFields);
 
+        //Create settings icon
+        Button settingsButtonMain = createSettingsButton(mainStage);
+
         // Create MenuButton and MenuItems
         MenuButton menuButton = new MenuButton("Main menu");
         menuButton.getStylesheets().add(BUTTON_CLASS);
@@ -179,6 +177,11 @@ public class Application extends javafx.application.Application {
         // Layout for the header with MenuButton
         BorderPane headerPane = _createHeaderPane();
         headerPane.setLeft(menuButton);
+
+        // Layout Settings Button
+        headerPane.setTop(settingsButtonMain);
+        BorderPane.setAlignment(settingsButtonMain, Pos.TOP_RIGHT);
+
 
         // Main layout
         VBox vbox = new VBox(headerPane, tableSearchFields, callForwardingTable.getTable());
