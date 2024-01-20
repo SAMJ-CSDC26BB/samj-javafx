@@ -133,6 +133,9 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         filteredData.setPredicate(callForwardingDTO -> {
             // Check each search field for matching criteria
+            if (!searchFieldUser.getText().isEmpty() && !callForwardingDTO.getDestinationUsername().toLowerCase().contains(searchFieldUser.getText().toLowerCase())) {
+                return false; // Does not match user
+            }
             if (!searchFieldCalledNumber.getText().isEmpty() && !callForwardingDTO.getCalledNumber().toLowerCase().contains(searchFieldCalledNumber.getText().toLowerCase())) {
 
                 return false; // Does not match called number

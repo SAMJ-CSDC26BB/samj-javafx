@@ -178,7 +178,7 @@ public class Application extends javafx.application.Application {
         row4.setVgrow(Priority.ALWAYS); // Last row grows
         settingsGrid.getRowConstraints().addAll(row1, row2, row3, row4);
 
-        Scene settingsScene = new Scene(settingsGrid, 500, 300); // Adjust size as needed
+        Scene settingsScene = new Scene(settingsGrid, 250, 500); // Adjust size as needed
         settingsScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
         primaryStage.setScene(settingsScene);
     }
