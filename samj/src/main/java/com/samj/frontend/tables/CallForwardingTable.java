@@ -242,6 +242,68 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
         });
     }
 
+    /* Refactor predicate method
+    // Normalize date input
+private String normalizeDateInput(String input) {
+    try {
+        // Your existing normalization logic
+        // ... (Include all the if-else conditions for date normalization)
+
+        // Return the normalized date string
+        return input;
+    } catch (DateTimeParseException e) {
+        e.printStackTrace(); // Log the exception for debugging
+        return input; // In case of an error, return the original input
+    }
+}
+
+// Check if the input matches the term
+private boolean matchInput(String input, String term, DateTimeFormatter fullFormatter) {
+    input = normalizeDateInput(input);
+    // Your existing match logic
+    // ... (Include all the if-else conditions for matching input with term)
+
+    // Return true if matches, false otherwise
+    return term.toLowerCase().contains(input.toLowerCase().trim());
+}
+
+// Core predicate logic
+protected void updatePredicate(FilteredList<CallForwardingDTO> filteredData, DateTimeFormatter fullFormatter) {
+    filteredData.setPredicate(callForwardingDTO -> {
+        try {
+            // Match for user
+            if (!searchFieldUser.getText().isEmpty() && !matchInput(searchFieldUser.getText(), callForwardingDTO.getDestinationUsername(), fullFormatter)) {
+                return false; // Does not match user
+            }
+            // Match for called number
+            if (!searchFieldCalledNumber.getText().isEmpty() && !matchInput(searchFieldCalledNumber.getText(), callForwardingDTO.getCalledNumber(), fullFormatter)) {
+                return false; // Does not match called number
+            }
+            // Match for begin time
+            if (!searchFieldBeginTime.getText().isEmpty()) {
+                String beginTimeString = fullFormatter.format(callForwardingDTO.getBeginTime());
+                if (!matchInput(searchFieldBeginTime.getText(), beginTimeString, fullFormatter)) {
+                    return false; // Does not match begin time
+                }
+            }
+            // Match for end time
+            if (!searchFieldEndTime.getText().isEmpty()) {
+                String endTimeString = fullFormatter.format(callForwardingDTO.getEndTime());
+                if (!matchInput(searchFieldEndTime.getText(), endTimeString, fullFormatter)) {
+                    return false; // Does not match end time
+                }
+            }
+            // Final return for destination number
+            return searchFieldDestinationNumber.getText().isEmpty() || matchInput(searchFieldDestinationNumber.getText(), callForwardingDTO.getDestinationNumber(), fullFormatter);
+
+        } catch (Exception e) {
+            e.printStackTrace(); // Log general exceptions for debugging
+            return false; // In case of an error, exclude this item from the results
+        }
+    });
+}
+     */
+
 
     /**
      * Helper method for adding classes to the table components.
