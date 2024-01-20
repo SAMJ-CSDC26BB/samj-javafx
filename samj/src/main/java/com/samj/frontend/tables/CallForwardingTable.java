@@ -1,4 +1,4 @@
-package com.samj.frontend;
+package com.samj.frontend.tables;
 
 import com.samj.shared.CallForwardingDTO;
 import javafx.beans.property.SimpleStringProperty;
@@ -33,12 +33,11 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
     private TextField searchFieldEndTime;
     private TextField searchFieldDestinationNumber;
 
-    private DateTimeFormatter timeFormatter;
+    private DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
 
     public CallForwardingTable(ObservableList<CallForwardingDTO> tableData) {
         super(tableData);
-        timeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     }
 
     @Override
@@ -86,6 +85,9 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
     }
 
     private void setupDateColumn(TableColumn<CallForwardingDTO, String> column, Callback<CallForwardingDTO, LocalDateTime> dateSupplier) {
+        if (timeFormatter == null) {
+            timeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        }
         column.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue() != null && dateSupplier.call(cellData.getValue()) != null ? dateSupplier.call(cellData.getValue()).format(timeFormatter) : ""));
         column.setComparator(createDateComparator(timeFormatter));
     }

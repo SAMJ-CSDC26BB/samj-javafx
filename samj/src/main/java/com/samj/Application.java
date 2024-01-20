@@ -1,10 +1,10 @@
 package com.samj;
 
 import com.samj.backend.Server;
-import com.samj.frontend.AbstractTable;
+import com.samj.frontend.tables.AbstractTable;
 import com.samj.frontend.AuthenticationService;
-import com.samj.frontend.CallForwardingTable;
-import com.samj.frontend.UserTable;
+import com.samj.frontend.tables.CallForwardingTable;
+import com.samj.frontend.tables.UserTable;
 import com.samj.shared.CallForwardingDTO;
 import com.samj.shared.DatabaseAPI;
 import com.samj.shared.UserDTO;
