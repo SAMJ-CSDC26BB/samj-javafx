@@ -82,7 +82,7 @@ public class DatabaseAPI {
     }
 
     public static boolean markUserAsDeleted(UserSession userSession, String username) {
-        if (! _isUserHasEditPermission(userSession)) {
+        if (! _isUserHasEditPermission(userSession) && ! _isUserEditingHisOwnData(userSession, username)) {
             return false;
         }
 

@@ -46,6 +46,7 @@ public class Application extends javafx.application.Application {
     private Stage createEditUserStage;
 
     private Scene mainScene;
+    private Scene loginScene;
 
     private final String CALL_FORWARDING_SCENE_TITLE = "SAMJ - Call Forwarding Table";
 
@@ -103,9 +104,9 @@ public class Application extends javafx.application.Application {
 
         pwBox.setOnKeyPressed(event -> _onEnterKeyPressed(event, signInButton));
 
-        Scene scene = new Scene(grid, 300, 275);
-        scene.getStylesheets().add(getClass().getResource(CSS_STYLE_PATH).toExternalForm());
-        mainStage.setScene(scene);
+        loginScene = new Scene(grid, 300, 275);
+        loginScene.getStylesheets().add(getClass().getResource(CSS_STYLE_PATH).toExternalForm());
+        mainStage.setScene(loginScene);
 
         mainStage.show();
     }
@@ -233,7 +234,9 @@ public class Application extends javafx.application.Application {
 
         MenuItem showUsersItem = new MenuItem("Manage users");
         showUsersItem.setOnAction(e -> _showUserTableScene());
-        menuButton.getItems().add(showUsersItem);
+        MenuItem logoutItem = new MenuItem("Logout");
+        logoutItem.setOnAction(e -> logoutCurrentUser());
+        menuButton.getItems().addAll(showUsersItem, logoutItem);
 
         // Layout for the header with MenuButton
         BorderPane headerPane = _createHeaderPane();
@@ -261,6 +264,11 @@ public class Application extends javafx.application.Application {
         mainStage.show();
 
         callForwardingTable.getTable().requestFocus();
+    }
+
+    public void logoutCurrentUser() {
+        userSession = null;
+        mainStage.setScene(loginScene);
     }
 
     /**
@@ -351,11 +359,7 @@ public class Application extends javafx.application.Application {
                 // Check if the user is an admin or the username matches the current user's username
                 if (userSession.isAdmin() || userDTO.getUsername().equals(userSession.getUsername())) {
                     HBox container = new HBox(editBtn);
-
-                    if (userSession.isAdmin()) {
-                        container.getChildren().add(deleteBtn);
-                    }
-
+                    container.getChildren().add(deleteBtn);
                     container.setSpacing(10); // Set spacing as needed
                     setGraphic(container);
                 } else {
@@ -829,17 +833,22 @@ public class Application extends javafx.application.Application {
      * On clicking the login button, authenticate the user and display success/error info text.
      */
     private void _onLoginButtonClick(String username, String password, Text loginInfoText) {
+        String loginFailedText = "Login failed.";
+        loginInfoText.getStyleClass().add(ERROR_TEXT_CLASS);
+
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
-            loginInfoText.getStyleClass().add(ERROR_TEXT_CLASS);
-            loginInfoText.setText("Login failed.");
+            loginInfoText.setText(loginFailedText);
             return;
         }
 
         userSession = AuthenticationService.authenticate(username, password);
-
         if (userSession == null) {
+            loginInfoText.setText(loginFailedText);
             return;
         }
+
+        // in case there was a
+        loginInfoText.setText("");
 
         // Proceed to next view or functionality
         _showCallForwardingTableScene();
@@ -898,6 +907,11 @@ public class Application extends javafx.application.Application {
     private void _onDeleteUserConfirmButtonClick(UserDTO userDTO, Stage confirmStage) {
         DatabaseAPI.markUserAsDeleted(userSession, userDTO.getUsername());
         _closeCurrentStageAndShowUserTable(confirmStage);
+
+        // if user deleted his own account, log him out
+        if (userSession.getUsername().equals(userDTO.getUsername())) {
+            logoutCurrentUser();
+        }
     }
 
     /**
