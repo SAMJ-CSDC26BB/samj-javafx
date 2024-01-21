@@ -20,3 +20,47 @@
 .test {
     overflow-x: hidden;
 }
+
+
+.samj--table__column .scroll-bar * {
+    /*hide the horizontal scroll*/
+    /*https://stackoverflow.com/questions/55093764/javafx-how-to-disable-scrollbars-in-tableview*/
+
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
+
+.error-text, .danger-text {
+    -fx-text-fill: red;
+    -fx-fill: red;
+}
+
+.samj--button {
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+    -fx-pref-height: 30px;
+}
+
+.read-only-input {
+    -fx-control-inner-background: #f0f0f0;
+    -fx-text-fill: #a0a0a0;
+    -fx-font-style: italic;
+}
+
+.margin-bottom-10 {
+    -fx-margin-bottom: 10px;
+}
+
+.delete-button {
+    -fx-start-margin: 10px;
+}
+
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border: none;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-focus-color: transparent;
+}
