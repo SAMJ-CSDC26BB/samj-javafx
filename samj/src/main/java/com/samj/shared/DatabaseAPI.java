@@ -95,6 +95,7 @@ public class DatabaseAPI {
             return false;
         }
 
+        password = Utils.encryptPassword(password);
         return UserDAO.updateUserPassword(username, password);
     }
 
