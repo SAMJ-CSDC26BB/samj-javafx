@@ -409,8 +409,8 @@ public class Application extends javafx.application.Application {
 
         ComboBox<String> userStatusComboBox;
 
-        // in edit mode, changing the username is not allowed as the username is used as primary key
         if (isUserEditAction && oldUserDTO != null) {
+            // in edit mode, changing the username is not allowed as the username is used as primary key
             usernameField.setText(oldUserDTO.getUsername());
             usernameField.setEditable(false);
             usernameField.getStyleClass().add("read-only-input");
@@ -418,7 +418,12 @@ public class Application extends javafx.application.Application {
             fullNameField.setText(oldUserDTO.getFullName());
             phoneNumberField.setText(oldUserDTO.getNumber());
 
-            userStatusComboBox = _createStringComboBox(Set.of("active", "inactive"), oldUserDTO.getStatus());
+            // status change allowed only for admin
+            if (userSession.isAdmin()) {
+                userStatusComboBox = _createStringComboBox(Set.of("active", "inactive"), oldUserDTO.getStatus());
+            } else {
+                userStatusComboBox = null;
+            }
         } else {
             userStatusComboBox = null;
         }
