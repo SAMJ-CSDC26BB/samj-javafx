@@ -175,10 +175,12 @@ public class UserTable extends AbstractTable<UserDTO> {
         this.roleColumn = roleColumn;
     }
 
+    @Override
     public TableColumn<UserDTO, Void> getActionsColumn() {
         return actionsColumn;
     }
 
+    @Override
     public void setActionsColumn(TableColumn<UserDTO, Void> actionsColumn) {
         this.actionsColumn = actionsColumn;
     }

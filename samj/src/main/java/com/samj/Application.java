@@ -625,9 +625,12 @@ public class Application extends javafx.application.Application {
         List<TableColumn<T, String>> columns = table.getColumns();
         double totalColumns = columns.size();
 
-        if (table instanceof UserTable) {
-            // user table has additional actions column which is not part of the columns list
+        TableColumn<T, Void> actionsColumn = table.getActionsColumn();
+
+        // actions column which is not part of the columns list
+        if (actionsColumn != null) {
             totalColumns += 1;
+            actionsColumn.setResizable(false);
         }
 
         double columnPercentage = 1.0 / totalColumns;
