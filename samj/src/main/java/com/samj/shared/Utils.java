@@ -59,13 +59,14 @@ public class Utils {
         return BCrypt.checkpw(plainPassword, encryptedPassword);
     }
 
-    public static boolean validateSettings(String serverURL, int port, String dbURL) {
+    public static boolean validateServerSettings(String serverURL, int port) {
         try {
             HttpURLConnection connection = getHttpURLConnection(serverURL, port);
 
             // Check for successful response code.
             if (connection.getResponseCode() == 200) {
                 System.out.println("Server is reachable: " + serverURL + ":" + port + "/");
+                connection.disconnect();
                 return true;
             } else {
                 System.out.println("Server responded with code: " + connection.getResponseCode());

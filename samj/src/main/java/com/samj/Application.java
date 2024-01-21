@@ -37,7 +37,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.samj.shared.Utils.saveSettings;
-import static com.samj.shared.Utils.validateSettings;
+import static com.samj.shared.Utils.validateServerSettings;
 
 public class Application extends javafx.application.Application {
 
@@ -264,7 +264,7 @@ public class Application extends javafx.application.Application {
                 // Call your validateSettings method with the parsed port number
                 // If the database field is empty, pass the default value to the method
                 String dbToValidate = database.isEmpty() ? "src/main/database/callForwardingDatabase.db" : database;
-                isSettingsValid = validateSettings(server, port, dbToValidate);
+                isSettingsValid = validateServerSettings(server, port);
             } catch (NumberFormatException ex) {
                 resultLabel.setText("Port must be a number.");
                 resultLabel.setTextFill(javafx.scene.paint.Color.RED);
