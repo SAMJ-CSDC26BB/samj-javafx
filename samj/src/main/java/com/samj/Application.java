@@ -228,7 +228,7 @@ public class Application extends javafx.application.Application {
         settingsGrid.getRowConstraints().add(lastRowConst);
 
         applyButton.setOnAction(e -> {
-            boolean isSettingsValid = validateSettings("", 0, ""); // Call your validateSettings method
+            boolean isSettingsValid = validateSettings(String.valueOf(serverField.getText()), Integer.parseInt(portField.getText()), String.valueOf(dbField.getText())); // Call your validateSettings method
             if (isSettingsValid) {
                 resultLabel.setText("X Connection worked X");
                 resultLabel.setTextFill(Color.GREEN);
