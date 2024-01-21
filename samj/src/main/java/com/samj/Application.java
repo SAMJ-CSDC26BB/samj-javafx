@@ -170,72 +170,77 @@ public class Application extends javafx.application.Application {
         settingsGrid.setAlignment(Pos.CENTER);
         settingsGrid.setVgap(10);
         settingsGrid.setHgap(10);
-        settingsGrid.setPadding(new Insets(10));
+        settingsGrid.setPadding(new Insets(25, 25, 25, 25)); // Adjust padding if needed
 
-        // Create the components
-        Label server = new Label("Server: ");
+        // Back Button
+        Button goBackButton = createGoBackButton();
+        goBackButton.setOnAction(e -> _showCallForwardingTableScene());
+        settingsGrid.add(goBackButton, 0, 0); // Top left corner
+
+        // Server Field
+        Label serverLabel = new Label("Server:");
         TextField serverField = new TextField();
-        _addLabelInputPairToGrid(settingsGrid, server, serverField, 0, 1); // Row 1
+        settingsGrid.add(serverLabel, 0, 1); // Just under the back button
+        settingsGrid.add(serverField, 1, 1);
 
-        Label port = new Label("Port:");
+        // Port Field
+        Label portLabel = new Label("Port:");
         TextField portField = new TextField();
-        _addLabelInputPairToGrid(settingsGrid, port, portField, 0, 2); // Row 2
+        settingsGrid.add(portLabel, 0, 2); // Next row
+        settingsGrid.add(portField, 1, 2);
 
+        // Database Field
         Label dbLabel = new Label("Database:");
         TextField dbField = new TextField();
-        _addLabelInputPairToGrid(settingsGrid, dbLabel, dbField, 0, 3); // Row 3
+        settingsGrid.add(dbLabel, 0, 3); // Next row
+        settingsGrid.add(dbField, 1, 3);
 
         // Result Label for displaying validation outcome
         Label resultLabel = new Label();
         settingsGrid.add(resultLabel, 1, 4); // Adjust to be in column 1, row 4
-
-        // Go Back Button
-        Button goBackButton = createGoBackButton();
-        // Add action for the settings button
-        goBackButton.setOnAction(e -> _showCallForwardingTableScene());
-        settingsGrid.add(goBackButton, 0, 0); // Top left corner
 
         // Apply and Save Buttons
         Button applyButton = new Button("Apply");
         Button saveButton = new Button("Save");
         applyButton.getStyleClass().add(BUTTON_CLASS);
         saveButton.getStyleClass().add(BUTTON_CLASS);
-
-        HBox buttonBox = new HBox(10); // Spacing between buttons
-        buttonBox.setAlignment(Pos.BOTTOM_RIGHT); // Align to bottom right
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
         buttonBox.getChildren().addAll(applyButton, saveButton);
+        settingsGrid.add(buttonBox, 1, 5, 2, 1); // Adjust row for buttonBox as needed
 
-        // Add HBox to the GridPane
-        settingsGrid.add(buttonBox, 1, 5); // Adjust row and column indices as needed
+        // Set column width and row height constraints
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setHgrow(Priority.NEVER); // Column 0 does not grow
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setHgrow(Priority.ALWAYS); // Column 1 grows
+        settingsGrid.getColumnConstraints().addAll(col1, col2);
 
-        // Expand the last row and column
-        ColumnConstraints column1 = new ColumnConstraints();
-        ColumnConstraints column2 = new ColumnConstraints();
-        column2.setHgrow(Priority.ALWAYS); // Second column grows
-        settingsGrid.getColumnConstraints().addAll(column1, column2);
-
-        RowConstraints row1 = new RowConstraints();
-        RowConstraints row2 = new RowConstraints();
-        RowConstraints row3 = new RowConstraints();
-        RowConstraints row4 = new RowConstraints();
-        row4.setVgrow(Priority.ALWAYS); // Last row grows
-        settingsGrid.getRowConstraints().addAll(row1, row2, row3, row4);
+        RowConstraints rowConst = new RowConstraints();
+        rowConst.setVgrow(Priority.NEVER); // Rows do not grow
+        // Apply row constraints to each input row
+        for (int i = 0; i < 5; i++) {
+            settingsGrid.getRowConstraints().add(rowConst);
+        }
+        // Last row where the buttons are should grow
+        RowConstraints lastRowConst = new RowConstraints();
+        lastRowConst.setVgrow(Priority.ALWAYS);
+        settingsGrid.getRowConstraints().add(lastRowConst);
 
         applyButton.setOnAction(e -> {
             boolean isSettingsValid = validateSettings("", 0, ""); // Call your validateSettings method
             if (isSettingsValid) {
-                resultLabel.setText("Connection worked");
+                resultLabel.setText("X Connection worked X");
                 resultLabel.setTextFill(Color.GREEN);
             } else {
-                resultLabel.setText("Settings are not working");
+                resultLabel.setText("✓ Settings are not working ✓");
                 resultLabel.setTextFill(Color.RED);
             }
         });
 
-
-        Scene settingsScene = new Scene(settingsGrid, 250, 500); // Adjust size as needed
-        settingsScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
+        Scene settingsScene = new Scene(settingsGrid);
         primaryStage.setScene(settingsScene);
+        primaryStage.show();
     }
 
 
