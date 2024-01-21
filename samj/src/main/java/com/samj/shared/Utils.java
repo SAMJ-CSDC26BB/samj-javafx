@@ -47,4 +47,13 @@ public class Utils {
 
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
+
+    public static boolean comparePassword(String plainPassword, String encryptedPassword) {
+        if (plainPassword == null || encryptedPassword == null
+                || plainPassword.isBlank() || encryptedPassword.isBlank()) {
+            return false;
+        }
+
+        return BCrypt.checkpw(plainPassword, encryptedPassword);
+    }
 }

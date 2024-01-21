@@ -698,6 +698,7 @@ public class Application extends javafx.application.Application {
      */
     private boolean _validateDataForUserEdit(String fullName,
                                              String password,
+                                             String oldPassword,
                                              String number,
                                              Label missingDataErrorLabel) {
 
@@ -706,9 +707,21 @@ public class Application extends javafx.application.Application {
             return false;
         }
 
-        if (!password.isBlank() && !Utils.validateUserPassword(password)) {
-            missingDataErrorLabel.setText("Password must be at least 8 characters, with one uppercase and one special character.");
-            return false;
+        if (!password.isBlank()) {
+            String errorMessage = "";
+
+            if (!Utils.validateUserPassword(password)) {
+                errorMessage = "Password must be at least 8 characters, with one uppercase and one special character.";
+            }
+
+            if (!oldPassword.isBlank() && Utils.comparePassword(password, oldPassword)) {
+                errorMessage = "Password must be different from your current one";
+            }
+
+            if (!errorMessage.isEmpty()) {
+                missingDataErrorLabel.setText(errorMessage);
+                return false;
+            }
         }
 
         if (!number.isBlank() && !Utils.validateUserNumber(number)) {
@@ -787,7 +800,7 @@ public class Application extends javafx.application.Application {
                                        String role,
                                        Label missingDataErrorLabel) {
 
-        if (!_validateDataForUserEdit(fullName, password, phoneNumber, missingDataErrorLabel)) {
+        if (!_validateDataForUserEdit(fullName, password, oldUserDTO.getPassword(), phoneNumber, missingDataErrorLabel)) {
             return;
         }
 
