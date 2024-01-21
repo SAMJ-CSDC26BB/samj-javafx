@@ -941,6 +941,6 @@ public class Application extends javafx.application.Application {
 
         // Starting both threads
         serverThread.start();
-        launchThread.start();
+        // launchThread.start();
     }
 }
