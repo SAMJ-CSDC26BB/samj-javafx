@@ -11,8 +11,10 @@ public class UserDTO {
     private String password;
     private String number;
     private String status;
+    private String role;
 
     private final String ACTIVE_STATUS = "active";
+    private final String DEFAULT_ROLE = "user";
 
     public UserDTO(String username, String fullName, String password, String number) {
         this.username = username;
@@ -21,11 +23,18 @@ public class UserDTO {
         this.number = number;
         
         this.status = ACTIVE_STATUS;
+        this.role = DEFAULT_ROLE;
     }
 
     public UserDTO(String username, String fullName, String password, String number, String status) {
         this(username, fullName, password, number);
         this.status = status;
+        this.role = DEFAULT_ROLE;
+    }
+
+    public UserDTO(String username, String fullName, String password, String number, String status, String role) {
+        this(username, fullName, password, number, status);
+        this.role = role;
     }
 
     @Override
@@ -43,7 +52,8 @@ public class UserDTO {
                 && this.getFullName().equals(compareTo.getFullName())
                 && this.getPassword().equals(compareTo.getPassword())
                 && this.getNumber().equals(compareTo.getNumber())
-                && this.getStatus().equals(compareTo.getStatus());
+                && this.getStatus().equals(compareTo.getStatus())
+                && this.getRole().equals(compareTo.getRole());
     }
 
     public String getUsername() {
@@ -88,5 +98,17 @@ public class UserDTO {
 
     public boolean isUserActive() {
         return this.status.equals(ACTIVE_STATUS);
+    }
+
+    public boolean isUserAdmin() {
+        return this.role.equals("admin");
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
