@@ -1,4 +1,4 @@
-package com.samj.frontend;
+package com.samj.shared;
 
 import com.samj.shared.UserDTO;
 

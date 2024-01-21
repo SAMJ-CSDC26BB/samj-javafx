@@ -4,6 +4,7 @@ package com.samj.frontend;
 import com.samj.shared.BCrypt;
 import com.samj.shared.DatabaseAPI;
 import com.samj.shared.UserDTO;
+import com.samj.shared.UserSession;
 
 public class AuthenticationService {
     // TODO - remove at the end

@@ -3,7 +3,6 @@ package com.samj.shared;
 import com.samj.backend.CallForwardingRecordsDAO;
 import com.samj.backend.SettingsDAO;
 import com.samj.backend.UserDAO;
-import com.samj.frontend.UserSession;
 
 import java.time.LocalDateTime;
 import java.util.Set;
