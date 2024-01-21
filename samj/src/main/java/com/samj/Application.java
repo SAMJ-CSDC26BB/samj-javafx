@@ -1,9 +1,7 @@
 package com.samj;
 
 import com.samj.backend.Server;
-import javafx.scene.paint.Color;
 import com.samj.frontend.AuthenticationService;
-import com.samj.shared.UserSession;
 import com.samj.frontend.tables.AbstractTable;
 import com.samj.frontend.tables.CallForwardingTable;
 import com.samj.frontend.tables.UserTable;
@@ -25,6 +23,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -227,47 +226,104 @@ public class Application extends javafx.application.Application {
         lastRowConst.setVgrow(Priority.ALWAYS);
         settingsGrid.getRowConstraints().add(lastRowConst);
 
-        applyButton.setOnAction(e -> {
-            // Clear the previous message
-            resultLabel.setText("");
-
-            String server = serverField.getText();
-            String portString = portField.getText();
-            String database = dbField.getText(); // Database can be empty
-            boolean isSettingsValid = false;
-
-            // Check if the server field is not empty
-            if (server.isEmpty()) {
-                resultLabel.setText("Server cannot be empty.");
-                resultLabel.setTextFill(Color.RED);
-            } else {
-                // Validate the port field to ensure it contains an integer
-                try {
-                    int port = Integer.parseInt(portString);
-                    // Call your validateSettings method with the parsed port number
-                    // If the database field is empty, pass the default value to the method
-                    String dbToValidate = database.isEmpty() ? "defaultDbValue" : database; // Replace "defaultDbValue" with your actual default
-                    isSettingsValid = validateSettings(server, port, dbToValidate);
-                } catch (NumberFormatException ex) {
-                    resultLabel.setText("Port must be a number.");
-                    resultLabel.setTextFill(Color.RED);
-                }
-            }
-
-            // If all validations pass
-            if (isSettingsValid) {
-                resultLabel.setText("✓ Connection worked.");
-                resultLabel.setTextFill(Color.GREEN);
-            } else if (!resultLabel.getText().equals("Port must be a number.") && !resultLabel.getText().equals("Server cannot be empty.")) {
-                // This else block will execute only if the port was a number but settings are still invalid
-                resultLabel.setText("X Settings are not working.");
-                resultLabel.setTextFill(Color.RED);
-            }
-        });
+        applyButton.setOnAction(e -> applyButtonAction(resultLabel, serverField, portField, dbField));
+        saveButton.setOnAction(e -> saveButtonAction(resultLabel, serverField, portField, dbField));
 
         Scene settingsScene = new Scene(settingsGrid);
         primaryStage.setScene(settingsScene);
         primaryStage.show();
+    }
+
+    /**
+     * Method for the logic of the apply Button
+     *
+     * @param resultLabel
+     * @param serverField
+     * @param portField
+     * @param dbField
+     */
+    void applyButtonAction(Label resultLabel, TextField serverField, TextField portField, TextField dbField) {
+        // Clear the previous message
+        resultLabel.setText("");
+
+        String server = serverField.getText();
+        String portString = portField.getText();
+        String database = dbField.getText(); // Database can be empty
+        boolean isSettingsValid = false;
+
+        // Check if the server field is not empty
+        if (server.isEmpty()) {
+            resultLabel.setText("Server cannot be empty.");
+            resultLabel.setTextFill(javafx.scene.paint.Color.RED);
+        } else {
+            // Validate the port field to ensure it contains an integer
+            try {
+                int port = Integer.parseInt(portString);
+                // Call your validateSettings method with the parsed port number
+                // If the database field is empty, pass the default value to the method
+                String dbToValidate = database.isEmpty() ? "src/main/database/callForwardingDatabase.db" : database;
+                isSettingsValid = validateSettings(server, port, dbToValidate);
+            } catch (NumberFormatException ex) {
+                resultLabel.setText("Port must be a number.");
+                resultLabel.setTextFill(javafx.scene.paint.Color.RED);
+            }
+        }
+
+        // If all validations pass
+        if (isSettingsValid) {
+            resultLabel.setText("✓ Connection worked.");
+            resultLabel.setTextFill(javafx.scene.paint.Color.GREEN);
+        } else if (!resultLabel.getText().equals("Port must be a number.") && !resultLabel.getText().equals("Server cannot be empty.")) {
+            // This else block will execute only if the port was a number but settings are still invalid
+            resultLabel.setText("X Settings are not working.");
+            resultLabel.setTextFill(Color.RED);
+        }
+    }
+
+    /**
+     * Save button logic for settings scene
+     * @param resultLabel
+     * @param serverField
+     * @param portField
+     * @param dbField
+     */
+    void saveButtonAction(Label resultLabel, TextField serverField, TextField portField, TextField dbField) {
+        // Clear the previous message
+        resultLabel.setText("");
+
+        String server = serverField.getText();
+        String portString = portField.getText();
+        String database = dbField.getText(); // Database can be empty
+        boolean isSettingsValid = false;
+
+        // Check if the server field is not empty
+        if (server.isEmpty()) {
+            resultLabel.setText("Server cannot be empty.");
+            resultLabel.setTextFill(javafx.scene.paint.Color.RED);
+        } else {
+            // Validate the port field to ensure it contains an integer
+            try {
+                int port = Integer.parseInt(portString);
+                // Call your validateSettings method with the parsed port number
+                // If the database field is empty, pass the default value to the method
+                String dbToValidate = database.isEmpty() ? "src/main/database/callForwardingDatabase.db" : database;
+
+            } catch (NumberFormatException ex) {
+                resultLabel.setText("Port must be a number.");
+                resultLabel.setTextFill(javafx.scene.paint.Color.RED);
+            }
+        }
+
+        // If all validations pass
+        if (isSettingsValid) {
+            resultLabel.setText("✓ Connection worked.");
+            resultLabel.setTextFill(javafx.scene.paint.Color.GREEN);
+        } else if (!resultLabel.getText().equals("Port must be a number.") && !resultLabel.getText().equals("Server cannot be empty.")) {
+            // This else block will execute only if the port was a number but settings are still invalid
+            resultLabel.setText("X Settings are not working.");
+            resultLabel.setTextFill(Color.RED);
+        }
+
     }
 
 
