@@ -1,5 +1,7 @@
 package com.samj.shared;
 
+import static com.samj.backend.SettingsDAO.updateSettings;
+
 public class Utils {
 
     public static boolean validateUserName(String username) {
@@ -55,5 +57,10 @@ public class Utils {
 
     public static boolean validateSettings(String serverURL, int port, String dbURL) {
         return false;
+    }
+
+    public static boolean saveSettings(String serverURL, int port, String dbURL) {
+        SettingsDTO setting = new SettingsDTO("backend", serverURL, port, dbURL);
+        return updateSettings(setting);
     }
 }

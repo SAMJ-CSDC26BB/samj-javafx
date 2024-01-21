@@ -6,6 +6,7 @@ import com.samj.frontend.tables.AbstractTable;
 import com.samj.frontend.tables.CallForwardingTable;
 import com.samj.frontend.tables.UserTable;
 import com.samj.shared.*;
+import com.samj.shared.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.samj.shared.Utils.saveSettings;
 import static com.samj.shared.Utils.validateSettings;
 
 public class Application extends javafx.application.Application {
@@ -282,6 +284,7 @@ public class Application extends javafx.application.Application {
 
     /**
      * Save button logic for settings scene
+     *
      * @param resultLabel
      * @param serverField
      * @param portField
@@ -299,7 +302,7 @@ public class Application extends javafx.application.Application {
         // Check if the server field is not empty
         if (server.isEmpty()) {
             resultLabel.setText("Server cannot be empty.");
-            resultLabel.setTextFill(javafx.scene.paint.Color.RED);
+            resultLabel.setTextFill(Color.RED);
         } else {
             // Validate the port field to ensure it contains an integer
             try {
@@ -307,21 +310,17 @@ public class Application extends javafx.application.Application {
                 // Call your validateSettings method with the parsed port number
                 // If the database field is empty, pass the default value to the method
                 String dbToValidate = database.isEmpty() ? "src/main/database/callForwardingDatabase.db" : database;
-
+                if (saveSettings(server, port, dbToValidate)) {
+                    resultLabel.setText("✓ Settings saved.");
+                    resultLabel.setTextFill(Color.GREEN);
+                } else {
+                    resultLabel.setText("X Settings were not saved.");
+                    resultLabel.setTextFill(Color.RED);
+                }
             } catch (NumberFormatException ex) {
                 resultLabel.setText("Port must be a number.");
-                resultLabel.setTextFill(javafx.scene.paint.Color.RED);
+                resultLabel.setTextFill(Color.RED);
             }
-        }
-
-        // If all validations pass
-        if (isSettingsValid) {
-            resultLabel.setText("✓ Connection worked.");
-            resultLabel.setTextFill(javafx.scene.paint.Color.GREEN);
-        } else if (!resultLabel.getText().equals("Port must be a number.") && !resultLabel.getText().equals("Server cannot be empty.")) {
-            // This else block will execute only if the port was a number but settings are still invalid
-            resultLabel.setText("X Settings are not working.");
-            resultLabel.setTextFill(Color.RED);
         }
 
     }
