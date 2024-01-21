@@ -228,11 +228,38 @@ public class Application extends javafx.application.Application {
         settingsGrid.getRowConstraints().add(lastRowConst);
 
         applyButton.setOnAction(e -> {
-            boolean isSettingsValid = validateSettings(String.valueOf(serverField.getText()), Integer.parseInt(portField.getText()), String.valueOf(dbField.getText())); // Call your validateSettings method
-            if (isSettingsValid) {
-                resultLabel.setText("✓  Connection worked.");
-                resultLabel.setTextFill(Color.GREEN);
+            // Clear the previous message
+            resultLabel.setText("");
+
+            String server = serverField.getText();
+            String portString = portField.getText();
+            String database = dbField.getText(); // Database can be empty
+            boolean isSettingsValid = false;
+
+            // Check if the server field is not empty
+            if (server.isEmpty()) {
+                resultLabel.setText("Server cannot be empty.");
+                resultLabel.setTextFill(Color.RED);
             } else {
+                // Validate the port field to ensure it contains an integer
+                try {
+                    int port = Integer.parseInt(portString);
+                    // Call your validateSettings method with the parsed port number
+                    // If the database field is empty, pass the default value to the method
+                    String dbToValidate = database.isEmpty() ? "defaultDbValue" : database; // Replace "defaultDbValue" with your actual default
+                    isSettingsValid = validateSettings(server, port, dbToValidate);
+                } catch (NumberFormatException ex) {
+                    resultLabel.setText("Port must be a number.");
+                    resultLabel.setTextFill(Color.RED);
+                }
+            }
+
+            // If all validations pass
+            if (isSettingsValid) {
+                resultLabel.setText("✓ Connection worked.");
+                resultLabel.setTextFill(Color.GREEN);
+            } else if (!resultLabel.getText().equals("Port must be a number.") && !resultLabel.getText().equals("Server cannot be empty.")) {
+                // This else block will execute only if the port was a number but settings are still invalid
                 resultLabel.setText("X Settings are not working.");
                 resultLabel.setTextFill(Color.RED);
             }
