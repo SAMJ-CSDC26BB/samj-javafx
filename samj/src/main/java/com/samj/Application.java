@@ -829,11 +829,15 @@ public class Application extends javafx.application.Application {
      * On clicking the login button, authenticate the user and display success/error info text.
      */
     private void _onLoginButtonClick(String username, String password, Text loginInfoText) {
-        userSession = AuthenticationService.authenticate(username, password);
-
-        if (username == null) {
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
             loginInfoText.getStyleClass().add(ERROR_TEXT_CLASS);
             loginInfoText.setText("Login failed.");
+            return;
+        }
+
+        userSession = AuthenticationService.authenticate(username, password);
+
+        if (userSession == null) {
             return;
         }
 

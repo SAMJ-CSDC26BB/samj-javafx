@@ -15,6 +15,10 @@ public class AuthenticationService {
     // encryptedUserSecond      password
 
     public static UserSession authenticate(String username, String password) {
+        if (username == null || password == null || username.isBlank() || password.isBlank()) {
+            return null;
+        }
+
         UserDTO userDTO = DatabaseAPI.loadUserByUsername(username);
 
         if (! validateUserAndPassword(userDTO, password)) {
