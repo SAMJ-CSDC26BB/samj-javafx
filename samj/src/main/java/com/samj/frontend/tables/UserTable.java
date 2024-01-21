@@ -18,6 +18,7 @@ public class UserTable extends AbstractTable<UserDTO> {
 
     private TableColumn<UserDTO, String> numberColumn;
     private TableColumn<UserDTO, String> statusColumn;
+    private TableColumn<UserDTO, String> roleColumn;
 
     private TableColumn<UserDTO, Void> actionsColumn;
 
@@ -25,6 +26,7 @@ public class UserTable extends AbstractTable<UserDTO> {
     private TextField searchFieldFullName;
     private TextField searchFieldNumber;
     private TextField searchFieldStatus;
+    private TextField searchFieldRole;
 
     public UserTable(ObservableList<UserDTO> tableData) {
         super(tableData);
@@ -36,6 +38,7 @@ public class UserTable extends AbstractTable<UserDTO> {
         fullNameColumn = new TableColumn<>("Full Name");
         numberColumn = new TableColumn<>("Phone number");
         statusColumn = new TableColumn<>("Status");
+        roleColumn = new TableColumn<>("Role");
         actionsColumn = new TableColumn<>("Actions");
     }
 
@@ -45,6 +48,7 @@ public class UserTable extends AbstractTable<UserDTO> {
         table.getColumns().add(fullNameColumn);
         table.getColumns().add(numberColumn);
         table.getColumns().add(statusColumn);
+        table.getColumns().add(roleColumn);
         table.getColumns().add(actionsColumn);
     }
 
@@ -54,6 +58,7 @@ public class UserTable extends AbstractTable<UserDTO> {
         fullNameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         numberColumn.setCellValueFactory(new PropertyValueFactory<>("number"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
     }
 
     @Override
@@ -62,6 +67,7 @@ public class UserTable extends AbstractTable<UserDTO> {
         searchFieldFullName = new TextField();
         searchFieldNumber = new TextField();
         searchFieldStatus = new TextField();
+        searchFieldRole = new TextField();
     }
 
     @Override
@@ -75,6 +81,7 @@ public class UserTable extends AbstractTable<UserDTO> {
         searchFieldFullName.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldNumber.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldStatus.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
+        searchFieldRole.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
 
         // Wrap the FilteredList in a SortedList
         SortedList<UserDTO> sortedData = new SortedList<>(filteredData);
@@ -90,7 +97,6 @@ public class UserTable extends AbstractTable<UserDTO> {
     @Override
     protected void updatePredicate(FilteredList<UserDTO> filteredData) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         filteredData.setPredicate(userDTO -> {
             // Check each search field for matching criteria
             if (!searchFieldUserName.getText().isEmpty() && !userDTO.getUsername().toLowerCase().contains(searchFieldUserName.getText().toLowerCase())) {
@@ -105,7 +111,15 @@ public class UserTable extends AbstractTable<UserDTO> {
                 return false; // Does not match called number
             }
 
-            return searchFieldStatus.getText().isEmpty() || userDTO.getStatus().toLowerCase().contains(searchFieldStatus.getText().toLowerCase()); // Does not match destination number
+            if (!searchFieldStatus.getText().isEmpty() && !userDTO.getStatus().toLowerCase().contains(searchFieldStatus.getText().toLowerCase())) {
+                return false;
+            }
+
+            if (!searchFieldRole.getText().isEmpty() && !userDTO.getUsername().toLowerCase().contains(searchFieldRole.getText().toLowerCase())) {
+                return false;
+            }
+
+            return true;
         });
     }
 
@@ -118,6 +132,7 @@ public class UserTable extends AbstractTable<UserDTO> {
         fullNameColumn.getStyleClass().add(columnClassName);
         numberColumn.getStyleClass().add(columnClassName);
         statusColumn.getStyleClass().add(columnClassName);
+        roleColumn.getStyleClass().add(columnClassName);
     }
 
     public TableColumn<UserDTO, String> getUserNameColumn() {
@@ -150,6 +165,14 @@ public class UserTable extends AbstractTable<UserDTO> {
 
     public void setStatusColumn(TableColumn<UserDTO, String> statusColumn) {
         this.statusColumn = statusColumn;
+    }
+
+    public TableColumn<UserDTO, String> getRoleColumn() {
+        return roleColumn;
+    }
+
+    public void setRoleColumn(TableColumn<UserDTO, String> roleColumn) {
+        this.roleColumn = roleColumn;
     }
 
     public TableColumn<UserDTO, Void> getActionsColumn() {
@@ -192,13 +215,21 @@ public class UserTable extends AbstractTable<UserDTO> {
         this.searchFieldStatus = searchFieldStatus;
     }
 
+    public TextField getSearchFieldRole() {
+        return searchFieldRole;
+    }
+
+    public void setSearchFieldRole(TextField searchFieldRole) {
+        this.searchFieldRole = searchFieldRole;
+    }
+
     @Override
     public List<TextField> getSearchFields() {
-        return List.of(searchFieldUserName, searchFieldFullName, searchFieldNumber, searchFieldStatus);
+        return List.of(searchFieldUserName, searchFieldFullName, searchFieldNumber, searchFieldStatus, searchFieldRole);
     }
 
     @Override
     public List<TableColumn<UserDTO, String>> getColumns() {
-        return List.of(userNameColumn, fullNameColumn, numberColumn, statusColumn);
+        return List.of(userNameColumn, fullNameColumn, numberColumn, statusColumn, roleColumn);
     }
 }

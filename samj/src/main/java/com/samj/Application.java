@@ -2,7 +2,7 @@ package com.samj;
 
 import com.samj.backend.Server;
 import com.samj.frontend.AuthenticationService;
-import com.samj.frontend.UserSession;
+import com.samj.shared.UserSession;
 import com.samj.frontend.tables.AbstractTable;
 import com.samj.frontend.tables.CallForwardingTable;
 import com.samj.frontend.tables.UserTable;
@@ -221,7 +221,7 @@ public class Application extends javafx.application.Application {
      */
     private void _showCallForwardingTableScene() {
         mainStage.setTitle(CALL_FORWARDING_SCENE_TITLE);
-        ObservableList<CallForwardingDTO> callForwardingData = _getTableData();
+        ObservableList<CallForwardingDTO> callForwardingData = _getCallForwardingTableData();
         CallForwardingTable callForwardingTable = new CallForwardingTable(callForwardingData);
 
         HBox tableSearchFields = setupSearchFields(callForwardingTable);
@@ -619,7 +619,14 @@ public class Application extends javafx.application.Application {
 
     private <T> void setupTableColumns(AbstractTable<T> table, HBox searchFields) {
         List<TableColumn<T, String>> columns = table.getColumns();
-        double columnPercentage = 0.20;
+        double totalColumns = columns.size();
+
+        if (table instanceof UserTable) {
+            // user table has additional actions column which is not part of the columns list
+            totalColumns += 1;
+        }
+
+        double columnPercentage = 1.0 / totalColumns;
 
         for (int i = 0; i < columns.size(); i++) {
             TableColumn<T, ?> column = columns.get(i);
@@ -638,10 +645,8 @@ public class Application extends javafx.application.Application {
     /**
      * Helper method for populating the main table with data from the database.
      */
-    private ObservableList<CallForwardingDTO> _getTableData() {
-        // Original data list
+    private ObservableList<CallForwardingDTO> _getCallForwardingTableData() {
         ObservableList<CallForwardingDTO> tableData = FXCollections.observableArrayList();
-        // Get data from backend
         Set<CallForwardingDTO> temp = backend.getTimeBasedForwardingSet();
         tableData.addAll(temp);
 
@@ -652,7 +657,6 @@ public class Application extends javafx.application.Application {
      * Helper method for populating the main table with data from the database.
      */
     private ObservableList<UserDTO> _getUserTableData() {
-        // Original data list
         ObservableList<UserDTO> tableData = FXCollections.observableArrayList();
         tableData.addAll(DatabaseAPI.loadAllUsers());
 
