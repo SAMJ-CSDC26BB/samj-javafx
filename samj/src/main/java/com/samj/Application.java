@@ -230,10 +230,10 @@ public class Application extends javafx.application.Application {
         applyButton.setOnAction(e -> {
             boolean isSettingsValid = validateSettings(String.valueOf(serverField.getText()), Integer.parseInt(portField.getText()), String.valueOf(dbField.getText())); // Call your validateSettings method
             if (isSettingsValid) {
-                resultLabel.setText("X Connection worked X");
+                resultLabel.setText("✓  Connection worked.");
                 resultLabel.setTextFill(Color.GREEN);
             } else {
-                resultLabel.setText("✓ Settings are not working ✓");
+                resultLabel.setText("X Settings are not working.");
                 resultLabel.setTextFill(Color.RED);
             }
         });
