@@ -1,5 +1,9 @@
 package com.samj.shared;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import static com.samj.backend.SettingsDAO.updateSettings;
 
 public class Utils {
@@ -56,7 +60,36 @@ public class Utils {
     }
 
     public static boolean validateSettings(String serverURL, int port, String dbURL) {
+        try {
+            HttpURLConnection connection = getHttpURLConnection(serverURL, port);
+
+            // Check for successful response code.
+            if (connection.getResponseCode() == 200) {
+                System.out.println("Server is reachable: " + serverURL + ":" + port + "/");
+                return true;
+            } else {
+                System.out.println("Server responded with code: " + connection.getResponseCode());
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to reach the server: " + e.getMessage());
+        }
         return false;
+    }
+
+    private static HttpURLConnection getHttpURLConnection(String serverURL, int port) throws IOException {
+        URL url = new URL("http", serverURL, port, "/");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        // Set request method to GET as we are sending a simple request.
+        connection.setRequestMethod("GET");
+
+        // Set a timeout for the connection to establish.
+        connection.setConnectTimeout(5000); // Timeout in milliseconds.
+        connection.setReadTimeout(5000);
+
+        // Open a connection to the server.
+        connection.connect();
+        return connection;
     }
 
     public static boolean saveSettings(String serverURL, int port, String dbURL) {
