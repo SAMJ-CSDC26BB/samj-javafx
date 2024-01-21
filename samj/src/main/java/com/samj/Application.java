@@ -517,7 +517,7 @@ public class Application extends javafx.application.Application {
         Button cancelButton = new Button("Cancel");
         cancelButton.setOnAction(e -> confirmStage.close());
 
-        HBox buttonLayout = new HBox(10, confirmButton, cancelButton);
+        HBox buttonLayout = new HBox(10, cancelButton, confirmButton);
         buttonLayout.setAlignment(Pos.CENTER);
 
         VBox layout = new VBox(10, messageLabel, buttonLayout);
