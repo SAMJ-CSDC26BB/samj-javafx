@@ -20,12 +20,13 @@ public class UserDAO {
     private static final String LOAD_ALL_USERS_SQL = "SELECT * FROM user WHERE status != 'deleted'";
     private static final String LOAD_USERS_BY_STATUS_SQL = "SELECT * FROM user WHERE status=?";
     private static final String LOAD_USER_BY_USERNAME_SQL = "SELECT * FROM user WHERE username=?";
-    private static final String ADD_USER_SQL = "INSERT INTO user (username, fullname, password, number) VALUES (?, ?, ?, ?)";
+    private static final String ADD_USER_SQL = "INSERT INTO user (username, fullname, password, number, role) VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_USER_PASSWORD_SQL = "UPDATE user SET password = ? WHERE username = ?";
     private static final String UPDATE_USER_FULL_NAME_SQL = "UPDATE user SET fullname = ? WHERE username = ?";
     private static final String UPDATE_USER_NUMBER_SQL = "UPDATE user SET number = ? WHERE username = ?";
     private static final String UPDATE_USER_STATUS_SQL = "UPDATE user SET status = ? WHERE username = ?";
-    private static final String UPDATE_USER_SET_ALL_FIELDS = "UPDATE user SET fullname = ?, password = ?, number = ?, status = ? WHERE username = ?";
+    private static final String UPDATE_USER_ROLE_SQL = "UPDATE user SET role = ? WHERE username = ?";
+    private static final String UPDATE_USER_SET_ALL_FIELDS = "UPDATE user SET fullname = ?, password = ?, number = ?, status = ?, role = ? WHERE username = ?";
     private static final String DELETE_USER_SQL = "DELETE FROM user WHERE username=?";
     private static final String MARK_USER_AS_DELETED_SQL = "UPDATE user SET status = ? WHERE username = ?";
 
@@ -98,6 +99,7 @@ public class UserDAO {
             preparedStatement.setString(++index, userDTO.getFullName());
             preparedStatement.setString(++index, userDTO.getPassword());
             preparedStatement.setString(++index, userDTO.getNumber());
+            preparedStatement.setString(++index, userDTO.getStatus());
 
             preparedStatement.executeUpdate();
 
@@ -146,6 +148,10 @@ public class UserDAO {
         return updateUserHelper(UPDATE_USER_STATUS_SQL, username, status);
     }
 
+    public static boolean updateUserRole(String username, String role) {
+        return updateUserHelper(UPDATE_USER_ROLE_SQL, username, role);
+    }
+
     public static boolean updateUserAllFields(UserDTO userDTO) {
         try (Connection connection = Database.getDbConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER_SET_ALL_FIELDS)) {
@@ -154,9 +160,8 @@ public class UserDAO {
             preparedStatement.setString(++index, userDTO.getFullName());
             preparedStatement.setString(++index, userDTO.getPassword());
             preparedStatement.setString(++index, userDTO.getNumber());
-
-            String status = userDTO.getStatus() == null ? STATUS_ACTIVE_STRING : userDTO.getStatus();
-            preparedStatement.setString(++index, status);
+            preparedStatement.setString(++index, userDTO.getStatus());
+            preparedStatement.setString(++index, userDTO.getRole());
 
             preparedStatement.setString(++index, userDTO.getUsername());
             preparedStatement.executeUpdate();
@@ -231,7 +236,8 @@ public class UserDAO {
                     resultSet.getString("fullname"),
                     resultSet.getString("password"),
                     resultSet.getString("number"),
-                    resultSet.getString("status"));
+                    resultSet.getString("status"),
+                    resultSet.getString("role"));
 
             userDTOSet.add(currentUserDTO);
         }
