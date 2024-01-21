@@ -76,7 +76,8 @@ public class UserDAO {
                         resultSet.getString("fullname"),
                         resultSet.getString("password"),
                         resultSet.getString("number"),
-                        resultSet.getString("status"));
+                        resultSet.getString("status"),
+                        resultSet.getString("role"));
 
             } catch (Exception e) {
                 System.out.println(e.getMessage());

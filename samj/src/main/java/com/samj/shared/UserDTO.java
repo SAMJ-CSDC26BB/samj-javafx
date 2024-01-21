@@ -1,7 +1,7 @@
 package com.samj.shared;
 
 /**
- * Class used as a Data Transfer Object for User records from the database.
+ * Class used as a Data Transfer Object for UserSession records from the database.
  * It contains only some private instance variables, getters and setters and constructors,
  * no additional logic should be added here.
  */
@@ -98,10 +98,6 @@ public class UserDTO {
 
     public boolean isUserActive() {
         return this.status.equals(ACTIVE_STATUS);
-    }
-
-    public boolean isUserAdmin() {
-        return this.role.equals("admin");
     }
 
     public String getRole() {

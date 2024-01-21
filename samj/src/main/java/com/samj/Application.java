@@ -2,6 +2,7 @@ package com.samj;
 
 import com.samj.backend.Server;
 import com.samj.frontend.AuthenticationService;
+import com.samj.frontend.UserSession;
 import com.samj.frontend.tables.AbstractTable;
 import com.samj.frontend.tables.CallForwardingTable;
 import com.samj.frontend.tables.UserTable;
@@ -37,6 +38,8 @@ import java.util.Set;
 public class Application extends javafx.application.Application {
 
     private static Server backend;
+
+    private UserSession userSession;
 
     private Stage mainStage;
 
@@ -224,9 +227,6 @@ public class Application extends javafx.application.Application {
         HBox tableSearchFields = setupSearchFields(callForwardingTable);
         setupTableColumns(callForwardingTable, tableSearchFields);
 
-        //Create settings icon
-        Button settingsButtonMain = createSettingsButton(mainStage);
-
         // Create MenuButton and MenuItems
         MenuButton menuButton = new MenuButton("Main menu");
         menuButton.getStylesheets().add(BUTTON_CLASS);
@@ -239,9 +239,14 @@ public class Application extends javafx.application.Application {
         BorderPane headerPane = _createHeaderPane();
         headerPane.setLeft(menuButton);
 
-        // Layout Settings Button
-        headerPane.setTop(settingsButtonMain);
-        BorderPane.setAlignment(settingsButtonMain, Pos.TOP_RIGHT);
+        //Create settings icon
+        if (userSession.isAdmin()) {
+            Button settingsButtonMain = createSettingsButton(mainStage);
+
+            // Layout Settings Button
+            headerPane.setTop(settingsButtonMain);
+            BorderPane.setAlignment(settingsButtonMain, Pos.TOP_RIGHT);
+        }
 
 
         // Main layout
@@ -279,14 +284,17 @@ public class Application extends javafx.application.Application {
         goBackButton.setDefaultButton(false);
         goBackButton.setOnAction(event -> _onBackButtonClickFromUserTable()); // Action to go back
 
-        Button createUserButton = new Button("Create New User");
-        createUserButton.setDefaultButton(false);
-        createUserButton.getStyleClass().add(BUTTON_CLASS);
-        createUserButton.setOnAction(event -> _openCreateUserForm());
+        HBox buttonBox = null;
+        if (userSession.isAdmin()) {
+            Button createUserButton = new Button("Create New UserSession");
+            createUserButton.setDefaultButton(false);
+            createUserButton.getStyleClass().add(BUTTON_CLASS);
+            createUserButton.setOnAction(event -> _openCreateUserForm());
 
-        // HBox to hold both buttons
-        HBox buttonBox = new HBox(10); // Spacing of 10 between buttons
-        buttonBox.getChildren().addAll(goBackButton, createUserButton);
+            // HBox to hold both buttons
+            buttonBox = new HBox(10); // Spacing of 10 between buttons
+            buttonBox.getChildren().addAll(goBackButton, createUserButton);
+        }
 
         BorderPane headerPane = _createHeaderPane();
         headerPane.setLeft(buttonBox); // Placing the HBox in the header
@@ -308,42 +316,54 @@ public class Application extends javafx.application.Application {
 
     /**
      * Create edit/delete buttons for each row in user table.
+     * If user is not admin, he will see only the edit button in the row containing
+     * his user data.
      */
     private void _setCellValueFactoryForUserTableActionButtons(UserTable userTable) {
         TableColumn<UserDTO, Void> actionsColumn = userTable.getActionsColumn();
-        actionsColumn.setCellFactory(col -> {
+        actionsColumn.setCellFactory(col -> new TableCell<UserDTO, Void>() {
+            private final Button editBtn = createIconButton("/com.samj/images/edit-icon.png", 25, 25, "icon-button");
+            private final Button deleteBtn = createIconButton("/com.samj/images/delete-icon.png", 25, 25, "icon-button");
 
-            return new TableCell<UserDTO, Void>() {
-                private final Button editBtn = createIconButton("/com.samj/images/edit-icon.png", 25, 25, "icon-button");
-                private final Button deleteBtn = createIconButton("/com.samj/images/delete-icon.png", 25, 25, "icon-button");
-                {
-                    editBtn.setOnAction(event -> {
-                        UserDTO userDTO = getTableView().getItems().get(getIndex());
-                        _openEditUserForm(userDTO);
-                    });
+            {
+                editBtn.setOnAction(event -> {
+                    UserDTO userDTO = getTableView().getItems().get(getIndex());
+                    _openEditUserForm(userDTO);
+                });
 
-                    deleteBtn.getStyleClass().add("delete-button");
+                deleteBtn.getStyleClass().add("delete-button");
+                deleteBtn.setOnAction(event -> {
+                    UserDTO userDTO = getTableView().getItems().get(getIndex());
+                    _openDeleteUserConfirmWindow(userDTO);
+                });
+            }
 
-                    deleteBtn.setOnAction(event -> {
-                        UserDTO userDTO = getTableView().getItems().get(getIndex());
-                        _openDeleteUserConfirmWindow(userDTO);
-                    });
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                    return;
                 }
 
-                @Override
-                protected void updateItem(Void item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty) {
-                        setGraphic(null);
-                    } else {
-                        HBox container = new HBox(editBtn, deleteBtn);
-                        container.setSpacing(10); // Set spacing as needed
-                        setGraphic(container);
+                UserDTO userDTO = getTableRow().getItem();
+                // Check if the user is an admin or the username matches the current user's username
+                if (userSession.isAdmin() || userDTO.getUsername().equals(userSession.getUsername())) {
+                    HBox container = new HBox(editBtn);
+
+                    if (userSession.isAdmin()) {
+                        container.getChildren().add(deleteBtn);
                     }
+
+                    container.setSpacing(10); // Set spacing as needed
+                    setGraphic(container);
+                } else {
+                    setGraphic(null); // Don't show buttons
                 }
-            };
+            }
         });
     }
+
 
     private void _closeCurrentStageAndShowUserTable(Stage currentStage) {
         currentStage.close();
@@ -374,7 +394,7 @@ public class Application extends javafx.application.Application {
 
         String stageTitle = isUserEditAction && oldUserDTO != null
                 ? "SAMJ - Edit " + oldUserDTO.getUsername()
-                : "SAMJ - Create New User";
+                : "SAMJ - Create New UserSession";
 
         createEditUserStage.setTitle(stageTitle);
 
@@ -705,7 +725,7 @@ public class Application extends javafx.application.Application {
         }
 
         UserDTO userDTO = new UserDTO(username, fullName, password, phoneNumber);
-        DatabaseAPI.createNewUserWithoutValidation(userDTO);
+        DatabaseAPI.createNewUserWithoutDataValidation(userSession, userDTO);
 
         _closeCurrentStageAndShowUserTable(createEditUserStage);
     }
@@ -729,7 +749,7 @@ public class Application extends javafx.application.Application {
 
         // no update needed if the user did not change
         if (! newUserDTO.equals(oldUserDTO)) {
-            DatabaseAPI.updateUserAllFieldsWithoutValidation(newUserDTO, oldUserDTO);
+            DatabaseAPI.updateUserAllFieldsWithoutDataValidation(userSession, newUserDTO, oldUserDTO);
         }
 
         _closeCurrentStageAndShowUserTable(createEditUserStage);
@@ -739,7 +759,9 @@ public class Application extends javafx.application.Application {
      * On clicking the login button, authenticate the user and display success/error info text.
      */
     private void _onLoginButtonClick(String username, String password, Text loginInfoText) {
-        if (!AuthenticationService.authenticate(username, password)) {
+        userSession = AuthenticationService.authenticate(username, password);
+
+        if (username == null) {
             loginInfoText.getStyleClass().add(ERROR_TEXT_CLASS);
             loginInfoText.setText("Login failed.");
             return;
@@ -798,7 +820,7 @@ public class Application extends javafx.application.Application {
      * in the database.
      */
     private void _onDeleteUserConfirmButtonClick(UserDTO userDTO, Stage confirmStage) {
-        DatabaseAPI.markUserAsDeleted(userDTO.getUsername());
+        DatabaseAPI.markUserAsDeleted(userSession, userDTO.getUsername());
         _closeCurrentStageAndShowUserTable(confirmStage);
     }
 
