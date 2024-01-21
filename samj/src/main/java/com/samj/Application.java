@@ -239,7 +239,7 @@ public class Application extends javafx.application.Application {
         BorderPane headerPane = _createHeaderPane();
         headerPane.setLeft(menuButton);
 
-        //Create settings icon
+        // Settings button only for admins
         if (userSession.isAdmin()) {
             Button settingsButtonMain = createSettingsButton(mainStage);
 
@@ -284,16 +284,17 @@ public class Application extends javafx.application.Application {
         goBackButton.setDefaultButton(false);
         goBackButton.setOnAction(event -> _onBackButtonClickFromUserTable()); // Action to go back
 
-        HBox buttonBox = null;
+        HBox buttonBox = new HBox(10);
+        buttonBox.getChildren().addAll(goBackButton);
+
+        Button createUserButton = null;
         if (userSession.isAdmin()) {
-            Button createUserButton = new Button("Create New UserSession");
+            createUserButton = new Button("Create New UserSession");
             createUserButton.setDefaultButton(false);
             createUserButton.getStyleClass().add(BUTTON_CLASS);
             createUserButton.setOnAction(event -> _openCreateUserForm());
 
-            // HBox to hold both buttons
-            buttonBox = new HBox(10); // Spacing of 10 between buttons
-            buttonBox.getChildren().addAll(goBackButton, createUserButton);
+            buttonBox.getChildren().addAll(createUserButton);
         }
 
         BorderPane headerPane = _createHeaderPane();
