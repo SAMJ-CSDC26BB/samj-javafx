@@ -134,45 +134,14 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
      * Helper method to update the filter predicate based on search fields.
      */
     protected void updatePredicate(FilteredList<CallForwardingDTO> filteredData) {
-        DateTimeFormatter fullFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        DateTimeFormatter shortFormatter = DateTimeFormatter.ofPattern("d.M.yy HH:mm");
-        DateTimeFormatter shortFormatterWithAmPm = DateTimeFormatter.ofPattern("dd.MM.yy h:mm a", Locale.ENGLISH);
-        DateTimeFormatter customFormatter = DateTimeFormatter.ofPattern("d.M.yy H:mm", Locale.ENGLISH);
-        // Function to normalize date input (e.g., "1.1.21" -> "01.01.2021")
-        // Function to normalize date and time input
-        Function<String, String> normalizeDateInput = input -> {
-            try {
-                if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2}\\s\\d{1,2}:\\d{2}(\\s*[AaPp][Mm])?")) {
-                    // Normalize "d.m.yy H:mm" or "d.m.yy h:mm a" format to "dd.MM.yyyy HH:mm"
-                    LocalDateTime dateTime;
-                    if (input.toLowerCase().contains("am") || input.toLowerCase().contains("pm")) {
-                        dateTime = LocalDateTime.parse(input, shortFormatterWithAmPm);
-                    } else {
-                        dateTime = LocalDateTime.parse(input, shortFormatter);
-                    }
-                    return dateTime.format(fullFormatter);
-                } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2}\\s\\d{1,2}:\\d{2}")) {
-                    LocalDateTime dateTime = LocalDateTime.parse(input, customFormatter);
-                    return dateTime.format(fullFormatter); // Convert to "dd.MM.yyyy HH:mm" format
-                } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}")) {
-                    // Normalize "d.m.yy" or "d.m.yyyy" format to "dd.MM.yyyy"
-                    LocalDate date = LocalDate.parse(input, DateTimeFormatter.ofPattern("d.M.yy[yy]"));
-                    return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-                } else if (input.matches("\\d{1,2}\\.\\d{1,2}\\.")) {
-                    // Normalize "d.m." format to "dd.MM."
-                    String[] parts = input.split("\\.");
-                    return String.format("%02d.%02d.", Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
-                } else if (input.matches("\\d{1,2}")) {
-                    // Normalize day only (e.g., "1" -> "01.")
-                    return String.format("%02d.", Integer.parseInt(input));
-                }
-            } catch (DateTimeParseException ignored) {
-            }
-            return input; // Return original input if no match
-        };
+
         filteredData.setPredicate(callForwardingDTO -> {
             BiFunction<String, String, Boolean> match = (input, term) -> {
-                input = normalizeDateInput.apply(input); // Normalize the input
+                DateTimeFormatter fullFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+                DateTimeFormatter shortFormatter = DateTimeFormatter.ofPattern("d.M.yy HH:mm");
+                DateTimeFormatter shortFormatterWithAmPm = DateTimeFormatter.ofPattern("dd.MM.yy h:mm a", Locale.ENGLISH);
+                DateTimeFormatter customFormatter = DateTimeFormatter.ofPattern("d.M.yy H:mm", Locale.ENGLISH);
+                input = normalizeDateInput(input); // Normalize the input
                 if (input.startsWith("\"") && input.endsWith("\"")) {
                     // Full match search (removing quotes)
                     return term.equalsIgnoreCase(input.substring(1, input.length() - 1).trim());
@@ -242,20 +211,45 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
         });
     }
 
-    /* Refactor predicate method
     // Normalize date input
-private String normalizeDateInput(String input) {
-    try {
-        // Your existing normalization logic
-        // ... (Include all the if-else conditions for date normalization)
-
-        // Return the normalized date string
-        return input;
-    } catch (DateTimeParseException e) {
-        e.printStackTrace(); // Log the exception for debugging
-        return input; // In case of an error, return the original input
+    protected String normalizeDateInput(String dateInput) {
+        DateTimeFormatter fullFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        DateTimeFormatter shortFormatter = DateTimeFormatter.ofPattern("d.M.yy HH:mm");
+        DateTimeFormatter shortFormatterWithAmPm = DateTimeFormatter.ofPattern("dd.MM.yy h:mm a", Locale.ENGLISH);
+        DateTimeFormatter customFormatter = DateTimeFormatter.ofPattern("d.M.yy H:mm", Locale.ENGLISH);
+        // Function to normalize date input (e.g., "1.1.21" -> "01.01.2021")
+        // Function to normalize date and time input
+        try {
+            if (dateInput.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2}\\s\\d{1,2}:\\d{2}(\\s*[AaPp][Mm])?")) {
+                // Normalize "d.m.yy H:mm" or "d.m.yy h:mm a" format to "dd.MM.yyyy HH:mm"
+                LocalDateTime dateTime;
+                if (dateInput.toLowerCase().contains("am") || dateInput.toLowerCase().contains("pm")) {
+                    dateTime = LocalDateTime.parse(dateInput, shortFormatterWithAmPm);
+                } else {
+                    dateTime = LocalDateTime.parse(dateInput, shortFormatter);
+                }
+                return dateTime.format(fullFormatter);
+            } else if (dateInput.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2}\\s\\d{1,2}:\\d{2}")) {
+                LocalDateTime dateTime = LocalDateTime.parse(dateInput, customFormatter);
+                return dateTime.format(fullFormatter); // Convert to "dd.MM.yyyy HH:mm" format
+            } else if (dateInput.matches("\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}")) {
+                // Normalize "d.m.yy" or "d.m.yyyy" format to "dd.MM.yyyy"
+                LocalDate date = LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("d.M.yy[yy]"));
+                return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            } else if (dateInput.matches("\\d{1,2}\\.\\d{1,2}\\.")) {
+                // Normalize "d.m." format to "dd.MM."
+                String[] parts = dateInput.split("\\.");
+                return String.format("%02d.%02d.", Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+            } else if (dateInput.matches("\\d{1,2}")) {
+                // Normalize day only (e.g., "1" -> "01.")
+                return String.format("%02d.", Integer.parseInt(dateInput));
+            }
+        } catch (DateTimeParseException e) {
+            e.printStackTrace(); // Log the exception for debugging
+            return dateInput; // In case of an error, return the original input
+        }
     }
-}
+/*    // Refactor predicate method
 
 // Check if the input matches the term
 private boolean matchInput(String input, String term, DateTimeFormatter fullFormatter) {
