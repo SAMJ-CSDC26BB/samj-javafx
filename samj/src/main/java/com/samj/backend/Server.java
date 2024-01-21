@@ -35,7 +35,9 @@ public class Server {
      * @return destinationNumber or failureCode
      */
     public static String timeBasedForwarding(String args) {
+        System.out.println("args: " + args);
         String splitArgs = args.split("number=")[1];
+        System.out.println("splitArgs: " + splitArgs);
         if(checkSyntaxNumber(splitArgs))
             return timeBasedForwardingApiCall(splitArgs);
         return noEntryInTimeBasedForwardingTable;
