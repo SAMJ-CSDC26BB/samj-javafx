@@ -13,13 +13,18 @@ public class AuthenticationService {
     // encryptedUser            test
     // encryptedUserSecond      password
 
-    public static boolean authenticate(String username, String password) {
-        UserDTO user = DatabaseAPI.loadUserByUsername(username);
-        return validateUserAndPassword(user, password);
+    public static UserSession authenticate(String username, String password) {
+        UserDTO userDTO = DatabaseAPI.loadUserByUsername(username);
+
+        if (! validateUserAndPassword(userDTO, password)) {
+            return null;
+        }
+
+        return new UserSession(userDTO);
     }
 
-    private static boolean validateUserAndPassword(UserDTO user, String password) {
-        return user != null && user.isUserActive()
-                && user.getPassword() != null && BCrypt.checkpw(password, user.getPassword());
+    private static boolean validateUserAndPassword(UserDTO userDTO, String password) {
+        return userDTO != null && userDTO.isUserActive()
+                && userDTO.getPassword() != null && BCrypt.checkpw(password, userDTO.getPassword());
     }
 }
