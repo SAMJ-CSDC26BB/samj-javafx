@@ -3,19 +3,18 @@ package com.samj.shared;
 public class Utils {
 
     public static boolean validateUserName(String username) {
-        return username != null && ! username.trim().isEmpty();
+        return username != null && !username.trim().isEmpty();
     }
 
     /**
      * Password validation: at least one special character, one uppercase letter and length min 8
      */
     public static boolean validateUserPassword(String password) {
-        return password != null && password.length() >= 8 && password.matches(".*[A-Z].*") &&
-                password.matches(".*[!@#$%^&*()].*");
+        return password != null && password.length() >= 8 && password.matches(".*[A-Z].*") && password.matches(".*[!@#$%^&*()].*");
     }
 
     public static boolean validateUserFullName(String fullName) {
-        return fullName != null && ! fullName.trim().isEmpty();
+        return fullName != null && !fullName.trim().isEmpty();
     }
 
     /**
@@ -26,9 +25,7 @@ public class Utils {
     }
 
     public static boolean validateUserDTO(UserDTO userDTO) {
-        return userDTO != null && validateUserName(userDTO.getUsername()) &&
-                validateUserPassword(userDTO.getPassword()) && validateUserFullName(userDTO.getFullName()) &&
-                validateUserNumber(userDTO.getNumber());
+        return userDTO != null && validateUserName(userDTO.getUsername()) && validateUserPassword(userDTO.getPassword()) && validateUserFullName(userDTO.getFullName()) && validateUserNumber(userDTO.getNumber());
     }
 
     public static void encryptUserPassword(UserDTO userDTO) {
@@ -49,11 +46,14 @@ public class Utils {
     }
 
     public static boolean comparePassword(String plainPassword, String encryptedPassword) {
-        if (plainPassword == null || encryptedPassword == null
-                || plainPassword.isBlank() || encryptedPassword.isBlank()) {
+        if (plainPassword == null || encryptedPassword == null || plainPassword.isBlank() || encryptedPassword.isBlank()) {
             return false;
         }
 
         return BCrypt.checkpw(plainPassword, encryptedPassword);
+    }
+
+    public static boolean validateSettings(String serverURL, int port, String dbURL) {
+        return false;
     }
 }
