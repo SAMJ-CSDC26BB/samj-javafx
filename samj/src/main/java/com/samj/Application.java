@@ -359,11 +359,7 @@ public class Application extends javafx.application.Application {
                 // Check if the user is an admin or the username matches the current user's username
                 if (userSession.isAdmin() || userDTO.getUsername().equals(userSession.getUsername())) {
                     HBox container = new HBox(editBtn);
-
-                    if (userSession.isAdmin()) {
-                        container.getChildren().add(deleteBtn);
-                    }
-
+                    container.getChildren().add(deleteBtn);
                     container.setSpacing(10); // Set spacing as needed
                     setGraphic(container);
                 } else {
@@ -837,15 +833,17 @@ public class Application extends javafx.application.Application {
      * On clicking the login button, authenticate the user and display success/error info text.
      */
     private void _onLoginButtonClick(String username, String password, Text loginInfoText) {
+        String loginFailedText = "Login failed.";
+        loginInfoText.getStyleClass().add(ERROR_TEXT_CLASS);
+
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
-            loginInfoText.getStyleClass().add(ERROR_TEXT_CLASS);
-            loginInfoText.setText("Login failed.");
+            loginInfoText.setText(loginFailedText);
             return;
         }
 
         userSession = AuthenticationService.authenticate(username, password);
-
         if (userSession == null) {
+            loginInfoText.setText(loginFailedText);
             return;
         }
 
@@ -906,6 +904,11 @@ public class Application extends javafx.application.Application {
     private void _onDeleteUserConfirmButtonClick(UserDTO userDTO, Stage confirmStage) {
         DatabaseAPI.markUserAsDeleted(userSession, userDTO.getUsername());
         _closeCurrentStageAndShowUserTable(confirmStage);
+
+        // if user deleted his own account, log him out
+        if (userSession.getUsername().equals(userDTO.getUsername())) {
+            logoutCurrentUser();
+        }
     }
 
     /**
