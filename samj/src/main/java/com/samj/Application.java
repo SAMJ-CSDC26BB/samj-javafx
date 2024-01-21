@@ -46,6 +46,7 @@ public class Application extends javafx.application.Application {
     private Stage createEditUserStage;
 
     private Scene mainScene;
+    private Scene loginScene;
 
     private final String CALL_FORWARDING_SCENE_TITLE = "SAMJ - Call Forwarding Table";
 
@@ -103,9 +104,9 @@ public class Application extends javafx.application.Application {
 
         pwBox.setOnKeyPressed(event -> _onEnterKeyPressed(event, signInButton));
 
-        Scene scene = new Scene(grid, 300, 275);
-        scene.getStylesheets().add(getClass().getResource(CSS_STYLE_PATH).toExternalForm());
-        mainStage.setScene(scene);
+        loginScene = new Scene(grid, 300, 275);
+        loginScene.getStylesheets().add(getClass().getResource(CSS_STYLE_PATH).toExternalForm());
+        mainStage.setScene(loginScene);
 
         mainStage.show();
     }
@@ -233,7 +234,9 @@ public class Application extends javafx.application.Application {
 
         MenuItem showUsersItem = new MenuItem("Manage users");
         showUsersItem.setOnAction(e -> _showUserTableScene());
-        menuButton.getItems().add(showUsersItem);
+        MenuItem logoutItem = new MenuItem("Logout");
+        logoutItem.setOnAction(e -> logoutCurrentUser());
+        menuButton.getItems().addAll(showUsersItem, logoutItem);
 
         // Layout for the header with MenuButton
         BorderPane headerPane = _createHeaderPane();
@@ -261,6 +264,11 @@ public class Application extends javafx.application.Application {
         mainStage.show();
 
         callForwardingTable.getTable().requestFocus();
+    }
+
+    public void logoutCurrentUser() {
+        userSession = null;
+        mainStage.setScene(loginScene);
     }
 
     /**
