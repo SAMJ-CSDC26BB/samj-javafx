@@ -847,6 +847,9 @@ public class Application extends javafx.application.Application {
             return;
         }
 
+        // in case there was a
+        loginInfoText.setText("");
+
         // Proceed to next view or functionality
         _showCallForwardingTableScene();
     }
