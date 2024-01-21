@@ -33,7 +33,7 @@ public class DatabaseAPI {
      * create the new user without validating the data, only role validation done.
      */
     public static boolean createNewUserWithoutDataValidation(UserSession userSession, UserDTO userDTO) {
-        if (! _isUserHasEditPermission(userSession) || ! _isUserEditingHisOwnData(userSession, userDTO)) {
+        if (! _isUserHasEditPermission(userSession)) {
             return false;
         }
 
@@ -91,11 +91,11 @@ public class DatabaseAPI {
     }
 
     public static boolean updateUserPassword(UserSession userSession, String username, String password) {
-        if (_isUserHasEditPermission(userSession) || _isUserEditingHisOwnData(userSession, username)) {
-            return UserDAO.updateUserPassword(username, password);
+        if (! _isUserHasEditPermission(userSession) && ! _isUserEditingHisOwnData(userSession, username)) {
+            return false;
         }
 
-        return false;
+        return UserDAO.updateUserPassword(username, password);
     }
 
     public static boolean updateUserAllFields(UserSession userSession, UserDTO userDTO) {
@@ -116,7 +116,7 @@ public class DatabaseAPI {
                                                                    UserDTO newUserDTO,
                                                                    UserDTO oldUserDTO) {
 
-        if (! _isUserHasEditPermission(userSession) || ! _isUserEditingHisOwnData(userSession, oldUserDTO)) {
+        if (! _isUserHasEditPermission(userSession) && ! _isUserEditingHisOwnData(userSession, oldUserDTO)) {
             return false;
         }
 
@@ -129,7 +129,7 @@ public class DatabaseAPI {
     }
 
     public static boolean updateUserFullName(UserSession userSession, String username, String fullName) {
-        if (! _isUserHasEditPermission(userSession) || ! _isUserEditingHisOwnData(userSession, username)) {
+        if (! _isUserHasEditPermission(userSession) && ! _isUserEditingHisOwnData(userSession, username)) {
             return false;
         }
 
@@ -137,7 +137,7 @@ public class DatabaseAPI {
     }
 
     public static boolean updateUserNumber(UserSession userSession, String username, String number) {
-        if (! _isUserHasEditPermission(userSession) || ! _isUserEditingHisOwnData(userSession, username)) {
+        if (! _isUserHasEditPermission(userSession) && ! _isUserEditingHisOwnData(userSession, username)) {
             return false;
         }
 
