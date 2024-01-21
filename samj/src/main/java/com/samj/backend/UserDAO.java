@@ -13,9 +13,13 @@ import java.util.Set;
  * Class used for CRUD operations to manage or read the database table user.
  */
 public class UserDAO {
-    private static final String STATUS_ACTIVE_STRING = "active";
-    private static final String STATUS_INACTIVE_STRING = "inactive";
-    private static final String STATUS_DELETED_STRING = "deleted";
+    private static final String STATUS_ACTIVE = "active";
+    private static final String STATUS_INACTIVE = "inactive";
+    private static final String STATUS_DELETED = "deleted";
+    private static final String DEFAULT_ROLE = "user";
+    private static final String ADMIN_ROLE = "admin";
+    private static final Set<String> POSSIBLE_STATUS = Set.of(STATUS_ACTIVE, STATUS_INACTIVE, STATUS_DELETED);
+    private static final Set<String> POSSIBLE_ROLES = Set.of(DEFAULT_ROLE, ADMIN_ROLE);
 
     private static final String LOAD_ALL_USERS_SQL = "SELECT * FROM user WHERE status != 'deleted'";
     private static final String LOAD_USERS_BY_STATUS_SQL = "SELECT * FROM user WHERE status=?";
@@ -100,7 +104,11 @@ public class UserDAO {
             preparedStatement.setString(++index, userDTO.getFullName());
             preparedStatement.setString(++index, userDTO.getPassword());
             preparedStatement.setString(++index, userDTO.getNumber());
-            preparedStatement.setString(++index, userDTO.getStatus());
+
+            String role = _isValidRole(userDTO.getRole())
+                    ? userDTO.getRole()
+                    : DEFAULT_ROLE;
+            preparedStatement.setString(++index, role);
 
             preparedStatement.executeUpdate();
 
@@ -130,7 +138,7 @@ public class UserDAO {
     }
 
     public static boolean markUserAsDeleted(String username) {
-        return updateUserHelper(MARK_USER_AS_DELETED_SQL, username, STATUS_DELETED_STRING);
+        return updateUserHelper(MARK_USER_AS_DELETED_SQL, username, STATUS_DELETED);
     }
 
     public static boolean updateUserPassword(String username, String password) {
@@ -146,10 +154,16 @@ public class UserDAO {
     }
 
     public static boolean updateUserStatus(String username, String status) {
+        if (! _isValidStatus(status)) {
+            return false;
+        }
         return updateUserHelper(UPDATE_USER_STATUS_SQL, username, status);
     }
 
     public static boolean updateUserRole(String username, String role) {
+        if (! _isValidRole(role)) {
+            return false;
+        }
         return updateUserHelper(UPDATE_USER_ROLE_SQL, username, role);
     }
 
@@ -161,8 +175,16 @@ public class UserDAO {
             preparedStatement.setString(++index, userDTO.getFullName());
             preparedStatement.setString(++index, userDTO.getPassword());
             preparedStatement.setString(++index, userDTO.getNumber());
-            preparedStatement.setString(++index, userDTO.getStatus());
-            preparedStatement.setString(++index, userDTO.getRole());
+
+            String status = _isValidStatus(userDTO.getStatus())
+                    ? userDTO.getStatus()
+                    : STATUS_ACTIVE;
+            preparedStatement.setString(++index, status);
+
+            String role = _isValidRole(userDTO.getRole())
+                    ? userDTO.getRole()
+                    : DEFAULT_ROLE;
+            preparedStatement.setString(++index, role);
 
             preparedStatement.setString(++index, userDTO.getUsername());
             preparedStatement.executeUpdate();
@@ -204,7 +226,7 @@ public class UserDAO {
         try (Connection connection = Database.getDbConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(LOAD_USERS_BY_STATUS_SQL)) {
 
-            String status = isLoadOnlyActiveUsers ? STATUS_ACTIVE_STRING : STATUS_INACTIVE_STRING;
+            String status = isLoadOnlyActiveUsers ? STATUS_ACTIVE : STATUS_INACTIVE;
 
             preparedStatement.setString(1, status);
 
@@ -242,5 +264,13 @@ public class UserDAO {
 
             userDTOSet.add(currentUserDTO);
         }
+    }
+
+    private static boolean _isValidRole(String role) {
+        return role != null && POSSIBLE_ROLES.contains(role);
+    }
+
+    private static boolean _isValidStatus(String status) {
+        return status != null && POSSIBLE_STATUS.contains(status);
     }
 }
