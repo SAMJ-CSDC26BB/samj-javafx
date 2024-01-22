@@ -6,7 +6,6 @@ import com.samj.frontend.tables.AbstractTable;
 import com.samj.frontend.tables.CallForwardingTable;
 import com.samj.frontend.tables.UserTable;
 import com.samj.shared.*;
-import com.samj.shared.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -34,7 +33,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -167,7 +165,7 @@ public class Application extends javafx.application.Application {
     private void _onSubmitSaveSettings(String name, String server, int port, String dbURL) {
         SettingsDTO settings = new SettingsDTO(name, server, port, dbURL);
 
-        DatabaseAPI.updateSettings(settings);
+        DatabaseAPI.updateSettings(userSession, settings);
 
         // make sure the create user form is closed and new users are fetched again from DB
         createEditUserStage.close();
@@ -602,7 +600,7 @@ public class Application extends javafx.application.Application {
                 endTimeField.getText(),
                 usernamesComboBox.getValue(),
                 missingDataErrorLabel
-                ));
+        ));
 
         labelRowIndex += 2;
         grid.add(submitButton, 1, ++labelRowIndex);
@@ -635,7 +633,7 @@ public class Application extends javafx.application.Application {
     }
 
     private void _openCreateCallForwardingForm() {
-        _openCreateEditCallForwardingHelper(false,  null);
+        _openCreateEditCallForwardingHelper(false, null);
     }
 
     private void _openEditUserForm(UserDTO userDTO) {
@@ -779,7 +777,7 @@ public class Application extends javafx.application.Application {
         _createConfirmationStage(confirmMessage, 400, onConfirmEvent);
     }
 
-    private void  _openDeleteCallForwardingConfirmWindow(CallForwardingDTO callForwardingDTO) {
+    private void _openDeleteCallForwardingConfirmWindow(CallForwardingDTO callForwardingDTO) {
         if (callForwardingDTO == null) {
             return;
         }
@@ -1146,10 +1144,10 @@ public class Application extends javafx.application.Application {
                                                    String username,
                                                    Label missingDataErrorLabel) {
 
-        if (isEditAction && ! _validateDataForCallForwardingEdit(calledNumber, beginTime, endTime, username, missingDataErrorLabel)) {
+        if (isEditAction && !_validateDataForCallForwardingEdit(calledNumber, beginTime, endTime, username, missingDataErrorLabel)) {
             return;
         }
-        if (! isEditAction && ! _validateDataForCallForwardingCreate(calledNumber, beginTime, endTime, username, missingDataErrorLabel)) {
+        if (!isEditAction && !_validateDataForCallForwardingCreate(calledNumber, beginTime, endTime, username, missingDataErrorLabel)) {
             return;
         }
 

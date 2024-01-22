@@ -16,11 +16,11 @@ import java.util.Set;
 public class DatabaseAPI {
 
     public static boolean createNewUser(UserSession userSession, UserDTO userDTO) {
-        if (! _isUserHasEditPermission(userSession)) {
+        if (!_isUserHasEditPermission(userSession)) {
             return false;
         }
 
-        if (! Utils.validateUserDTO(userDTO)) {
+        if (!Utils.validateUserDTO(userDTO)) {
             return false;
         }
 
@@ -33,7 +33,7 @@ public class DatabaseAPI {
      * create the new user without validating the data, only role validation done.
      */
     public static boolean createNewUserWithoutDataValidation(UserSession userSession, UserDTO userDTO) {
-        if (! _isUserHasEditPermission(userSession)) {
+        if (!_isUserHasEditPermission(userSession)) {
             return false;
         }
 
@@ -71,7 +71,7 @@ public class DatabaseAPI {
     }
 
     public static boolean deactivateUser(UserSession userSession, String username) {
-        if (! _isUserHasEditPermission(userSession)) {
+        if (!_isUserHasEditPermission(userSession)) {
             return false;
         }
 
@@ -79,7 +79,7 @@ public class DatabaseAPI {
     }
 
     public static boolean reactivateUser(UserSession userSession, String username) {
-        if (! _isUserHasEditPermission(userSession)) {
+        if (!_isUserHasEditPermission(userSession)) {
             return false;
         }
 
@@ -87,7 +87,7 @@ public class DatabaseAPI {
     }
 
     public static boolean deleteUser(UserSession userSession, String username) {
-        if (! _isUserHasEditPermission(userSession)) {
+        if (!_isUserHasEditPermission(userSession)) {
             return false;
         }
 
@@ -95,7 +95,7 @@ public class DatabaseAPI {
     }
 
     public static boolean markUserAsDeleted(UserSession userSession, String username) {
-        if (! _isUserHasEditPermission(userSession) && ! _isUserEditingHisOwnData(userSession, username)) {
+        if (!_isUserHasEditPermission(userSession) && !_isUserEditingHisOwnData(userSession, username)) {
             return false;
         }
 
@@ -103,7 +103,7 @@ public class DatabaseAPI {
     }
 
     public static boolean updateUserPassword(UserSession userSession, String username, String password) {
-        if (! _isUserHasEditPermission(userSession) && ! _isUserEditingHisOwnData(userSession, username)) {
+        if (!_isUserHasEditPermission(userSession) && !_isUserEditingHisOwnData(userSession, username)) {
             return false;
         }
 
@@ -112,7 +112,7 @@ public class DatabaseAPI {
     }
 
     public static boolean updateUserAllFields(UserSession userSession, UserDTO userDTO) {
-        if (! _isUserHasEditPermission(userSession)) {
+        if (!_isUserHasEditPermission(userSession)) {
             return false;
         }
 
@@ -125,15 +125,13 @@ public class DatabaseAPI {
      * Additionally, if the oldUserDTO is passed, we check if the password was changed. If it was, we
      * need to make sure we encrypt it before updating it.
      */
-    public static boolean updateUserAllFieldsWithoutDataValidation(UserSession userSession,
-                                                                   UserDTO newUserDTO,
-                                                                   UserDTO oldUserDTO) {
+    public static boolean updateUserAllFieldsWithoutDataValidation(UserSession userSession, UserDTO newUserDTO, UserDTO oldUserDTO) {
 
-        if (! _isUserHasEditPermission(userSession) && ! _isUserEditingHisOwnData(userSession, oldUserDTO)) {
+        if (!_isUserHasEditPermission(userSession) && !_isUserEditingHisOwnData(userSession, oldUserDTO)) {
             return false;
         }
 
-        if (! newUserDTO.getPassword().equals(oldUserDTO.getPassword())) {
+        if (!newUserDTO.getPassword().equals(oldUserDTO.getPassword())) {
             String newPassword = Utils.encryptPassword(newUserDTO.getPassword());
             newUserDTO.setPassword(newPassword);
         }
@@ -142,7 +140,7 @@ public class DatabaseAPI {
     }
 
     public static boolean updateUserFullName(UserSession userSession, String username, String fullName) {
-        if (! _isUserHasEditPermission(userSession) && ! _isUserEditingHisOwnData(userSession, username)) {
+        if (!_isUserHasEditPermission(userSession) && !_isUserEditingHisOwnData(userSession, username)) {
             return false;
         }
 
@@ -150,7 +148,7 @@ public class DatabaseAPI {
     }
 
     public static boolean updateUserNumber(UserSession userSession, String username, String number) {
-        if (! _isUserHasEditPermission(userSession) && ! _isUserEditingHisOwnData(userSession, username)) {
+        if (!_isUserHasEditPermission(userSession) && !_isUserEditingHisOwnData(userSession, username)) {
             return false;
         }
 
@@ -190,7 +188,7 @@ public class DatabaseAPI {
     }
 
     public static boolean createNewCallForwardingRecord(UserSession userSession, CallForwardingDTO callForwardingDTO) {
-        if (! _isUserHasEditPermission(userSession) || ! Utils.validateCallForwardingDTO(callForwardingDTO)) {
+        if (!_isUserHasEditPermission(userSession) || !Utils.validateCallForwardingDTO(callForwardingDTO)) {
             return false;
         }
 
@@ -198,7 +196,7 @@ public class DatabaseAPI {
     }
 
     public static boolean updateCallForwardingDestinationUser(UserSession userSession, int id, String username) {
-        if (! _isUserHasEditPermission(userSession)) {
+        if (!_isUserHasEditPermission(userSession)) {
             return false;
         }
 
@@ -206,7 +204,7 @@ public class DatabaseAPI {
     }
 
     public static boolean updateCallForwardingAllFields(UserSession userSession, CallForwardingDTO callForwardingDTO) {
-        if (! _isUserHasEditPermission(userSession) || ! Utils.validateCallForwardingDTO(callForwardingDTO)) {
+        if (!_isUserHasEditPermission(userSession) || !Utils.validateCallForwardingDTO(callForwardingDTO)) {
             return false;
         }
 
@@ -214,7 +212,7 @@ public class DatabaseAPI {
     }
 
     public static boolean updateCallForwardingDate(UserSession userSession, CallForwardingDTO callForwardingDTO) {
-        if (! _isUserHasEditPermission(userSession) || ! Utils.validateCallForwardingDTO(callForwardingDTO)) {
+        if (!_isUserHasEditPermission(userSession) || !Utils.validateCallForwardingDTO(callForwardingDTO)) {
             return false;
         }
 
@@ -222,7 +220,7 @@ public class DatabaseAPI {
     }
 
     public static boolean deleteCallForwardingRecord(UserSession userSession, int id) {
-        if (! _isUserHasEditPermission(userSession)) {
+        if (!_isUserHasEditPermission(userSession)) {
             return false;
         }
 
@@ -234,14 +232,28 @@ public class DatabaseAPI {
         return SettingsDAO.loadAllSettings();
     }
 
-    public static boolean createSettings(SettingsDTO settings){return SettingsDAO.createSettings(settings);}
-    public static boolean deleteSettings(String name){return SettingsDAO.deleteSettings(name);}
+    public static boolean createSettings(UserSession session, SettingsDTO settings) {
+        if (!_isUserHasEditPermission(session)) {
+            return false;
+        }
+        return SettingsDAO.createSettings(settings);
+    }
+
+    public static boolean deleteSettings(UserSession session, String name) {
+        if (!_isUserHasEditPermission(session)) {
+            return false;
+        }
+        return SettingsDAO.deleteSettings(name);
+    }
 
     public static SettingsDTO loadSettingsByName(String settingsName) {
         return SettingsDAO.loadSettingsByName(settingsName);
     }
 
-    public static boolean updateSettings(SettingsDTO settingsDTO) {
+    public static boolean updateSettings(UserSession session, SettingsDTO settingsDTO) {
+        if (!_isUserHasEditPermission(session)) {
+            return false;
+        }
         return SettingsDAO.updateSettings(settingsDTO);
     }
 
