@@ -32,6 +32,9 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
     private TableColumn<CallForwardingDTO, String> endTimeColumn;
     private TableColumn<CallForwardingDTO, String> userNameColumn;
     private TableColumn<CallForwardingDTO, String> destinationNumberColumn;
+
+    private TableColumn<CallForwardingDTO, Void> actionsColumn;
+
     private TextField searchFieldUser;
     private TextField searchFieldCalledNumber;
     private TextField searchFieldBeginTime;
@@ -47,20 +50,22 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
 
     @Override
     protected void setTableColumns() {
-        userNameColumn = new TableColumn<CallForwardingDTO, String>("Username");
         calledNumberColumn = new TableColumn<>("Called Number");
         beginTimeColumn = new TableColumn<CallForwardingDTO, String>("Begin Time");
         endTimeColumn = new TableColumn<CallForwardingDTO, String>("End Time");
+        userNameColumn = new TableColumn<CallForwardingDTO, String>("Destination User");
         destinationNumberColumn = new TableColumn<>("Destination Number");
+        actionsColumn = new TableColumn<>("Actions");
     }
 
     @Override
     protected void addColumnsToTheTable() {
-        table.getColumns().add(userNameColumn);
         table.getColumns().add(calledNumberColumn);
         table.getColumns().add(beginTimeColumn);
         table.getColumns().add(endTimeColumn);
+        table.getColumns().add(userNameColumn);
         table.getColumns().add(destinationNumberColumn);
+        table.getColumns().add(actionsColumn);
     }
 
     private Comparator<String> createDateComparator(DateTimeFormatter formatter) {
@@ -354,6 +359,15 @@ protected void updatePredicate(FilteredList<CallForwardingDTO> filteredData, Dat
 
     public void setDestinationNumberColumn(TableColumn<CallForwardingDTO, String> destinationNumberColumn) {
         this.destinationNumberColumn = destinationNumberColumn;
+    }
+
+    public TableColumn<CallForwardingDTO, Void> getActionsColumn() {
+        return actionsColumn;
+    }
+
+    @Override
+    public void setActionsColumn(TableColumn<CallForwardingDTO, Void> actionsColumn) {
+        this.actionsColumn = actionsColumn;
     }
 
     public TextField getSearchFieldCalledNumber() {

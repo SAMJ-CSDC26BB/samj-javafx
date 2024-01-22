@@ -6,7 +6,13 @@ import java.net.URL;
 
 import static com.samj.backend.SettingsDAO.updateSettings;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 public class Utils {
+
+    public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm";
 
     public static boolean validateUserName(String username) {
         return username != null && !username.trim().isEmpty();
@@ -26,12 +32,25 @@ public class Utils {
     /**
      * Number validation: either a number or a number starting with +
      */
-    public static boolean validateUserNumber(String number) {
+    public static boolean validatePhoneNumber(String number) {
         return number != null && number.matches("\\+?[0-9]+");
     }
 
     public static boolean validateUserDTO(UserDTO userDTO) {
-        return userDTO != null && validateUserName(userDTO.getUsername()) && validateUserPassword(userDTO.getPassword()) && validateUserFullName(userDTO.getFullName()) && validateUserNumber(userDTO.getNumber());
+
+        return userDTO != null && validateUserName(userDTO.getUsername()) &&
+                validateUserPassword(userDTO.getPassword()) && validateUserFullName(userDTO.getFullName()) &&
+                validatePhoneNumber(userDTO.getNumber());
+    }
+
+    public static boolean validateCallForwardingDTO(CallForwardingDTO callForwardingDTO) {
+        return callForwardingDTO != null
+                && callForwardingDTO.getCalledNumber() != null
+                && ! callForwardingDTO.getCalledNumber().isBlank()
+                && callForwardingDTO.getEndTime() != null
+                && callForwardingDTO.getBeginTime() != null
+                && callForwardingDTO.getDestinationUsername() != null
+                && ! callForwardingDTO.getDestinationUsername().isBlank();
     }
 
     public static void encryptUserPassword(UserDTO userDTO) {
@@ -96,5 +115,26 @@ public class Utils {
     public static boolean saveSettings(String serverURL, int port, String dbURL) {
         SettingsDTO setting = new SettingsDTO("backend", serverURL, port, dbURL);
         return updateSettings(setting);
+    }
+}
+    public static LocalDateTime convertStringToLocalDateTime(String date) {
+        if (date == null || date.isBlank()) {
+            return null;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+
+        try {
+            return LocalDateTime.parse(date, formatter);
+        } catch (DateTimeParseException ignore) {
+
+        }
+
+        return null;
+    }
+
+    public static String convertLocalDateTimeToString(LocalDateTime localDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+        return localDateTime.format(formatter);
     }
 }
