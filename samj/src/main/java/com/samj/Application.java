@@ -31,6 +31,8 @@ import javafx.stage.Stage;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -44,6 +46,8 @@ public class Application extends javafx.application.Application {
     private Stage mainStage;
 
     private Stage createEditUserStage;
+
+    private Stage createEditCallForwardingStage;
 
     private Scene mainScene;
     private Scene loginScene;
@@ -234,9 +238,14 @@ public class Application extends javafx.application.Application {
 
         MenuItem showUsersItem = new MenuItem("Manage users");
         showUsersItem.setOnAction(e -> _showUserTableScene());
+
         MenuItem logoutItem = new MenuItem("Logout");
         logoutItem.setOnAction(e -> logoutCurrentUser());
-        menuButton.getItems().addAll(showUsersItem, logoutItem);
+
+        MenuItem createCallForwardingEntry = new MenuItem("Create Call Forwarding");
+        createCallForwardingEntry.setOnAction(e -> _openCreateCallForwardingForm());
+
+        menuButton.getItems().addAll(showUsersItem, createCallForwardingEntry, logoutItem);
 
         // Layout for the header with MenuButton
         BorderPane headerPane = _createHeaderPane();
@@ -259,6 +268,8 @@ public class Application extends javafx.application.Application {
         vbox.getStyleClass().add(MAIN_CONTAINER_CLASS);
         mainScene = new Scene(vbox);
         mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(CSS_STYLE_PATH)).toExternalForm());
+
+        _setCellValueFactoryForCallForwardingTableActionButtons(callForwardingTable);
 
         mainStage.setScene(mainScene);
         mainStage.show();
@@ -369,10 +380,161 @@ public class Application extends javafx.application.Application {
         });
     }
 
+    // TODO refactor
+    private void _setCellValueFactoryForCallForwardingTableActionButtons(CallForwardingTable callForwardingTable) {
+        TableColumn<CallForwardingDTO, Void> actionsColumn = callForwardingTable.getActionsColumn();
+        actionsColumn.setCellFactory(col -> new TableCell<CallForwardingDTO, Void>() {
+            private final Button editBtn = createIconButton("/com.samj/images/edit-icon.png", 25, 25, "icon-button");
+            private final Button deleteBtn = createIconButton("/com.samj/images/delete-icon.png", 25, 25, "icon-button");
+
+            {
+                editBtn.setOnAction(event -> {
+                    CallForwardingDTO callForwardingDTO = getTableView().getItems().get(getIndex());
+                    _openEditCallForwardingForm(callForwardingDTO);
+                });
+
+                deleteBtn.getStyleClass().add("delete-button");
+                deleteBtn.setOnAction(event -> {
+                    CallForwardingDTO callForwardingDTO = getTableView().getItems().get(getIndex());
+                    //_openDeleteCallForwardingConfirmWindow(callForwardingDTO);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                // Check if the user is an admin or the username matches the current user's username
+                if (userSession.isAdmin()) {
+                    HBox container = new HBox(editBtn);
+                    container.getChildren().add(deleteBtn);
+                    container.setSpacing(10); // Set spacing as needed
+                    setGraphic(container);
+                } else {
+                    setGraphic(null); // Don't show buttons
+                }
+            }
+        });
+    }
 
     private void _closeCurrentStageAndShowUserTable(Stage currentStage) {
         currentStage.close();
         _showUserTableScene();
+    }
+
+    private void _closeCurrentStageAndShowCallForwardingTable(Stage currentStage) {
+        currentStage.close();
+        _showCallForwardingTableScene();
+    }
+
+    private void _openCreateEditCallForwardingHelper(boolean isEditAction, CallForwardingDTO callForwardingDTO) {
+        String stageTitle = isEditAction ? "Edit Call Forwarding" : "Create Call Forwarding";
+        createEditCallForwardingStage = _createModalWindow(stageTitle, -1);
+
+        // GridPane for layout
+        GridPane grid = _createGridPane();
+
+        // Creating fields for call forwarding input
+        TextField calledNumberField = new TextField();
+        TextField beginTimeField = new TextField();
+        TextField endTimeField = new TextField();
+
+        Set<String> usernames = _getSetContainingAllUsernames();
+        ComboBox<String> usernamesComboBox = _createStringComboBox(_getSetContainingAllUsernames(),
+                usernames.stream().findFirst().orElse(null));
+
+        final Label missingDataErrorLabel = _createErrorLabel();
+
+        EventHandler<KeyEvent> enterKeyPressedHandler = event -> _onEditCreateCallForwardingFormEnterKeyPressed(
+                event,
+                callForwardingDTO,
+                isEditAction,
+                calledNumberField.getText(),
+                beginTimeField.getText(),
+                endTimeField.getText(),
+                usernamesComboBox.getValue(),
+                missingDataErrorLabel
+        );
+
+        calledNumberField.setOnKeyPressed(enterKeyPressedHandler);
+        beginTimeField.setOnKeyPressed(enterKeyPressedHandler);
+        endTimeField.setOnKeyPressed(enterKeyPressedHandler);
+
+        Label calledNumberLabel = new Label("Called number");
+        Label beginTimeLabel = new Label("Begin time");
+        Label endTimeLabel = new Label("End time");
+        Label usernameLabel = new Label("Username");
+
+        _setMinWidthOnLabels(Region.USE_PREF_SIZE, calledNumberLabel, beginTimeLabel, endTimeLabel, usernameLabel);
+        int labelRowIndex = 0;
+
+        _addLabelInputPairToGrid(grid, calledNumberLabel, calledNumberField, 0, labelRowIndex);
+        _addLabelInputPairToGrid(grid, beginTimeLabel, beginTimeField, 0, ++labelRowIndex);
+        _addLabelInputPairToGrid(grid, endTimeLabel, endTimeField, 0, ++labelRowIndex);
+        _addLabelInputPairToGrid(grid, usernameLabel, usernamesComboBox, 0, ++labelRowIndex);
+
+        // place the error text above the submit button
+        grid.add(missingDataErrorLabel, 1, ++labelRowIndex);
+
+        Button submitButton = new Button("Submit");
+        submitButton.getStyleClass().add(BUTTON_CLASS);
+
+        submitButton.setOnAction(e -> _onSubmitEditCreateCallForwarding(
+                callForwardingDTO,
+                isEditAction,
+                calledNumberField.getText(),
+                beginTimeField.getText(),
+                endTimeField.getText(),
+                usernamesComboBox.getValue(),
+                missingDataErrorLabel
+                ));
+
+        labelRowIndex += 2;
+        grid.add(submitButton, 1, ++labelRowIndex);
+        Scene scene = new Scene(grid, 500, 300);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(CSS_STYLE_PATH)).toExternalForm());
+
+        createEditCallForwardingStage.setScene(scene);
+        createEditCallForwardingStage.getIcons().add(applicationIcon);
+        createEditCallForwardingStage.show();
+    }
+
+    private Set<String> _getSetContainingAllUsernames() {
+        // maybe store the users in a global var?
+        Set<String> usernames = new HashSet<>();
+        Set<UserDTO> allUsers = DatabaseAPI.loadAllUsers();
+
+        allUsers.forEach(user -> usernames.add(user.getUsername()));
+
+        return usernames;
+    }
+
+    private Label _createErrorLabel() {
+        Label errorLabel = new Label();
+        errorLabel.getStyleClass().add(ERROR_TEXT_CLASS);
+        errorLabel.setWrapText(true);
+
+        return errorLabel;
+    }
+
+    private void _setMinWidthOnLabels(double minWidth, Label... labels) {
+        for (Label label : labels) {
+            label.setMinWidth(minWidth);
+        }
+    }
+
+    private void _openEditCallForwardingForm(CallForwardingDTO callForwardingDTO) {
+        if (callForwardingDTO != null) {
+            _openCreateEditCallForwardingHelper(true, callForwardingDTO);
+        }
+    }
+
+    private void _openCreateCallForwardingForm() {
+        _openCreateEditCallForwardingHelper(false,  null);
     }
 
     private void _openEditUserForm(UserDTO userDTO) {
@@ -392,16 +554,11 @@ public class Application extends javafx.application.Application {
      *                    in the event handlers methods for getting user's old data
      */
     private void _openCreateEditUserHelper(boolean isUserEditAction, UserDTO oldUserDTO) {
-        createEditUserStage = new Stage();
-
-        // modality will make sure, the other windows are not clickable when this one is open
-        createEditUserStage.initModality(Modality.APPLICATION_MODAL);
-
         String stageTitle = isUserEditAction && oldUserDTO != null
                 ? "SAMJ - Edit " + oldUserDTO.getUsername()
                 : "SAMJ - Create New UserSession";
 
-        createEditUserStage.setTitle(stageTitle);
+        createEditUserStage = _createModalWindow(stageTitle, -1);
 
         // GridPane for layout
         GridPane grid = _createGridPane();
@@ -440,9 +597,7 @@ public class Application extends javafx.application.Application {
             userRoleComboBox = null;
         }
 
-        final Label missingDataErrorLabel = new Label();
-        missingDataErrorLabel.getStyleClass().add(ERROR_TEXT_CLASS);
-        missingDataErrorLabel.setWrapText(true);
+        final Label missingDataErrorLabel = _createErrorLabel();
 
         EventHandler<KeyEvent> enterKeyPressedHandler;
         if (isUserEditAction) {
@@ -475,34 +630,28 @@ public class Application extends javafx.application.Application {
         passwordField.setOnKeyPressed(enterKeyPressedHandler);
         phoneNumberField.setOnKeyPressed(enterKeyPressedHandler);
 
-        // Adding labels and fields to the grid
         Label fullNameLabel = new Label("Full Name");
-        fullNameLabel.setMinWidth(Region.USE_PREF_SIZE);
+        Label usernameLabel = new Label("Username");
+        Label passwordLabel = new Label("Password");
+        Label phoneLabel = new Label("Phone Number");
+        Label statusLabel = new Label("Status");
+        Label roleLabel = new Label("Role");
+
+        _setMinWidthOnLabels(Region.USE_PREF_SIZE, fullNameLabel, usernameLabel, passwordLabel, phoneLabel, statusLabel, roleLabel);
 
         int labelRowIndex = 0; // incremented every time a new label is added to the grid
 
         _addLabelInputPairToGrid(grid, fullNameLabel, fullNameField, 0, labelRowIndex);
-
-        Label usernameLabel = new Label("Username");
-        usernameLabel.setMinWidth(Region.USE_PREF_SIZE);
         _addLabelInputPairToGrid(grid, usernameLabel, usernameField, 0, ++labelRowIndex);
-
-        Label passwordLabel = new Label("Password");
-        passwordLabel.setMinWidth(Region.USE_PREF_SIZE);
         _addLabelInputPairToGrid(grid, passwordLabel, passwordField, 0, ++labelRowIndex);
-
-        Label phoneLabel = new Label("Phone Number");
-        phoneLabel.setMinWidth(Region.USE_PREF_SIZE);
         _addLabelInputPairToGrid(grid, phoneLabel, phoneNumberField, 0, ++labelRowIndex);
 
         if (userStatusComboBox != null) {
-            Label statusLabel = new Label("Status");
             _addLabelInputPairToGrid(grid, statusLabel, userStatusComboBox, 0, ++labelRowIndex);
         }
 
         if (userRoleComboBox != null) {
-            Label statusLabel = new Label("Role");
-            _addLabelInputPairToGrid(grid, statusLabel, userRoleComboBox, 0, ++labelRowIndex);
+            _addLabelInputPairToGrid(grid, roleLabel, userRoleComboBox, 0, ++labelRowIndex);
         }
 
         // place the error text above the submit button
@@ -547,12 +696,7 @@ public class Application extends javafx.application.Application {
      * Open confirm dialog when delete user button is clicked.
      */
     private void _openDeleteUserConfirmWindow(UserDTO userDTO) {
-        Stage confirmStage = new Stage();
-        confirmStage.setWidth(350);
-
-        // modality will make sure, the other windows are not clickable when this one is open
-        confirmStage.initModality(Modality.APPLICATION_MODAL);
-        confirmStage.setTitle("SAMJ - Confirm Delete");
+        Stage confirmStage = _createModalWindow("SAMJ - Confirm Delete", 350);
 
         Label messageLabel = new Label("Are you sure you want to delete  " + userDTO.getUsername() + "?");
         messageLabel.getStylesheets().add("danger-text");
@@ -587,6 +731,19 @@ public class Application extends javafx.application.Application {
         headerPane.getStyleClass().add("header-pane");
 
         return headerPane;
+    }
+
+    private Stage _createModalWindow(String title, double width) {
+        Stage stage = new Stage();
+        // modality will make sure, the other windows are not clickable when this one is open
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle(title);
+
+        if (width > 0) {
+            stage.setWidth(width);
+        }
+
+        return stage;
     }
 
     private GridPane _createGridPane() {
@@ -689,7 +846,7 @@ public class Application extends javafx.application.Application {
         }
 
         // Number validation: either a number or a number starting with +
-        if (!Utils.validateUserNumber(number)) {
+        if (!Utils.validatePhoneNumber(number)) {
             missingDataErrorLabel.setText("Phone number must be a number or start with '+'.");
             return false;
         }
@@ -735,7 +892,7 @@ public class Application extends javafx.application.Application {
             }
         }
 
-        if (!number.isBlank() && !Utils.validateUserNumber(number)) {
+        if (!number.isBlank() && !Utils.validatePhoneNumber(number)) {
             missingDataErrorLabel.setText("Phone number must be a number or start with '+'.");
             return false;
         }
@@ -774,6 +931,30 @@ public class Application extends javafx.application.Application {
         }
 
         return new UserDTO(oldUserDTO.getUsername(), fullName, password, phoneNumber);
+    }
+
+    /**
+     * Return a new CallForwardingDTO from the values given by the user in edit form.
+     * If some fields were left blank, we use the old values.
+     */
+    private CallForwardingDTO _createCallForwardingDTOFromEditFormValues(CallForwardingDTO oldCallForwardingDTO,
+                                                                         String calledNumber,
+                                                                         LocalDateTime beginTime,
+                                                                         LocalDateTime endTime,
+                                                                         String destinationUsername) {
+
+        if (calledNumber.isBlank()) {
+            calledNumber = oldCallForwardingDTO.getCalledNumber();
+        }
+
+        LocalDateTime localDateBeginTime = beginTime == null ? oldCallForwardingDTO.getBeginTime() : beginTime;
+        LocalDateTime localDateEndTime = endTime == null ? oldCallForwardingDTO.getEndTime() : endTime;
+
+        if (destinationUsername.isBlank()) {
+            destinationUsername = oldCallForwardingDTO.getDestinationUsername();
+        }
+
+        return new CallForwardingDTO(oldCallForwardingDTO.getId(), calledNumber, localDateBeginTime, localDateEndTime, "", destinationUsername, "");
     }
 
     /**
@@ -830,6 +1011,95 @@ public class Application extends javafx.application.Application {
         }
 
         _closeCurrentStageAndShowUserTable(createEditUserStage);
+    }
+
+    private boolean _validateDataForCallForwardingCreate(String calledNumber,
+                                                         String beginTime,
+                                                         String endTime,
+                                                         String username,
+                                                         Label missingDataErrorLabel) {
+
+        if (!Utils.validatePhoneNumber(calledNumber)) {
+            missingDataErrorLabel.setText("Phone number must be a number or start with '+'.");
+            return false;
+        }
+
+        if (Utils.convertStringToLocalDateTime(beginTime) == null ||
+                Utils.convertStringToLocalDateTime(endTime) == null) {
+            missingDataErrorLabel.setText("Date has to be in format dd.MM.yyyy HH:mm");
+            return false;
+        }
+
+        if (username == null || username.isBlank() || DatabaseAPI.loadUserByUsername(username) == null) {
+            missingDataErrorLabel.setText("Selected user is not valid");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean _validateDataForCallForwardingEdit(String calledNumber,
+                                                       String beginTime,
+                                                       String endTime,
+                                                       String username,
+                                                       Label missingDataErrorLabel) {
+
+        if (!calledNumber.isEmpty() && !Utils.validatePhoneNumber(calledNumber)) {
+            missingDataErrorLabel.setText("Phone number must be a number or start with '+'.");
+            return false;
+        }
+
+        if ((!beginTime.isEmpty() && Utils.convertStringToLocalDateTime(beginTime) == null) ||
+                (!endTime.isEmpty() && Utils.convertStringToLocalDateTime(endTime) == null)) {
+
+            missingDataErrorLabel.setText("Date has to be in format dd.MM.yyyy HH:mm");
+            return false;
+        }
+
+        if (!username.isEmpty() && DatabaseAPI.loadUserByUsername(username) == null) {
+            missingDataErrorLabel.setText("Selected user is not valid");
+            return false;
+        }
+
+        // validation passed
+        return true;
+    }
+
+    private void _onSubmitEditCreateCallForwarding(CallForwardingDTO oldCallForwardingDTO,
+                                                   boolean isEditAction,
+                                                   String calledNumber,
+                                                   String beginTime,
+                                                   String endTime,
+                                                   String username,
+                                                   Label missingDataErrorLabel) {
+
+        if (isEditAction && ! _validateDataForCallForwardingEdit(calledNumber, beginTime, endTime, username, missingDataErrorLabel)) {
+            return;
+        }
+        if (! isEditAction && ! _validateDataForCallForwardingCreate(calledNumber, beginTime, endTime, username, missingDataErrorLabel)) {
+            return;
+        }
+
+        LocalDateTime localDateBeginTime = Utils.convertStringToLocalDateTime(beginTime);
+        LocalDateTime localDateEndTime = Utils.convertStringToLocalDateTime(endTime);
+
+        CallForwardingDTO newCallForwardingDTO;
+
+        if (isEditAction && oldCallForwardingDTO != null) {
+            newCallForwardingDTO = _createCallForwardingDTOFromEditFormValues(oldCallForwardingDTO, calledNumber, localDateBeginTime, localDateEndTime, username);
+        } else {
+            newCallForwardingDTO = new CallForwardingDTO(calledNumber, localDateBeginTime, localDateEndTime, "", username, "");
+        }
+
+        if (isEditAction) {
+            DatabaseAPI.updateCallForwardingAllFields(userSession, newCallForwardingDTO);
+        } else {
+            DatabaseAPI.createNewCallForwardingRecord(userSession, newCallForwardingDTO);
+        }
+
+        backend.updateTimeBasedForwardingSet();
+
+        _closeCurrentStageAndShowCallForwardingTable(createEditCallForwardingStage);
     }
 
     /**
@@ -900,6 +1170,20 @@ public class Application extends javafx.application.Application {
                                                 Label missingDataErrorLabel) {
         if (event.getCode() == KeyCode.ENTER) {
             _onSubmitEditUserForm(oldUserDTO, fullName, password, phoneNumber, status, role, missingDataErrorLabel);
+        }
+    }
+
+    private void _onEditCreateCallForwardingFormEnterKeyPressed(KeyEvent event,
+                                                                CallForwardingDTO oldCallForwardingDTO,
+                                                                boolean isEditAction,
+                                                                String calledNumber,
+                                                                String beginTime,
+                                                                String endTime,
+                                                                String username,
+                                                                Label missingDataErrorLabel) {
+
+        if (event.getCode() == KeyCode.ENTER) {
+            _onSubmitEditCreateCallForwarding(oldCallForwardingDTO, isEditAction, calledNumber, beginTime, endTime, username, missingDataErrorLabel);
         }
     }
 

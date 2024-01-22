@@ -176,23 +176,43 @@ public class DatabaseAPI {
         return CallForwardingRecordsDAO.loadRecordsByStartDate(startDate);
     }
 
-    public static boolean createNewCallForwardingRecord(CallForwardingDTO callForwardingDTO) {
+    public static boolean createNewCallForwardingRecord(UserSession userSession, CallForwardingDTO callForwardingDTO) {
+        if (! _isUserHasEditPermission(userSession) || ! Utils.validateCallForwardingDTO(callForwardingDTO)) {
+            return false;
+        }
+
         return CallForwardingRecordsDAO.addRecord(callForwardingDTO);
     }
 
-    public static boolean updateCallForwardingDestinationUser(int id, String username) {
+    public static boolean updateCallForwardingDestinationUser(UserSession userSession, int id, String username) {
+        if (! _isUserHasEditPermission(userSession)) {
+            return false;
+        }
+
         return CallForwardingRecordsDAO.updateDestinationUser(id, username);
     }
 
-    public static boolean updateCallForwardingAllFields(CallForwardingDTO callForwardingDTO) {
+    public static boolean updateCallForwardingAllFields(UserSession userSession, CallForwardingDTO callForwardingDTO) {
+        if (! _isUserHasEditPermission(userSession) || ! Utils.validateCallForwardingDTO(callForwardingDTO)) {
+            return false;
+        }
+
         return CallForwardingRecordsDAO.updateCallForwardingAllFields(callForwardingDTO);
     }
 
-    public static boolean updateCallForwardingDate(CallForwardingDTO callForwardingDTO) {
+    public static boolean updateCallForwardingDate(UserSession userSession, CallForwardingDTO callForwardingDTO) {
+        if (! _isUserHasEditPermission(userSession) || ! Utils.validateCallForwardingDTO(callForwardingDTO)) {
+            return false;
+        }
+
         return CallForwardingRecordsDAO.updateDate(callForwardingDTO);
     }
 
-    public static boolean deleteCallForwardingRecord(int id) {
+    public static boolean deleteCallForwardingRecord(UserSession userSession, int id) {
+        if (! _isUserHasEditPermission(userSession)) {
+            return false;
+        }
+
         return CallForwardingRecordsDAO.deleteRecord(id);
     }
 

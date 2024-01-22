@@ -1,5 +1,9 @@
 package com.samj.shared;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 public class Utils {
 
     public static boolean validateUserName(String username) {
@@ -21,14 +25,24 @@ public class Utils {
     /**
      * Number validation: either a number or a number starting with +
      */
-    public static boolean validateUserNumber(String number) {
+    public static boolean validatePhoneNumber(String number) {
         return number != null && number.matches("\\+?[0-9]+");
     }
 
     public static boolean validateUserDTO(UserDTO userDTO) {
         return userDTO != null && validateUserName(userDTO.getUsername()) &&
                 validateUserPassword(userDTO.getPassword()) && validateUserFullName(userDTO.getFullName()) &&
-                validateUserNumber(userDTO.getNumber());
+                validatePhoneNumber(userDTO.getNumber());
+    }
+
+    public static boolean validateCallForwardingDTO(CallForwardingDTO callForwardingDTO) {
+        return callForwardingDTO != null
+                && callForwardingDTO.getCalledNumber() != null
+                && ! callForwardingDTO.getCalledNumber().isBlank()
+                && callForwardingDTO.getEndTime() != null
+                && callForwardingDTO.getBeginTime() != null
+                && callForwardingDTO.getDestinationUsername() != null
+                && ! callForwardingDTO.getDestinationNumber().isBlank();
     }
 
     public static void encryptUserPassword(UserDTO userDTO) {
@@ -55,5 +69,22 @@ public class Utils {
         }
 
         return BCrypt.checkpw(plainPassword, encryptedPassword);
+    }
+
+    public static LocalDateTime convertStringToLocalDateTime(String date) {
+        if (date == null || date.isBlank()) {
+            return null;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
+            System.out.println("Parsed LocalDateTime: " + dateTime);
+        } catch (DateTimeParseException ignore) {
+
+        }
+
+        return null;
     }
 }
