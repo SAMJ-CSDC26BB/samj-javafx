@@ -99,23 +99,28 @@ public class UserTable extends AbstractTable<UserDTO> {
 
         filteredData.setPredicate(userDTO -> {
             // Check each search field for matching criteria
-            if (!searchFieldUserName.getText().isEmpty() && !userDTO.getUsername().toLowerCase().contains(searchFieldUserName.getText().toLowerCase())) {
+            if (!searchFieldUserName.getText().isEmpty()
+                    && !userDTO.getUsername().toLowerCase().contains(searchFieldUserName.getText().toLowerCase())) {
                 return false; // Does not match called number
             }
 
-            if (!searchFieldFullName.getText().isEmpty() && !userDTO.getFullName().toLowerCase().contains(searchFieldFullName.getText().toLowerCase())) {
+            if (!searchFieldFullName.getText().isEmpty()
+                    && !userDTO.getFullName().toLowerCase().contains(searchFieldFullName.getText().toLowerCase())) {
                 return false; // Does not match called number
             }
 
-            if (!searchFieldNumber.getText().isEmpty() && !userDTO.getNumber().toLowerCase().contains(searchFieldNumber.getText().toLowerCase())) {
+            if (!searchFieldNumber.getText().isEmpty()
+                    && !userDTO.getNumber().toLowerCase().contains(searchFieldNumber.getText().toLowerCase())) {
                 return false; // Does not match called number
             }
 
-            if (!searchFieldStatus.getText().isEmpty() && !userDTO.getStatus().toLowerCase().contains(searchFieldStatus.getText().toLowerCase())) {
+            if (!searchFieldStatus.getText().isEmpty()
+                    && !userDTO.getStatus().toLowerCase().contains(searchFieldStatus.getText().toLowerCase())) {
                 return false;
             }
 
-            if (!searchFieldRole.getText().isEmpty() && !userDTO.getRole().toLowerCase().contains(searchFieldRole.getText().toLowerCase())) {
+            if (!searchFieldRole.getText().isEmpty()
+                    && !userDTO.getRole().toLowerCase().contains(searchFieldRole.getText().toLowerCase())) {
                 return false;
             }
 

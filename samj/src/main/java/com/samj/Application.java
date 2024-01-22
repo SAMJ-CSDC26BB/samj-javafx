@@ -103,10 +103,10 @@ public class Application extends javafx.application.Application {
         signInButton.setDefaultButton(true);
         grid.add(signInButton, 1, 2);
 
-        final Text actionTarget = new Text();
-        grid.add(actionTarget, 1, 6);
+        final Text ERROR_LABEL = new Text();
+        grid.add(ERROR_LABEL, 1, 6);
 
-        signInButton.setOnAction(e -> _onLoginButtonClick(userTextField.getText(), pwBox.getText(), actionTarget));
+        signInButton.setOnAction(e -> _onLoginButtonClick(userTextField.getText(), pwBox.getText(), ERROR_LABEL));
 
         pwBox.setOnKeyReleased(event -> _onPasswordInputKeyReleased(capsLockLabel));
 
@@ -436,17 +436,17 @@ public class Application extends javafx.application.Application {
                                                               Consumer<T> onDelete,
                                                               Predicate<T> displayButtonsPredicate) {
         actionsColumn.setCellFactory(col -> new TableCell<T, Void>() {
-            private final Button editBtn = createIconButton("/com.samj/images/edit-icon.png", 25, 25, "icon-button");
-            private final Button deleteBtn = createIconButton("/com.samj/images/delete-icon.png", 25, 25, "icon-button");
+            private final Button EDIT_BTN = createIconButton("/com.samj/images/edit-icon.png", 25, 25, "icon-button");
+            private final Button DELETE_BTN = createIconButton("/com.samj/images/delete-icon.png", 25, 25, "icon-button");
 
             {
-                editBtn.setOnAction(event -> {
+                EDIT_BTN.setOnAction(event -> {
                     T item = getTableView().getItems().get(getIndex());
                     onEdit.accept(item);
                 });
 
-                deleteBtn.getStyleClass().add("delete-button");
-                deleteBtn.setOnAction(event -> {
+                DELETE_BTN.getStyleClass().add("delete-button");
+                DELETE_BTN.setOnAction(event -> {
                     T item = getTableView().getItems().get(getIndex());
                     onDelete.accept(item);
                 });
@@ -462,7 +462,7 @@ public class Application extends javafx.application.Application {
 
                 T currentItem = getTableRow().getItem();
                 if (displayButtonsPredicate.test(currentItem)) {
-                    HBox container = new HBox(editBtn, deleteBtn);
+                    HBox container = new HBox(EDIT_BTN, DELETE_BTN);
                     container.setSpacing(10); // Set spacing as needed
                     setGraphic(container);
                 } else {
@@ -684,9 +684,25 @@ public class Application extends javafx.application.Application {
 
         EventHandler<KeyEvent> enterKeyPressedHandler;
         if (isUserEditAction) {
-            enterKeyPressedHandler = event -> _onEditUserFormEnterKeyPressed(event, oldUserDTO, fullNameField.getText(), passwordField.getText(), phoneNumberField.getText(), userStatusComboBox != null ? userStatusComboBox.getValue() : "", userRoleComboBox != null ? userRoleComboBox.getValue() : "", missingDataErrorLabel);
+            enterKeyPressedHandler = event -> _onEditUserFormEnterKeyPressed(
+                    event,
+                    oldUserDTO,
+                    fullNameField.getText(),
+                    passwordField.getText(),
+                    phoneNumberField.getText(),
+                    userStatusComboBox != null ? userStatusComboBox.getValue() : "",
+                    userRoleComboBox != null ? userRoleComboBox.getValue() : "",
+                    missingDataErrorLabel
+            );
         } else {
-            enterKeyPressedHandler = event -> _onCreateUserFormEnterKeyPressed(event, fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), userRoleComboBox != null ? userRoleComboBox.getValue() : "", missingDataErrorLabel);
+            enterKeyPressedHandler = event -> _onCreateUserFormEnterKeyPressed(
+                    event, fullNameField.getText(),
+                    usernameField.getText(),
+                    passwordField.getText(),
+                    phoneNumberField.getText(),
+                    userRoleComboBox != null ? userRoleComboBox.getValue() : "",
+                    missingDataErrorLabel
+            );
         }
 
         fullNameField.setOnKeyPressed(enterKeyPressedHandler);
@@ -730,9 +746,23 @@ public class Application extends javafx.application.Application {
         submitButton.getStyleClass().add(BUTTON_CLASS);
 
         if (isUserEditAction) {
-            submitButton.setOnAction(e -> _onSubmitEditUserForm(oldUserDTO, fullNameField.getText(), passwordField.getText(), phoneNumberField.getText(), userStatusComboBox != null ? userStatusComboBox.getValue() : "", userRoleComboBox != null ? userRoleComboBox.getValue() : "", missingDataErrorLabel));
+            submitButton.setOnAction(e -> _onSubmitEditUserForm(
+                    oldUserDTO, fullNameField.getText(),
+                    passwordField.getText(),
+                    phoneNumberField.getText(),
+                    userStatusComboBox != null ? userStatusComboBox.getValue() : "",
+                    userRoleComboBox != null ? userRoleComboBox.getValue() : "",
+                    missingDataErrorLabel)
+            );
         } else {
-            submitButton.setOnAction(e -> _onSubmitCreateUserForm(fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), userRoleComboBox != null ? userRoleComboBox.getValue() : "", missingDataErrorLabel));
+            submitButton.setOnAction(e -> _onSubmitCreateUserForm(
+                    fullNameField.getText(),
+                    usernameField.getText(),
+                    passwordField.getText(),
+                    phoneNumberField.getText(),
+                    userRoleComboBox != null ? userRoleComboBox.getValue() : "",
+                    missingDataErrorLabel)
+            );
         }
 
         labelRowIndex += 2;
@@ -764,7 +794,9 @@ public class Application extends javafx.application.Application {
             return;
         }
 
-        EventHandler<ActionEvent> onConfirmEvent = e -> _onDeleteCallForwardingConfirmButtonClick(callForwardingDTO, confirmationStage);
+        EventHandler<ActionEvent> onConfirmEvent
+                = e -> _onDeleteCallForwardingConfirmButtonClick(callForwardingDTO, confirmationStage);
+
         String confirmMessage = "Are you sure you want to delete " + callForwardingDTO.getCalledNumber() + "?";
         _createConfirmationStage(confirmMessage, 400, onConfirmEvent);
     }
@@ -835,7 +867,11 @@ public class Application extends javafx.application.Application {
      * Example: if columnIndex of label = 0, then the columnIndex of input will be 1 (displayed on the same
      * line, but different columns). RowIndex is the same.
      */
-    private void _addLabelInputPairToGrid(GridPane grid, Label label, Node input, int labelColumnIndex, int labelRowIndex) {
+    private void _addLabelInputPairToGrid(GridPane grid,
+                                          Label label,
+                                          Node input,
+                                          int labelColumnIndex,
+                                          int labelRowIndex) {
 
         grid.add(label, labelColumnIndex, labelRowIndex);
         grid.add(input, ++labelColumnIndex, labelRowIndex);
@@ -897,7 +933,11 @@ public class Application extends javafx.application.Application {
         return tableData;
     }
 
-    private boolean _validateDataForUserCreation(String fullName, String username, String password, String number, Label missingDataErrorLabel) {
+    private boolean _validateDataForUserCreation(String fullName,
+                                                 String username,
+                                                 String password,
+                                                 String number,
+                                                 Label missingDataErrorLabel) {
 
         if (!Utils.validateUserFullName(fullName)) {
             missingDataErrorLabel.setText("Full name cannot be empty.");
@@ -934,7 +974,11 @@ public class Application extends javafx.application.Application {
      * For edit mode, validate the fields only if they are not blank, if blank, we will not
      * update those fields.
      */
-    private boolean _validateDataForUserEdit(String fullName, String password, String oldPassword, String number, Label missingDataErrorLabel) {
+    private boolean _validateDataForUserEdit(String fullName,
+                                             String password,
+                                             String oldPassword,
+                                             String number,
+                                             Label missingDataErrorLabel) {
 
         if (!fullName.isBlank() && !Utils.validateUserFullName(fullName)) {
             missingDataErrorLabel.setText("Full name cannot be empty.");
@@ -983,7 +1027,10 @@ public class Application extends javafx.application.Application {
      * Return a new userDTO from the values given by the user in edit form.
      * If some fields were left blank, we use the old values.
      */
-    private UserDTO _createUserDTOFromEditFormValues(UserDTO oldUserDTO, String fullName, String password, String phoneNumber) {
+    private UserDTO _createUserDTOFromEditFormValues(UserDTO oldUserDTO,
+                                                     String fullName,
+                                                     String password,
+                                                     String phoneNumber) {
         if (fullName.isBlank()) {
             fullName = oldUserDTO.getFullName();
         }
@@ -1018,7 +1065,15 @@ public class Application extends javafx.application.Application {
             destinationUsername = oldCallForwardingDTO.getDestinationUsername();
         }
 
-        return new CallForwardingDTO(oldCallForwardingDTO.getId(), calledNumber, localDateBeginTime, localDateEndTime, "", destinationUsername, "");
+        return new CallForwardingDTO(
+                oldCallForwardingDTO.getId(),
+                calledNumber,
+                localDateBeginTime,
+                localDateEndTime,
+                "",
+                destinationUsername,
+                ""
+        );
     }
 
     /**
@@ -1026,7 +1081,12 @@ public class Application extends javafx.application.Application {
      * After creating the user, show the scene containing the users table. This will
      * ensure the current window is closed and the users are fetched again from the database.
      */
-    private void _onSubmitCreateUserForm(String fullName, String username, String password, String phoneNumber, String role, Label missingDataErrorLabel) {
+    private void _onSubmitCreateUserForm(String fullName,
+                                         String username,
+                                         String password,
+                                         String phoneNumber,
+                                         String role,
+                                         Label missingDataErrorLabel) {
 
         if (!_validateDataForUserCreation(fullName, username, password, phoneNumber, missingDataErrorLabel)) {
             return;
@@ -1043,7 +1103,13 @@ public class Application extends javafx.application.Application {
      * After editing the user, show the scene containing the users table. This will
      * ensure the current window is closed and the users are fetched again from the database.
      */
-    private void _onSubmitEditUserForm(UserDTO oldUserDTO, String fullName, String password, String phoneNumber, String status, String role, Label missingDataErrorLabel) {
+    private void _onSubmitEditUserForm(UserDTO oldUserDTO,
+                                       String fullName,
+                                       String password,
+                                       String phoneNumber,
+                                       String status,
+                                       String role,
+                                       Label missingDataErrorLabel) {
 
         if (!_validateDataForUserEdit(fullName, password, oldUserDTO.getPassword(), phoneNumber, missingDataErrorLabel)) {
             return;
@@ -1197,14 +1263,28 @@ public class Application extends javafx.application.Application {
     /**
      * On enter key pressed in the create new user form, use the _onSubmitCreateUserForm method to create new user.
      */
-    private void _onCreateUserFormEnterKeyPressed(KeyEvent event, String fullName, String username, String password, String phoneNumber, String role, Label missingDataErrorLabel) {
+    private void _onCreateUserFormEnterKeyPressed(KeyEvent event,
+                                                  String fullName,
+                                                  String username,
+                                                  String password,
+                                                  String phoneNumber,
+                                                  String role,
+                                                  Label missingDataErrorLabel) {
 
         if (event.getCode() == KeyCode.ENTER) {
             _onSubmitCreateUserForm(fullName, username, password, phoneNumber, role, missingDataErrorLabel);
         }
     }
 
-    private void _onEditUserFormEnterKeyPressed(KeyEvent event, UserDTO oldUserDTO, String fullName, String password, String phoneNumber, String status, String role, Label missingDataErrorLabel) {
+    private void _onEditUserFormEnterKeyPressed(KeyEvent event,
+                                                UserDTO oldUserDTO,
+                                                String fullName,
+                                                String password,
+                                                String phoneNumber,
+                                                String status,
+                                                String role,
+                                                Label missingDataErrorLabel) {
+
         if (event.getCode() == KeyCode.ENTER) {
             _onSubmitEditUserForm(oldUserDTO, fullName, password, phoneNumber, status, role, missingDataErrorLabel);
         }

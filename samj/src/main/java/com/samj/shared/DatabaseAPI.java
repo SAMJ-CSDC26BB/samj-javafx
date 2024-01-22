@@ -125,7 +125,9 @@ public class DatabaseAPI {
      * Additionally, if the oldUserDTO is passed, we check if the password was changed. If it was, we
      * need to make sure we encrypt it before updating it.
      */
-    public static boolean updateUserAllFieldsWithoutDataValidation(UserSession userSession, UserDTO newUserDTO, UserDTO oldUserDTO) {
+    public static boolean updateUserAllFieldsWithoutDataValidation(UserSession userSession,
+                                                                   UserDTO newUserDTO,
+                                                                   UserDTO oldUserDTO) {
 
         if (!_isUserHasEditPermission(userSession) && !_isUserEditingHisOwnData(userSession, oldUserDTO)) {
             return false;
