@@ -49,6 +49,10 @@ public abstract class AbstractTable<T> {
 
     public abstract List<TableColumn<T, String>> getColumns();
 
+    public abstract TableColumn<T, Void> getActionsColumn();
+
+    public abstract void setActionsColumn(TableColumn<T, Void> actionsColumn);
+
     public TableView<T> getTable() {
         return table;
     }
