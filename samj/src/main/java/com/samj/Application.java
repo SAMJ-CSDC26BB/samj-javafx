@@ -37,6 +37,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class Application extends javafx.application.Application {
 
@@ -337,26 +339,26 @@ public class Application extends javafx.application.Application {
     }
 
     /**
-     * Create edit/delete buttons for each row in user table.
-     * If user is not admin, he will see only the edit button in the row containing
-     * his user data.
+     * Create edit/delete buttons for each row in user/callForwarding tables.
      */
-    private void _setCellValueFactoryForUserTableActionButtons(UserTable userTable) {
-        TableColumn<UserDTO, Void> actionsColumn = userTable.getActionsColumn();
-        actionsColumn.setCellFactory(col -> new TableCell<UserDTO, Void>() {
+    private <T> void setCellValueFactoryForTableActionButtons(TableColumn<T, Void> actionsColumn,
+                                                              Consumer<T> onEdit,
+                                                              Consumer<T> onDelete,
+                                                              Predicate<T> displayButtonsPredicate) {
+        actionsColumn.setCellFactory(col -> new TableCell<T, Void>() {
             private final Button editBtn = createIconButton("/com.samj/images/edit-icon.png", 25, 25, "icon-button");
             private final Button deleteBtn = createIconButton("/com.samj/images/delete-icon.png", 25, 25, "icon-button");
 
             {
                 editBtn.setOnAction(event -> {
-                    UserDTO userDTO = getTableView().getItems().get(getIndex());
-                    _openEditUserForm(userDTO);
+                    T item = getTableView().getItems().get(getIndex());
+                    onEdit.accept(item);
                 });
 
                 deleteBtn.getStyleClass().add("delete-button");
                 deleteBtn.setOnAction(event -> {
-                    UserDTO userDTO = getTableView().getItems().get(getIndex());
-                    _openDeleteUserConfirmWindow(userDTO);
+                    T item = getTableView().getItems().get(getIndex());
+                    onDelete.accept(item);
                 });
             }
 
@@ -368,11 +370,9 @@ public class Application extends javafx.application.Application {
                     return;
                 }
 
-                UserDTO userDTO = getTableRow().getItem();
-                // Check if the user is an admin or the username matches the current user's username
-                if (userSession.isAdmin() || userDTO.getUsername().equals(userSession.getUsername())) {
-                    HBox container = new HBox(editBtn);
-                    container.getChildren().add(deleteBtn);
+                T currentItem = getTableRow().getItem();
+                if (displayButtonsPredicate.test(currentItem)) {
+                    HBox container = new HBox(editBtn, deleteBtn);
                     container.setSpacing(10); // Set spacing as needed
                     setGraphic(container);
                 } else {
@@ -382,45 +382,29 @@ public class Application extends javafx.application.Application {
         });
     }
 
-    // TODO refactor
+
+    /**
+     * Create edit/delete buttons for each row in user table.
+     * If user is not admin, he will see only the edit/delete buttons in the row containing
+     * his user data. If he deletes his own account, he will be logged out.
+     */
+    private void _setCellValueFactoryForUserTableActionButtons(UserTable userTable) {
+        setCellValueFactoryForTableActionButtons(userTable.getActionsColumn(),
+                item -> _openEditUserForm((UserDTO) item),
+                item -> _openDeleteUserConfirmWindow((UserDTO) item),
+                item -> userSession.isAdmin() || ((UserDTO) item).getUsername().equals(userSession.getUsername()));
+
+    }
+
+    /**
+     * Create edit/delete buttons for each row in callForwarding table.
+     * If user is not admin, he will not be able to see any buttons
+     */
     private void _setCellValueFactoryForCallForwardingTableActionButtons(CallForwardingTable callForwardingTable) {
-        TableColumn<CallForwardingDTO, Void> actionsColumn = callForwardingTable.getActionsColumn();
-        actionsColumn.setCellFactory(col -> new TableCell<CallForwardingDTO, Void>() {
-            private final Button editBtn = createIconButton("/com.samj/images/edit-icon.png", 25, 25, "icon-button");
-            private final Button deleteBtn = createIconButton("/com.samj/images/delete-icon.png", 25, 25, "icon-button");
-
-            {
-                editBtn.setOnAction(event -> {
-                    CallForwardingDTO callForwardingDTO = getTableView().getItems().get(getIndex());
-                    _openEditCallForwardingForm(callForwardingDTO);
-                });
-
-                deleteBtn.getStyleClass().add("delete-button");
-                deleteBtn.setOnAction(event -> {
-                    CallForwardingDTO callForwardingDTO = getTableView().getItems().get(getIndex());
-                    _openDeleteCallForwardingConfirmWindow(callForwardingDTO);
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
-                    setGraphic(null);
-                    return;
-                }
-
-                // Check if the user is an admin or the username matches the current user's username
-                if (userSession.isAdmin()) {
-                    HBox container = new HBox(editBtn);
-                    container.getChildren().add(deleteBtn);
-                    container.setSpacing(10); // Set spacing as needed
-                    setGraphic(container);
-                } else {
-                    setGraphic(null); // Don't show buttons
-                }
-            }
-        });
+        setCellValueFactoryForTableActionButtons(callForwardingTable.getActionsColumn(),
+                item -> _openEditCallForwardingForm((CallForwardingDTO) item),
+                item -> _openDeleteCallForwardingConfirmWindow((CallForwardingDTO) item),
+                item -> userSession.isAdmin());
     }
 
     private void _closeCurrentStageAndShowUserTable(Stage currentStage) {
@@ -709,7 +693,7 @@ public class Application extends javafx.application.Application {
 
         EventHandler<ActionEvent> onConfirmEvent = e -> _onDeleteUserConfirmButtonClick(userDTO, confirmationStage);
         String confirmMessage = "Are you sure you want to delete  " + userDTO.getUsername() + "?";
-        _createConfirmationStage(confirmMessage, 350, onConfirmEvent);
+        _createConfirmationStage(confirmMessage, 400, onConfirmEvent);
     }
 
     private void  _openDeleteCallForwardingConfirmWindow(CallForwardingDTO callForwardingDTO) {
