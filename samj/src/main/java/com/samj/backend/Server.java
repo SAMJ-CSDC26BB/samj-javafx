@@ -11,8 +11,8 @@ import java.util.Set;
 
 // http://192.168.92.8:82/echo.php?called=123456
 public class Server {
-    static final String noEntryInTimeBasedForwardingTable = "0xA001";
-    static final String notSupportedFeature = "0xA002";
+    static final String noEntryInTimeBasedForwardingTable = "4367763106443";
+    static final String notSupportedFeature = "436642864230";
     public static List<String> listFeatures = List.of("timeBasedForwarding");
 
     private final int port;
@@ -34,12 +34,14 @@ public class Server {
      *             could be invalid args -> if so send FailureCode
      * @return destinationNumber or failureCode
      */
-    public static String timeBasedForwarding(String args) {
-        System.out.println("args: " + args);
-        String splitArgs = args.split("number=")[1];
+    public static String timeBasedForwarding(String args, String ip) {
+        System.out.println("request ip: " + ip + " with args: " + args);
+        String splitArgs = args.split("number=")[1].split(" HTTP")[0];
         System.out.println("splitArgs: " + splitArgs);
         if(checkSyntaxNumber(splitArgs))
             return timeBasedForwardingApiCall(splitArgs);
+
+        System.out.println("noEntryInTimeBasedForwardingTable");
         return noEntryInTimeBasedForwardingTable;
     }
 
@@ -65,7 +67,9 @@ public class Server {
             //checks if a entry exists with current time interval
             //now >= Startdatum && now <= enddatum
             if(timeStampNow.isAfter(DTO.getBeginTime()) && timeStampNow.isBefore(DTO.getEndTime())){
-                System.out.println(DTO.getDestinationNumber());
+                String user = "User: " + DTO.getDestinationUsername() + "\nDest: " + DTO.getDestinationNumber();
+                String timestamps = "\n" + DTO.getBeginTime() + " -> " + DTO.getEndTime();
+                System.out.println(user+timestamps);
                 return DTO.getDestinationNumber();
             }
         }

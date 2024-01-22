@@ -93,25 +93,27 @@ public class HTTPServer {
         //GET /forwardcheck/?number=0123456789 HTTP/1.1
         String withoutPrefix;
         String feature;
+        String ip = clientSocket.getInetAddress().getHostAddress();
         if (request.startsWith("GET")) {
             //logik muss hier noch verbessert werden, leicht zu exploiden!
             //inkludiere check für "/" am ende!!!!
             //curl http://localhost:8000/forwardcheck/\{number\=0123456789\;timestamp\=2023\}/
             //curl http://localhost:8000/forwardcheck/number\=0123456789/
-
             withoutPrefix = request.split("GET /")[1];
             feature = withoutPrefix.split("/")[0];
             if (Server.listFeatures.contains(feature)) {
                 Class<?> c_server = Class.forName("com.samj.backend.Server"); //hohlt sich die Klasse in eine Variable
-                Method method = c_server.getMethod(feature, String.class); //hohlt sich die funktion aus der Klasse in eine Variable
-                Object returnValue = method.invoke(null, withoutPrefix.split("/")[1].split("/")[0]); //führt funktion die wir gespeichert haben aus
+                Method method = c_server.getMethod(feature, String.class, String.class); //hohlt sich die funktion aus der Klasse in eine Variable
+                Object returnValue = method.invoke(null, withoutPrefix.split("/")[1].split("/")[0], ip); //führt funktion die wir gespeichert haben aus
                 sendResponse(clientSocket, (String) returnValue);
             } else {
+                System.out.println("notSupportedFeature");
                 sendResponse(clientSocket, Server.notSupportedFeature);
             }
 
 
         } else {
+            System.out.println("notSupportedFeature");
             sendResponse(clientSocket, Server.notSupportedFeature);
         }
 
