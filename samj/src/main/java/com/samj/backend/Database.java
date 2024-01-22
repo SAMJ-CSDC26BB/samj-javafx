@@ -25,16 +25,4 @@ public class Database {
 
         return DriverManager.getConnection(databaseUrl);
     }
-
-    public static void closeResultSet(ResultSet resultSet) {
-        if (resultSet == null) {
-            return;
-        }
-
-        try {
-            resultSet.close();
-        } catch (SQLException e) {
-            // log some error message
-        }
-    }
 }

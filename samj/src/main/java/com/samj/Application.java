@@ -420,7 +420,7 @@ public class Application extends javafx.application.Application {
 
         Button createUserButton = null;
         if (userSession.isAdmin()) {
-            createUserButton = new Button("Create New UserSession");
+            createUserButton = new Button("Create New User");
             createUserButton.setDefaultButton(false);
             createUserButton.getStyleClass().add(BUTTON_CLASS);
             createUserButton.setOnAction(event -> _openCreateUserForm());
@@ -773,7 +773,7 @@ public class Application extends javafx.application.Application {
         }
 
         EventHandler<ActionEvent> onConfirmEvent = e -> _onDeleteUserConfirmButtonClick(userDTO, confirmationStage);
-        String confirmMessage = "Are you sure you want to delete  " + userDTO.getUsername() + "?";
+        String confirmMessage = "Are you sure you want to delete " + userDTO.getUsername() + "?";
         _createConfirmationStage(confirmMessage, 400, onConfirmEvent);
     }
 
@@ -783,7 +783,7 @@ public class Application extends javafx.application.Application {
         }
 
         EventHandler<ActionEvent> onConfirmEvent = e -> _onDeleteCallForwardingConfirmButtonClick(callForwardingDTO, confirmationStage);
-        String confirmMessage = "Are you sure you want to delete  " + callForwardingDTO.getCalledNumber() + "?";
+        String confirmMessage = "Are you sure you want to delete " + callForwardingDTO.getCalledNumber() + "?";
         _createConfirmationStage(confirmMessage, 400, onConfirmEvent);
     }
 

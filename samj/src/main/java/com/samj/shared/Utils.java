@@ -14,18 +14,21 @@ public class Utils {
     public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm";
 
     public static boolean validateUserName(String username) {
-        return username != null && !username.trim().isEmpty();
+        return username != null && !username.isEmpty();
     }
 
     /**
      * Password validation: at least one special character, one uppercase letter and length min 8
      */
     public static boolean validateUserPassword(String password) {
-        return password != null && password.length() >= 8 && password.matches(".*[A-Z].*") && password.matches(".*[!@#$%^&*()].*");
+        return password != null
+                && password.length() >= 8
+                && password.matches(".*[A-Z].*")
+                && password.matches(".*[!@#$%^&*()].*");
     }
 
     public static boolean validateUserFullName(String fullName) {
-        return fullName != null && !fullName.trim().isEmpty();
+        return fullName != null && !fullName.isEmpty();
     }
 
     /**
@@ -36,12 +39,20 @@ public class Utils {
     }
 
     public static boolean validateUserDTO(UserDTO userDTO) {
-
-        return userDTO != null && validateUserName(userDTO.getUsername()) && validateUserPassword(userDTO.getPassword()) && validateUserFullName(userDTO.getFullName()) && validatePhoneNumber(userDTO.getNumber());
+        return userDTO != null
+                && validateUserName(userDTO.getUsername())
+                && validateUserPassword(userDTO.getPassword())
+                && validateUserFullName(userDTO.getFullName())
+                && validatePhoneNumber(userDTO.getNumber());
     }
 
     public static boolean validateCallForwardingDTO(CallForwardingDTO callForwardingDTO) {
-        return callForwardingDTO != null && callForwardingDTO.getCalledNumber() != null && !callForwardingDTO.getCalledNumber().isBlank() && callForwardingDTO.getEndTime() != null && callForwardingDTO.getBeginTime() != null && callForwardingDTO.getDestinationUsername() != null && !callForwardingDTO.getDestinationUsername().isBlank();
+        return callForwardingDTO != null
+                && callForwardingDTO.getCalledNumber() != null
+                && !callForwardingDTO.getCalledNumber().isBlank() && callForwardingDTO.getEndTime() != null
+                && callForwardingDTO.getBeginTime() != null
+                && callForwardingDTO.getDestinationUsername() != null
+                && !callForwardingDTO.getDestinationUsername().isBlank();
     }
 
     public static void encryptUserPassword(UserDTO userDTO) {
@@ -62,7 +73,9 @@ public class Utils {
     }
 
     public static boolean comparePassword(String plainPassword, String encryptedPassword) {
-        if (plainPassword == null || encryptedPassword == null || plainPassword.isBlank() || encryptedPassword.isBlank()) {
+        if (plainPassword == null || encryptedPassword == null
+                || plainPassword.isBlank() || encryptedPassword.isBlank()) {
+
             return false;
         }
 
