@@ -9,6 +9,7 @@ import com.samj.frontend.tables.UserTable;
 import com.samj.shared.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -48,6 +49,7 @@ public class Application extends javafx.application.Application {
     private Stage createEditUserStage;
 
     private Stage createEditCallForwardingStage;
+    private Stage confirmationStage;
 
     private Scene mainScene;
     private Scene loginScene;
@@ -396,7 +398,7 @@ public class Application extends javafx.application.Application {
                 deleteBtn.getStyleClass().add("delete-button");
                 deleteBtn.setOnAction(event -> {
                     CallForwardingDTO callForwardingDTO = getTableView().getItems().get(getIndex());
-                    //_openDeleteCallForwardingConfirmWindow(callForwardingDTO);
+                    _openDeleteCallForwardingConfirmWindow(callForwardingDTO);
                 });
             }
 
@@ -426,7 +428,13 @@ public class Application extends javafx.application.Application {
         _showUserTableScene();
     }
 
+    /**
+     * This method has to be used when there is an update in the call forwarding table.
+     */
     private void _closeCurrentStageAndShowCallForwardingTable(Stage currentStage) {
+        // make sure we fetch the new data
+        backend.updateTimeBasedForwardingSet();
+
         currentStage.close();
         _showCallForwardingTableScene();
     }
@@ -694,7 +702,7 @@ public class Application extends javafx.application.Application {
         grid.add(submitButton, 1, ++labelRowIndex);
 
         Scene scene = new Scene(grid, 500, 300);
-        scene.getStylesheets().add(getClass().getResource(CSS_STYLE_PATH).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(CSS_STYLE_PATH)).toExternalForm());
 
         createEditUserStage.setScene(scene);
         createEditUserStage.getIcons().add(applicationIcon);
@@ -705,17 +713,38 @@ public class Application extends javafx.application.Application {
      * Open confirm dialog when delete user button is clicked.
      */
     private void _openDeleteUserConfirmWindow(UserDTO userDTO) {
-        Stage confirmStage = _createModalWindow("SAMJ - Confirm Delete", 350);
+        if (userDTO == null) {
+            return;
+        }
 
-        Label messageLabel = new Label("Are you sure you want to delete  " + userDTO.getUsername() + "?");
+        EventHandler<ActionEvent> onConfirmEvent = e -> _onDeleteUserConfirmButtonClick(userDTO, confirmationStage);
+        String confirmMessage = "Are you sure you want to delete  " + userDTO.getUsername() + "?";
+        _createConfirmationStage(confirmMessage, 350, onConfirmEvent);
+    }
+
+    private void  _openDeleteCallForwardingConfirmWindow(CallForwardingDTO callForwardingDTO) {
+        if (callForwardingDTO == null) {
+            return;
+        }
+
+        EventHandler<ActionEvent> onConfirmEvent = e -> _onDeleteCallForwardingConfirmButtonClick(callForwardingDTO, confirmationStage);
+        String confirmMessage = "Are you sure you want to delete  " + callForwardingDTO.getCalledNumber() + "?";
+        _createConfirmationStage(confirmMessage, 400, onConfirmEvent);
+    }
+
+    private void _createConfirmationStage(String message,
+                                          double width,
+                                          EventHandler<ActionEvent> onConfirmEvent) {
+
+        confirmationStage = _createModalWindow("SAMJ - Confirm Delete", width);
+        Label messageLabel = new Label(message);
         messageLabel.getStylesheets().add("danger-text");
         messageLabel.setWrapText(true);
 
         Button confirmButton = new Button("Confirm");
-        confirmButton.setOnAction(e -> _onDeleteUserConfirmButtonClick(userDTO, confirmStage));
-
+        confirmButton.setOnAction(onConfirmEvent);
         Button cancelButton = new Button("Cancel");
-        cancelButton.setOnAction(e -> confirmStage.close());
+        cancelButton.setOnAction(e -> confirmationStage.close());
 
         HBox buttonLayout = new HBox(10, cancelButton, confirmButton);
         buttonLayout.setAlignment(Pos.CENTER);
@@ -725,12 +754,11 @@ public class Application extends javafx.application.Application {
         layout.setPadding(new Insets(20));
 
         Scene scene = new Scene(layout);
-        scene.getStylesheets().add(getClass().getResource(CSS_STYLE_PATH).toExternalForm());
-        confirmStage.setScene(scene);
-        confirmStage.getIcons().add(applicationIcon);
-        confirmStage.showAndWait();
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(CSS_STYLE_PATH)).toExternalForm());
+        confirmationStage.setScene(scene);
+        confirmationStage.getIcons().add(applicationIcon);
+        confirmationStage.showAndWait();
     }
-
 
     private BorderPane _createHeaderPane() {
         BorderPane headerPane = new BorderPane();
@@ -1106,8 +1134,6 @@ public class Application extends javafx.application.Application {
             DatabaseAPI.createNewCallForwardingRecord(userSession, newCallForwardingDTO);
         }
 
-        backend.updateTimeBasedForwardingSet();
-
         _closeCurrentStageAndShowCallForwardingTable(createEditCallForwardingStage);
     }
 
@@ -1208,6 +1234,11 @@ public class Application extends javafx.application.Application {
         if (userSession.getUsername().equals(userDTO.getUsername())) {
             logoutCurrentUser();
         }
+    }
+
+    private void _onDeleteCallForwardingConfirmButtonClick(CallForwardingDTO callForwardingDTO, Stage confirmationStage) {
+        DatabaseAPI.deleteCallForwardingRecord(userSession, callForwardingDTO.getId());
+        _closeCurrentStageAndShowCallForwardingTable(confirmationStage);
     }
 
     /**
