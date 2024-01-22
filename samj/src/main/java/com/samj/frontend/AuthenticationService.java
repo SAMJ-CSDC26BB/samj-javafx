@@ -7,12 +7,6 @@ import com.samj.shared.UserDTO;
 import com.samj.shared.UserSession;
 
 public class AuthenticationService {
-    // TODO - remove at the end
-    // Users to use for login:
-    // username                 password
-    // ---------------------------------
-    // encryptedUser            test
-    // encryptedUserSecond      password
 
     public static UserSession authenticate(String username, String password) {
         if (username == null || password == null || username.isBlank() || password.isBlank()) {
