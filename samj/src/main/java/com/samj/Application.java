@@ -2,11 +2,11 @@ package com.samj;
 
 import com.samj.backend.Server;
 import com.samj.frontend.AuthenticationService;
-import com.samj.shared.UserSession;
 import com.samj.frontend.tables.AbstractTable;
 import com.samj.frontend.tables.CallForwardingTable;
 import com.samj.frontend.tables.UserTable;
 import com.samj.shared.*;
+import com.samj.shared.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -25,6 +25,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -39,6 +40,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+
+import static com.samj.shared.Utils.saveSettings;
+import static com.samj.shared.Utils.validateServerSettings;
 
 public class Application extends javafx.application.Application {
 
@@ -146,7 +150,7 @@ public class Application extends javafx.application.Application {
         ImageView editUserIconView = createIconViewFromImageURL(url, fitWidth, fitHeight);
         button.setGraphic(editUserIconView);
 
-        if (buttonClass != null && ! buttonClass.isEmpty()) {
+        if (buttonClass != null && !buttonClass.isEmpty()) {
             button.getStyleClass().add(buttonClass);
         }
 
@@ -176,52 +180,158 @@ public class Application extends javafx.application.Application {
         settingsGrid.setAlignment(Pos.CENTER);
         settingsGrid.setVgap(10);
         settingsGrid.setHgap(10);
-        settingsGrid.setPadding(new Insets(10));
+        settingsGrid.setPadding(new Insets(25, 25, 25, 25)); // Adjust padding if needed
 
-        // Create the components
-        Label server = new Label("Server: ");
-        TextField serverField = new TextField();
-        _addLabelInputPairToGrid(settingsGrid, server, serverField, 0, 1);
-
-        Label port = new Label("Port:");
-        TextField portField = new TextField();
-        _addLabelInputPairToGrid(settingsGrid, port, portField, 0, 2);
-
-        // Go Back Button
+        // Back Button
         Button goBackButton = createGoBackButton();
-        // Add action for the settings button
         goBackButton.setOnAction(e -> _showCallForwardingTableScene());
         settingsGrid.add(goBackButton, 0, 0); // Top left corner
+
+        // Server Field
+        Label serverLabel = new Label("Server:");
+        TextField serverField = new TextField();
+        settingsGrid.add(serverLabel, 0, 1); // Just under the back button
+        settingsGrid.add(serverField, 1, 1);
+
+        // Port Field
+        Label portLabel = new Label("Port:");
+        TextField portField = new TextField();
+        settingsGrid.add(portLabel, 0, 2); // Next row
+        settingsGrid.add(portField, 1, 2);
+
+        // Database Field
+        Label dbLabel = new Label("Database:");
+        TextField dbField = new TextField();
+        settingsGrid.add(dbLabel, 0, 3); // Next row
+        settingsGrid.add(dbField, 1, 3);
+
+        // Result Label for displaying validation outcome
+        Label resultLabel = new Label();
+        settingsGrid.add(resultLabel, 1, 4); // Adjust to be in column 1, row 4
 
         // Apply and Save Buttons
         Button applyButton = new Button("Apply");
         Button saveButton = new Button("Save");
         applyButton.getStyleClass().add(BUTTON_CLASS);
         saveButton.getStyleClass().add(BUTTON_CLASS);
-
-        HBox buttonBox = new HBox(10); // Spacing between buttons
-        buttonBox.setAlignment(Pos.BOTTOM_RIGHT); // Align to bottom right
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
         buttonBox.getChildren().addAll(applyButton, saveButton);
+        settingsGrid.add(buttonBox, 1, 5, 2, 1); // Adjust row for buttonBox as needed
 
-        // Add HBox to the GridPane
-        settingsGrid.add(buttonBox, 1, 3); // Adjust row and column indices as needed
+        // Set column width and row height constraints
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setHgrow(Priority.NEVER); // Column 0 does not grow
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setHgrow(Priority.ALWAYS); // Column 1 grows
+        settingsGrid.getColumnConstraints().addAll(col1, col2);
 
-        // Expand the last row and column
-        ColumnConstraints column1 = new ColumnConstraints();
-        ColumnConstraints column2 = new ColumnConstraints();
-        column2.setHgrow(Priority.ALWAYS); // Second column grows
-        settingsGrid.getColumnConstraints().addAll(column1, column2);
+        RowConstraints rowConst = new RowConstraints();
+        rowConst.setVgrow(Priority.NEVER); // Rows do not grow
+        // Apply row constraints to each input row
+        for (int i = 0; i < 5; i++) {
+            settingsGrid.getRowConstraints().add(rowConst);
+        }
+        // Last row where the buttons are should grow
+        RowConstraints lastRowConst = new RowConstraints();
+        lastRowConst.setVgrow(Priority.ALWAYS);
+        settingsGrid.getRowConstraints().add(lastRowConst);
 
-        RowConstraints row1 = new RowConstraints();
-        RowConstraints row2 = new RowConstraints();
-        RowConstraints row3 = new RowConstraints();
-        RowConstraints row4 = new RowConstraints();
-        row4.setVgrow(Priority.ALWAYS); // Last row grows
-        settingsGrid.getRowConstraints().addAll(row1, row2, row3, row4);
+        applyButton.setOnAction(e -> applyButtonAction(resultLabel, serverField, portField, dbField));
+        saveButton.setOnAction(e -> saveButtonAction(resultLabel, serverField, portField, dbField));
 
-        Scene settingsScene = new Scene(settingsGrid, 250, 500); // Adjust size as needed
-        settingsScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com.samj/style.css")).toExternalForm());
+        Scene settingsScene = new Scene(settingsGrid);
         primaryStage.setScene(settingsScene);
+        primaryStage.show();
+    }
+
+    /**
+     * Method for the logic of the apply Button
+     *
+     * @param resultLabel
+     * @param serverField
+     * @param portField
+     * @param dbField
+     */
+    void applyButtonAction(Label resultLabel, TextField serverField, TextField portField, TextField dbField) {
+        // Clear the previous message
+        resultLabel.setText("");
+
+        String server = serverField.getText();
+        String portString = portField.getText();
+        String database = dbField.getText(); // Database can be empty
+        boolean isSettingsValid = false;
+
+        // Check if the server field is not empty
+        if (server.isEmpty()) {
+            resultLabel.setText("Server cannot be empty.");
+            resultLabel.setTextFill(javafx.scene.paint.Color.RED);
+        } else {
+            // Validate the port field to ensure it contains an integer
+            try {
+                int port = Integer.parseInt(portString);
+                // Call your validateSettings method with the parsed port number
+                // If the database field is empty, pass the default value to the method
+                String dbToValidate = database.isEmpty() ? "src/main/database/callForwardingDatabase.db" : database;
+                isSettingsValid = validateServerSettings(server, port);
+            } catch (NumberFormatException ex) {
+                resultLabel.setText("Port must be a number.");
+                resultLabel.setTextFill(javafx.scene.paint.Color.RED);
+            }
+        }
+
+        // If all validations pass
+        if (isSettingsValid) {
+            resultLabel.setText("✓ Connection worked.");
+            resultLabel.setTextFill(javafx.scene.paint.Color.GREEN);
+        } else if (!resultLabel.getText().equals("Port must be a number.") && !resultLabel.getText().equals("Server cannot be empty.")) {
+            // This else block will execute only if the port was a number but settings are still invalid
+            resultLabel.setText("X Settings are not working.");
+            resultLabel.setTextFill(Color.RED);
+        }
+    }
+
+    /**
+     * Save button logic for settings scene
+     *
+     * @param resultLabel
+     * @param serverField
+     * @param portField
+     * @param dbField
+     */
+    void saveButtonAction(Label resultLabel, TextField serverField, TextField portField, TextField dbField) {
+        // Clear the previous message
+        resultLabel.setText("");
+
+        String server = serverField.getText();
+        String portString = portField.getText();
+        String database = dbField.getText(); // Database can be empty
+        boolean isSettingsValid = false;
+
+        // Check if the server field is not empty
+        if (server.isEmpty()) {
+            resultLabel.setText("Server cannot be empty.");
+            resultLabel.setTextFill(Color.RED);
+        } else {
+            // Validate the port field to ensure it contains an integer
+            try {
+                int port = Integer.parseInt(portString);
+                // Call your validateSettings method with the parsed port number
+                // If the database field is empty, pass the default value to the method
+                String dbToValidate = database.isEmpty() ? "src/main/database/callForwardingDatabase.db" : database;
+                if (saveSettings(server, port, dbToValidate)) {
+                    resultLabel.setText("✓ Settings saved.");
+                    resultLabel.setTextFill(Color.GREEN);
+                } else {
+                    resultLabel.setText("X Settings were not saved.");
+                    resultLabel.setTextFill(Color.RED);
+                }
+            } catch (NumberFormatException ex) {
+                resultLabel.setText("Port must be a number.");
+                resultLabel.setTextFill(Color.RED);
+            }
+        }
+
     }
 
 
@@ -535,16 +645,18 @@ public class Application extends javafx.application.Application {
     }
 
     private void _openCreateUserForm() {
-        _openCreateEditUserHelper(false,  null);
+        _openCreateEditUserHelper(false, null);
     }
 
     /**
      * Helper method responsible for opening a new stage for edit/create user.
+     *
      * @param isUserEditAction if edit mode set to true
-     * @param oldUserDTO if edit mode set to the old user, will be used to get the username and
-     *                    in the event handlers methods for getting user's old data
+     * @param oldUserDTO       if edit mode set to the old user, will be used to get the username and
+     *                         in the event handlers methods for getting user's old data
      */
     private void _openCreateEditUserHelper(boolean isUserEditAction, UserDTO oldUserDTO) {
+
         String stageTitle = isUserEditAction && oldUserDTO != null
                 ? "SAMJ - Edit " + oldUserDTO.getUsername()
                 : "SAMJ - Create New UserSession";
@@ -592,29 +704,14 @@ public class Application extends javafx.application.Application {
 
         EventHandler<KeyEvent> enterKeyPressedHandler;
         if (isUserEditAction) {
-            enterKeyPressedHandler = event -> _onEditUserFormEnterKeyPressed(
-                    event,
-                    oldUserDTO,
-                    fullNameField.getText(),
-                    passwordField.getText(),
-                    phoneNumberField.getText(),
-                    userStatusComboBox != null ? userStatusComboBox.getValue() : "",
-                    userRoleComboBox != null ? userRoleComboBox.getValue() : "",
-                    missingDataErrorLabel
-            );
+            enterKeyPressedHandler = event -> _onEditUserFormEnterKeyPressed(event, oldUserDTO, fullNameField.getText(), passwordField.getText(), phoneNumberField.getText(), userStatusComboBox != null ? userStatusComboBox.getValue() : "", userRoleComboBox != null ? userRoleComboBox.getValue() : "", missingDataErrorLabel);
         } else {
-            enterKeyPressedHandler = event -> _onCreateUserFormEnterKeyPressed(
-                    event, fullNameField.getText(),
-                    usernameField.getText(),
-                    passwordField.getText(),
-                    phoneNumberField.getText(),
-                    userRoleComboBox != null ? userRoleComboBox.getValue() : "",
-                    missingDataErrorLabel);
+            enterKeyPressedHandler = event -> _onCreateUserFormEnterKeyPressed(event, fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), userRoleComboBox != null ? userRoleComboBox.getValue() : "", missingDataErrorLabel);
         }
 
         fullNameField.setOnKeyPressed(enterKeyPressedHandler);
 
-        if (! isUserEditAction) {
+        if (!isUserEditAction) {
             usernameField.setOnKeyPressed(enterKeyPressedHandler);
         }
 
@@ -653,23 +750,9 @@ public class Application extends javafx.application.Application {
         submitButton.getStyleClass().add(BUTTON_CLASS);
 
         if (isUserEditAction) {
-            submitButton.setOnAction(e -> _onSubmitEditUserForm(
-                    oldUserDTO,
-                    fullNameField.getText(),
-                    passwordField.getText(),
-                    phoneNumberField.getText(),
-                    userStatusComboBox != null ? userStatusComboBox.getValue() : "",
-                    userRoleComboBox != null ? userRoleComboBox.getValue() : "",
-                    missingDataErrorLabel)
-            );
+            submitButton.setOnAction(e -> _onSubmitEditUserForm(oldUserDTO, fullNameField.getText(), passwordField.getText(), phoneNumberField.getText(), userStatusComboBox != null ? userStatusComboBox.getValue() : "", userRoleComboBox != null ? userRoleComboBox.getValue() : "", missingDataErrorLabel));
         } else {
-            submitButton.setOnAction(e -> _onSubmitCreateUserForm(
-                    fullNameField.getText(),
-                    usernameField.getText(),
-                    passwordField.getText(),
-                    phoneNumberField.getText(),
-                    userRoleComboBox != null ? userRoleComboBox.getValue() : "",
-                    missingDataErrorLabel));
+            submitButton.setOnAction(e -> _onSubmitCreateUserForm(fullNameField.getText(), usernameField.getText(), passwordField.getText(), phoneNumberField.getText(), userRoleComboBox != null ? userRoleComboBox.getValue() : "", missingDataErrorLabel));
         }
 
         labelRowIndex += 2;
@@ -772,11 +855,7 @@ public class Application extends javafx.application.Application {
      * Example: if columnIndex of label = 0, then the columnIndex of input will be 1 (displayed on the same
      * line, but different columns). RowIndex is the same.
      */
-    private void _addLabelInputPairToGrid(GridPane grid,
-                                          Label label,
-                                          Node input,
-                                          int labelColumnIndex,
-                                          int labelRowIndex) {
+    private void _addLabelInputPairToGrid(GridPane grid, Label label, Node input, int labelColumnIndex, int labelRowIndex) {
 
         grid.add(label, labelColumnIndex, labelRowIndex);
         grid.add(input, ++labelColumnIndex, labelRowIndex);
@@ -875,11 +954,7 @@ public class Application extends javafx.application.Application {
      * For edit mode, validate the fields only if they are not blank, if blank, we will not
      * update those fields.
      */
-    private boolean _validateDataForUserEdit(String fullName,
-                                             String password,
-                                             String oldPassword,
-                                             String number,
-                                             Label missingDataErrorLabel) {
+    private boolean _validateDataForUserEdit(String fullName, String password, String oldPassword, String number, Label missingDataErrorLabel) {
 
         if (!fullName.isBlank() && !Utils.validateUserFullName(fullName)) {
             missingDataErrorLabel.setText("Full name cannot be empty.");
@@ -913,7 +988,8 @@ public class Application extends javafx.application.Application {
     }
 
     private ComboBox<String> _createStringComboBox(Set<String> values, String defaultValue) {
-        ComboBox<String> comboBox = new ComboBox<>();;
+        ComboBox<String> comboBox = new ComboBox<>();
+        ;
         comboBox.getItems().addAll(values);
 
         if (defaultValue != null) {
@@ -927,10 +1003,7 @@ public class Application extends javafx.application.Application {
      * Return a new userDTO from the values given by the user in edit form.
      * If some fields were left blank, we use the old values.
      */
-    private UserDTO _createUserDTOFromEditFormValues(UserDTO oldUserDTO,
-                                                     String fullName,
-                                                     String password,
-                                                     String phoneNumber) {
+    private UserDTO _createUserDTOFromEditFormValues(UserDTO oldUserDTO, String fullName, String password, String phoneNumber) {
         if (fullName.isBlank()) {
             fullName = oldUserDTO.getFullName();
         }
@@ -973,12 +1046,7 @@ public class Application extends javafx.application.Application {
      * After creating the user, show the scene containing the users table. This will
      * ensure the current window is closed and the users are fetched again from the database.
      */
-    private void _onSubmitCreateUserForm(String fullName,
-                                         String username,
-                                         String password,
-                                         String phoneNumber,
-                                         String role,
-                                         Label missingDataErrorLabel) {
+    private void _onSubmitCreateUserForm(String fullName, String username, String password, String phoneNumber, String role, Label missingDataErrorLabel) {
 
         if (!_validateDataForUserCreation(fullName, username, password, phoneNumber, missingDataErrorLabel)) {
             return;
@@ -995,13 +1063,7 @@ public class Application extends javafx.application.Application {
      * After editing the user, show the scene containing the users table. This will
      * ensure the current window is closed and the users are fetched again from the database.
      */
-    private void _onSubmitEditUserForm(UserDTO oldUserDTO,
-                                       String fullName,
-                                       String password,
-                                       String phoneNumber,
-                                       String status,
-                                       String role,
-                                       Label missingDataErrorLabel) {
+    private void _onSubmitEditUserForm(UserDTO oldUserDTO, String fullName, String password, String phoneNumber, String status, String role, Label missingDataErrorLabel) {
 
         if (!_validateDataForUserEdit(fullName, password, oldUserDTO.getPassword(), phoneNumber, missingDataErrorLabel)) {
             return;
@@ -1017,7 +1079,7 @@ public class Application extends javafx.application.Application {
         }
 
         // no update needed if the user did not change
-        if (! newUserDTO.equals(oldUserDTO)) {
+        if (!newUserDTO.equals(oldUserDTO)) {
             DatabaseAPI.updateUserAllFieldsWithoutDataValidation(userSession, newUserDTO, oldUserDTO);
         }
 
@@ -1155,27 +1217,14 @@ public class Application extends javafx.application.Application {
     /**
      * On enter key pressed in the create new user form, use the _onSubmitCreateUserForm method to create new user.
      */
-    private void _onCreateUserFormEnterKeyPressed(KeyEvent event,
-                                                  String fullName,
-                                                  String username,
-                                                  String password,
-                                                  String phoneNumber,
-                                                  String role,
-                                                  Label missingDataErrorLabel) {
+    private void _onCreateUserFormEnterKeyPressed(KeyEvent event, String fullName, String username, String password, String phoneNumber, String role, Label missingDataErrorLabel) {
 
         if (event.getCode() == KeyCode.ENTER) {
             _onSubmitCreateUserForm(fullName, username, password, phoneNumber, role, missingDataErrorLabel);
         }
     }
 
-    private void _onEditUserFormEnterKeyPressed(KeyEvent event,
-                                                UserDTO oldUserDTO,
-                                                String fullName,
-                                                String password,
-                                                String phoneNumber,
-                                                String status,
-                                                String role,
-                                                Label missingDataErrorLabel) {
+    private void _onEditUserFormEnterKeyPressed(KeyEvent event, UserDTO oldUserDTO, String fullName, String password, String phoneNumber, String status, String role, Label missingDataErrorLabel) {
         if (event.getCode() == KeyCode.ENTER) {
             _onSubmitEditUserForm(oldUserDTO, fullName, password, phoneNumber, status, role, missingDataErrorLabel);
         }

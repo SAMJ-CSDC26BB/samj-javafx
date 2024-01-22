@@ -16,7 +16,7 @@ public class Server {
     public static List<String> listFeatures = List.of("timeBasedForwarding");
 
     private final int port;
-    private HttpServer webServer;
+    private HTTPServer webServer;
 
     private Set<CallForwardingDTO> timeBasedForwardingSet;
 
@@ -26,7 +26,7 @@ public class Server {
     }
 
     public void start() throws IOException {
-        webServer = new HttpServer(this.port);
+        webServer = new HTTPServer(this.port);
     }
 
     /**
