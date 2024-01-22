@@ -121,10 +121,10 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
         FilteredList<CallForwardingDTO> filteredData = new FilteredList<>(tableData, p -> true);
 
         // Update predicates for each search field
-        searchFieldUser.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldCalledNumber.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldBeginTime.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldEndTime.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
+        searchFieldUser.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
         searchFieldDestinationNumber.textProperty().addListener((observable, oldValue, newValue) -> updatePredicate(filteredData));
 
         // Wrap the FilteredList in a SortedList
@@ -421,7 +421,7 @@ protected void updatePredicate(FilteredList<CallForwardingDTO> filteredData, Dat
 
     @Override
     public List<TextField> getSearchFields() {
-        return List.of(searchFieldUser, searchFieldCalledNumber, searchFieldBeginTime, searchFieldEndTime, searchFieldDestinationNumber);
+        return List.of(searchFieldCalledNumber, searchFieldBeginTime, searchFieldEndTime, searchFieldUser, searchFieldDestinationNumber);
     }
 
     @Override

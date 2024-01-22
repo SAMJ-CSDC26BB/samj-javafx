@@ -155,23 +155,6 @@ public class Application extends javafx.application.Application {
         return button;
     }
 
-    private void _onSubmitApplySettings(String server, int port) {
-
-        // make sure the create user form is closed and new users are fetched again from DB
-        createEditUserStage.close();
-        _showUserTableScene();
-    }
-
-    private void _onSubmitSaveSettings(String name, String server, int port, String dbURL) {
-        SettingsDTO settings = new SettingsDTO(name, server, port, dbURL);
-
-        DatabaseAPI.updateSettings(userSession, settings);
-
-        // make sure the create user form is closed and new users are fetched again from DB
-        createEditUserStage.close();
-        _showUserTableScene();
-    }
-
     private void _setSettingsScene(Stage primaryStage) {
         primaryStage.setTitle("SAMJ - Settings");
         GridPane settingsGrid = new GridPane();
@@ -410,7 +393,6 @@ public class Application extends javafx.application.Application {
 
         Button goBackButton = createGoBackButton();
         // Add action for the settings button
-        goBackButton.setOnAction(e -> _showCallForwardingTableScene());
         goBackButton.getStyleClass().add(BUTTON_CLASS);
         goBackButton.setDefaultButton(false);
         goBackButton.setOnAction(event -> _onBackButtonClickFromUserTable()); // Action to go back
