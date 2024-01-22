@@ -42,7 +42,7 @@ public class Utils {
                 && callForwardingDTO.getEndTime() != null
                 && callForwardingDTO.getBeginTime() != null
                 && callForwardingDTO.getDestinationUsername() != null
-                && ! callForwardingDTO.getDestinationNumber().isBlank();
+                && ! callForwardingDTO.getDestinationUsername().isBlank();
     }
 
     public static void encryptUserPassword(UserDTO userDTO) {
@@ -79,12 +79,16 @@ public class Utils {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
         try {
-            LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
-            System.out.println("Parsed LocalDateTime: " + dateTime);
+            return LocalDateTime.parse(date, formatter);
         } catch (DateTimeParseException ignore) {
 
         }
 
         return null;
+    }
+
+    public static String convertLocalDateTimeToString(LocalDateTime localDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        return localDateTime.format(formatter);
     }
 }

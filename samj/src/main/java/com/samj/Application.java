@@ -444,8 +444,17 @@ public class Application extends javafx.application.Application {
         TextField endTimeField = new TextField();
 
         Set<String> usernames = _getSetContainingAllUsernames();
-        ComboBox<String> usernamesComboBox = _createStringComboBox(_getSetContainingAllUsernames(),
-                usernames.stream().findFirst().orElse(null));
+        String defaultUsername = isEditAction && callForwardingDTO != null
+                ? callForwardingDTO.getDestinationUsername()
+                : usernames.stream().findFirst().orElse(null);
+
+        ComboBox<String> usernamesComboBox = _createStringComboBox(_getSetContainingAllUsernames(), defaultUsername);
+
+        if (isEditAction && callForwardingDTO != null) {
+            calledNumberField.setText(callForwardingDTO.getCalledNumber());
+            beginTimeField.setText(Utils.convertLocalDateTimeToString(callForwardingDTO.getBeginTime()));
+            endTimeField.setText(Utils.convertLocalDateTimeToString(callForwardingDTO.getEndTime()));
+        }
 
         final Label missingDataErrorLabel = _createErrorLabel();
 
