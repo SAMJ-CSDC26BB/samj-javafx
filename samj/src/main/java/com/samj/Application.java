@@ -451,12 +451,12 @@ public class Application extends javafx.application.Application {
         TextField beginTimeField = new TextField();
         TextField endTimeField = new TextField();
 
-        Set<String> usernames = _getSetContainingAllUsernames();
+        Set<String> usernames = DatabaseAPI.getSetOfUsernames();
         String defaultUsername = isEditAction && callForwardingDTO != null
                 ? callForwardingDTO.getDestinationUsername()
                 : usernames.stream().findFirst().orElse(null);
 
-        ComboBox<String> usernamesComboBox = _createStringComboBox(_getSetContainingAllUsernames(), defaultUsername);
+        ComboBox<String> usernamesComboBox = _createStringComboBox(usernames, defaultUsername);
 
         if (isEditAction && callForwardingDTO != null) {
             calledNumberField.setText(callForwardingDTO.getCalledNumber());
@@ -518,16 +518,6 @@ public class Application extends javafx.application.Application {
         createEditCallForwardingStage.setScene(scene);
         createEditCallForwardingStage.getIcons().add(applicationIcon);
         createEditCallForwardingStage.show();
-    }
-
-    private Set<String> _getSetContainingAllUsernames() {
-        // maybe store the users in a global var?
-        Set<String> usernames = new HashSet<>();
-        Set<UserDTO> allUsers = DatabaseAPI.loadAllUsers();
-
-        allUsers.forEach(user -> usernames.add(user.getUsername()));
-
-        return usernames;
     }
 
     private Label _createErrorLabel() {
@@ -1063,7 +1053,7 @@ public class Application extends javafx.application.Application {
 
         if (Utils.convertStringToLocalDateTime(beginTime) == null ||
                 Utils.convertStringToLocalDateTime(endTime) == null) {
-            missingDataErrorLabel.setText("Date has to be in format dd.MM.yyyy HH:mm");
+            missingDataErrorLabel.setText("Date has to be in format " + Utils.DATE_FORMAT);
             return false;
         }
 
@@ -1089,7 +1079,7 @@ public class Application extends javafx.application.Application {
         if ((!beginTime.isEmpty() && Utils.convertStringToLocalDateTime(beginTime) == null) ||
                 (!endTime.isEmpty() && Utils.convertStringToLocalDateTime(endTime) == null)) {
 
-            missingDataErrorLabel.setText("Date has to be in format dd.MM.yyyy HH:mm");
+            missingDataErrorLabel.setText("Date has to be in format " + Utils.DATE_FORMAT);
             return false;
         }
 
@@ -1155,7 +1145,6 @@ public class Application extends javafx.application.Application {
             return;
         }
 
-        // in case there was a
         loginInfoText.setText("");
 
         // Proceed to next view or functionality

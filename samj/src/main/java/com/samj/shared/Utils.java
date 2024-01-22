@@ -6,6 +6,8 @@ import java.time.format.DateTimeParseException;
 
 public class Utils {
 
+    public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm";
+
     public static boolean validateUserName(String username) {
         return username != null && ! username.trim().isEmpty();
     }
@@ -76,7 +78,7 @@ public class Utils {
             return null;
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
         try {
             return LocalDateTime.parse(date, formatter);
@@ -88,7 +90,7 @@ public class Utils {
     }
 
     public static String convertLocalDateTimeToString(LocalDateTime localDateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
         return localDateTime.format(formatter);
     }
 }

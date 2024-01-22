@@ -5,6 +5,7 @@ import com.samj.backend.SettingsDAO;
 import com.samj.backend.UserDAO;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -40,9 +41,21 @@ public class DatabaseAPI {
         return UserDAO.createUser(userDTO);
     }
 
-    //UserSession API
     public static Set<UserDTO> loadAllUsers() {
         return UserDAO.loadAllUsers();
+    }
+
+    public static Set<String> getSetOfUsernames() {
+        Set<String> usernames = new HashSet<>();
+        Set<UserDTO> allUsers = loadAllUsers();
+
+        if (allUsers.isEmpty()) {
+            return usernames;
+        }
+
+        allUsers.forEach(user -> usernames.add(user.getUsername()));
+
+        return usernames;
     }
 
     public static Set<UserDTO> loadAllInactiveUsers() {
