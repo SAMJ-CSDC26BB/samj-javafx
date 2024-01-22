@@ -115,7 +115,7 @@ public class UserTable extends AbstractTable<UserDTO> {
                 return false;
             }
 
-            if (!searchFieldRole.getText().isEmpty() && !userDTO.getUsername().toLowerCase().contains(searchFieldRole.getText().toLowerCase())) {
+            if (!searchFieldRole.getText().isEmpty() && !userDTO.getRole().toLowerCase().contains(searchFieldRole.getText().toLowerCase())) {
                 return false;
             }
 
