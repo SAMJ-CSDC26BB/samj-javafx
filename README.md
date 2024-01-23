@@ -80,6 +80,9 @@ See images:
 <img width="1728" alt="image" src="https://github.com/SAMJ-CSDC26BB/samj-javafx/assets/45292760/2ebb1923-1ab4-49c9-b6fa-7edf4700a696">
 
 
+## After the review
+
+We have looked trough the suggestions and fixed the issue where the search and sorting did not work as intended. 
 
 
 
