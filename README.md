@@ -82,7 +82,7 @@ See images:
 
 ## After the review
 
-We have looked trough the suggestions and fixed the issue where the search and sorting did not work as intended. 
+We have looked trough the suggestions and fixed the issue where the search and sorting did not work as intended. The width of the searchbox is now bound to the width of the column width and the whole layout is now responsive. 
 
 
 
