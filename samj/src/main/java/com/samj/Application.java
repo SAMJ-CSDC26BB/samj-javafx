@@ -271,7 +271,7 @@ public class Application extends javafx.application.Application {
      * @param serverField
      * @param portField
      */
-    void saveButtonAction(Label resultLabel, TextField serverField, TextField portField, TextField dbField) {
+    void saveButtonAction(Label resultLabel, TextField serverField, TextField portField) {
         // Clear the previous message
         resultLabel.setText("");
 
