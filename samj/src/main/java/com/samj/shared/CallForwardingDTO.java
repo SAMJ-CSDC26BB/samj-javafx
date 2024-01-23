@@ -80,10 +80,6 @@ public class CallForwardingDTO {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getDestinationUsername() {
         return destinationUsername;
     }

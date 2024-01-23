@@ -9,9 +9,10 @@ The project consists of 2 parts, frontend and backend (and a Database). Both are
 ### Frontend
 
 The frontend consists of 3 scenes:
-1. login mask
+1. login mask, to log in with your user name and password
 2. Table where we can see the entries/data from the DB
-3. Settings
+3. User view, where you can create, delete or modify users
+4. Settings, where you can set server and port 
 
 In the UI you need to log in first. After a successful login you can see the oncall duty plan with its data. Where you can create, delete entries or modify them. In the settings you can set the IP and Port of the Server. 
 
@@ -79,6 +80,9 @@ See images:
 <img width="1728" alt="image" src="https://github.com/SAMJ-CSDC26BB/samj-javafx/assets/45292760/2ebb1923-1ab4-49c9-b6fa-7edf4700a696">
 
 
+## After the review
+
+We have looked trough the suggestions and fixed the issue where the search and sorting did not work as intended. The width of the searchbox is now bound to the width of the column width and the whole layout is now responsive. 
 
 
 
