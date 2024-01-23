@@ -180,15 +180,10 @@ public class Application extends javafx.application.Application {
         settingsGrid.add(portLabel, 0, 2); // Next row
         settingsGrid.add(portField, 1, 2);
 
-        // Database Field
-        Label dbLabel = new Label("Database:");
-        TextField dbField = new TextField();
-        settingsGrid.add(dbLabel, 0, 3); // Next row
-        settingsGrid.add(dbField, 1, 3);
 
         // Result Label for displaying validation outcome
         Label resultLabel = new Label();
-        settingsGrid.add(resultLabel, 1, 4); // Adjust to be in column 1, row 4
+        settingsGrid.add(resultLabel, 1, 3); // Adjust to be in column 1, row 4
 
         // Apply and Save Buttons
         Button applyButton = new Button("Apply");
@@ -198,7 +193,7 @@ public class Application extends javafx.application.Application {
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
         buttonBox.getChildren().addAll(applyButton, saveButton);
-        settingsGrid.add(buttonBox, 1, 5, 2, 1); // Adjust row for buttonBox as needed
+        settingsGrid.add(buttonBox, 1, 4, 2, 1); // Adjust row for buttonBox as needed
 
         // Set column width and row height constraints
         ColumnConstraints col1 = new ColumnConstraints();
@@ -210,7 +205,7 @@ public class Application extends javafx.application.Application {
         RowConstraints rowConst = new RowConstraints();
         rowConst.setVgrow(Priority.NEVER); // Rows do not grow
         // Apply row constraints to each input row
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 4; i++) {
             settingsGrid.getRowConstraints().add(rowConst);
         }
         // Last row where the buttons are should grow
@@ -218,8 +213,8 @@ public class Application extends javafx.application.Application {
         lastRowConst.setVgrow(Priority.ALWAYS);
         settingsGrid.getRowConstraints().add(lastRowConst);
 
-        applyButton.setOnAction(e -> applyButtonAction(resultLabel, serverField, portField, dbField));
-        saveButton.setOnAction(e -> saveButtonAction(resultLabel, serverField, portField, dbField));
+        applyButton.setOnAction(e -> applyButtonAction(resultLabel, serverField, portField));
+        saveButton.setOnAction(e -> saveButtonAction(resultLabel, serverField, portField));
 
         Scene settingsScene = new Scene(settingsGrid);
         primaryStage.setScene(settingsScene);
@@ -232,15 +227,13 @@ public class Application extends javafx.application.Application {
      * @param resultLabel
      * @param serverField
      * @param portField
-     * @param dbField
      */
-    void applyButtonAction(Label resultLabel, TextField serverField, TextField portField, TextField dbField) {
+    void applyButtonAction(Label resultLabel, TextField serverField, TextField portField) {
         // Clear the previous message
         resultLabel.setText("");
 
         String server = serverField.getText();
         String portString = portField.getText();
-        String database = dbField.getText(); // Database can be empty
         boolean isSettingsValid = false;
 
         // Check if the server field is not empty
@@ -253,7 +246,6 @@ public class Application extends javafx.application.Application {
                 int port = Integer.parseInt(portString);
                 // Call your validateSettings method with the parsed port number
                 // If the database field is empty, pass the default value to the method
-                String dbToValidate = database.isEmpty() ? "src/main/database/callForwardingDatabase.db" : database;
                 isSettingsValid = validateServerSettings(server, port);
             } catch (NumberFormatException ex) {
                 resultLabel.setText("Port must be a number.");
@@ -278,16 +270,13 @@ public class Application extends javafx.application.Application {
      * @param resultLabel
      * @param serverField
      * @param portField
-     * @param dbField
      */
-    void saveButtonAction(Label resultLabel, TextField serverField, TextField portField, TextField dbField) {
+    void saveButtonAction(Label resultLabel, TextField serverField, TextField portField) {
         // Clear the previous message
         resultLabel.setText("");
 
         String server = serverField.getText();
         String portString = portField.getText();
-        String database = dbField.getText(); // Database can be empty
-        boolean isSettingsValid = false;
 
         // Check if the server field is not empty
         if (server.isEmpty()) {
@@ -299,8 +288,7 @@ public class Application extends javafx.application.Application {
                 int port = Integer.parseInt(portString);
                 // Call your validateSettings method with the parsed port number
                 // If the database field is empty, pass the default value to the method
-                String dbToValidate = database.isEmpty() ? "src/main/database/callForwardingDatabase.db" : database;
-                if (saveSettings(server, port, dbToValidate)) {
+                if (saveSettings(server, port)) {
                     resultLabel.setText("✓ Settings saved.");
                     resultLabel.setTextFill(Color.GREEN);
                 } else {
