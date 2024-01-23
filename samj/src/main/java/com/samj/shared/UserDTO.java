@@ -35,6 +35,9 @@ public class UserDTO {
     public UserDTO(String username, String fullName, String password, String number, String status, String role) {
         this(username, fullName, password, number, status);
         this.role = role;
+        if (status.isBlank()) {
+            this.status = ACTIVE_STATUS;
+        }
     }
 
     @Override

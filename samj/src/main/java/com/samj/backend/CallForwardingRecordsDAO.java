@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public class CallForwardingRecordsDAO {
 
-    private static final String LOAD_RECORDS_SQL = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE u.status != 'deleted'";
+    private static final String LOAD_RECORDS_SQL = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE u.status != 'deleted' AND u.status != 'inactive'";
     private static final String LOAD_RECORDS_BY_ID = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u ON u.username=c.username WHERE c.ID=?";
 
     private static final String LOAD_RECORDS_BY_CALLED_NUMBER = "SELECT c.*, u.number, u.username, u.fullname FROM call_forwarding_records as c JOIN user as u on u.username=c.username WHERE c.calledNumber=? AND u.status != 'deleted'";

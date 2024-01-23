@@ -1090,7 +1090,7 @@ public class Application extends javafx.application.Application {
             return;
         }
 
-        UserDTO userDTO = new UserDTO(username, fullName, password, phoneNumber, role);
+        UserDTO userDTO = new UserDTO(username, fullName, password, phoneNumber, "", role);
         DatabaseAPI.createNewUserWithoutDataValidation(userSession, userDTO);
 
         _closeCurrentStageAndShowUserTable(createEditUserStage);
@@ -1126,6 +1126,7 @@ public class Application extends javafx.application.Application {
         if (!newUserDTO.equals(oldUserDTO)) {
             DatabaseAPI.updateUserAllFieldsWithoutDataValidation(userSession, newUserDTO, oldUserDTO);
         }
+        backend.updateTimeBasedForwardingSet();
 
         _closeCurrentStageAndShowUserTable(createEditUserStage);
     }
@@ -1325,8 +1326,7 @@ public class Application extends javafx.application.Application {
      * On back button click from user table, return to the Call Forwarding table.
      */
     private void _onBackButtonClickFromUserTable() {
-        mainStage.setTitle(CALL_FORWARDING_SCENE_TITLE);
-        mainStage.setScene(mainScene);
+        _showCallForwardingTableScene();
     }
 
     public static void main(String[] args) {
