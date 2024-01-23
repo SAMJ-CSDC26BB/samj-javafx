@@ -14,6 +14,21 @@ public class SettingsDTO {
         this.db = db;
     }
 
+    public SettingsDTO(String name, String serverURL, int serverPort) {
+        this.name = name;
+        this.serverURL = serverURL;
+        this.serverPort = serverPort;
+        this.db = "src/main/database/callForwardingDatabase.db";
+    }
+
+    public SettingsDTO(String serverURL, int serverPort) {
+        this.name = "backend";
+        this.serverURL = serverURL;
+        this.serverPort = serverPort;
+        this.db = "src/main/database/callForwardingDatabase.db";
+    }
+
+
     public String getName() {
         return name;
     }

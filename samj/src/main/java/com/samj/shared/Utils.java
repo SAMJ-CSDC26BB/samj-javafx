@@ -117,7 +117,7 @@ public class Utils {
     }
 
     public static boolean saveSettings(String serverURL, int port, String dbURL) {
-        SettingsDTO setting = new SettingsDTO("backend", serverURL, port, dbURL);
+        SettingsDTO setting = new SettingsDTO(serverURL, port);
         return updateSettings(setting);
     }
 
