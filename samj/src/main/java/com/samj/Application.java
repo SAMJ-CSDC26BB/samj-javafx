@@ -1090,7 +1090,7 @@ public class Application extends javafx.application.Application {
             return;
         }
 
-        UserDTO userDTO = new UserDTO(username, fullName, password, phoneNumber, role);
+        UserDTO userDTO = new UserDTO(username, fullName, password, phoneNumber, "", role);
         DatabaseAPI.createNewUserWithoutDataValidation(userSession, userDTO);
 
         _closeCurrentStageAndShowUserTable(createEditUserStage);
