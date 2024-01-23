@@ -10,9 +10,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -173,29 +176,33 @@ public class CallForwardingTable extends AbstractTable<CallForwardingDTO> {
         });
     }
 
+    /**
+     * helper method to search with other date formats
+     *
+     * @param input
+     * @return
+     */
     protected String parseDateWithMultipleFormats(String input) {
-        List<String> dateFormats = Arrays.asList("dd.MM.yyyy HH:mm", // Standard format
-                "d.M.yyyy HH:mm",   // Short date with time
-                "d.M.yy HH:mm",   // Short date with time
-                "d.M.yyyy h:mm a",   // Short date with time
-                "d.M.yy h:mm a",   // Short date with time
-                "d.M.yy",         // Short date
-                "d.M.yyyy",         // Short date
-                "yyyy-MM-dd",       // Full date
-                "h:mm a",           // 12-hour time format
-                "HH:mm"             // 24-hour time format
-        );
+        List<String> dateFormats = Arrays.asList("dd.MM.yyyy HH:mm", "d.M.yyyy HH:mm", "d.M.yy HH:mm", "d.M.yyyy h:mm a", "d.M.yy h:mm a", "d.M.yy", "d.M.yyyy", "yyyy-MM-dd", "h:mm a", "HH:mm");
 
         for (String format : dateFormats) {
             try {
-                LocalDateTime date = LocalDateTime.parse(input, DateTimeFormatter.ofPattern(format));
-                return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+                TemporalAccessor parsedDate = DateTimeFormatter.ofPattern(format).parseBest(input, LocalDateTime::from, LocalDate::from, LocalTime::from);
+
+                if (parsedDate instanceof LocalDateTime) {
+                    return DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").format(parsedDate);
+                } else if (parsedDate instanceof LocalDate) {
+                    return DateTimeFormatter.ofPattern("dd.MM.yyyy").format(parsedDate);
+                } else if (parsedDate instanceof LocalTime) {
+                    // Convert to 24-hour format if needed
+                    return DateTimeFormatter.ofPattern("HH:mm").format(parsedDate);
+                }
             } catch (DateTimeParseException e) {
                 // Ignore and try the next format
             }
         }
 
-        return input; // Return the original input if no format matches
+        return input; // Return original input if no format matches
     }
 
     /**
