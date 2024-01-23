@@ -68,8 +68,7 @@ public class HTTPServer {
 
 
     private void sendResponse(Socket clientSocket, String response) {
-        try {
-            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+        try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()))) {
 
             out.write("HTTP/1.1 200 OK\r\n");
 
