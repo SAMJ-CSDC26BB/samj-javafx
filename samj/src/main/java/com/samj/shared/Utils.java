@@ -7,8 +7,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-import static com.samj.backend.SettingsDAO.updateSettings;
-
 public class Utils {
 
     public static final String DATE_FORMAT = "dd.MM.yyyy HH:mm";
@@ -114,11 +112,6 @@ public class Utils {
         // Open a connection to the server.
         connection.connect();
         return connection;
-    }
-
-    public static boolean saveSettings(String serverURL, int port) {
-        SettingsDTO setting = new SettingsDTO(serverURL, port);
-        return updateSettings(setting);
     }
 
     public static LocalDateTime convertStringToLocalDateTime(String date) {

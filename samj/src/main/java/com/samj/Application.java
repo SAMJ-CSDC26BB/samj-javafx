@@ -39,7 +39,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static com.samj.shared.Utils.saveSettings;
 import static com.samj.shared.Utils.validateServerSettings;
 
 public class Application extends javafx.application.Application {
@@ -262,6 +261,17 @@ public class Application extends javafx.application.Application {
             resultLabel.setText("X Settings are not working.");
             resultLabel.setTextFill(Color.RED);
         }
+    }
+
+    /**
+     * helper method to save settings
+     * @param serverURL
+     * @param port
+     * @return
+     */
+    public boolean saveSettings(String serverURL, int port) {
+        SettingsDTO setting = new SettingsDTO(serverURL, port);
+        return DatabaseAPI.updateSettings(userSession, setting);
     }
 
     /**
